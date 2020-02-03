@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "guestregistration-4140a"
+  },
+  "targets": {
+    "guestregistration-4140a": {
+      "hosting": {
+        "web": [
+          "guestregistrationweb"
+        ]
+      }
+    }
+  }
+}
