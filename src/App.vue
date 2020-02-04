@@ -1,60 +1,72 @@
 <template>
+  <!-- App.vue -->
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
+    <v-navigation-drawer 
+    app 
+    v-model="drawer"
+    > 
+        <template v-slot:append>
+        <div class="pa-2">
+            <a :href="site">
+                <v-btn block dark class="primary my-5" text>Go to site</v-btn>
+            </a>
+            
+        </div>
+      </template>
+    </v-navigation-drawer>
+
+    <v-app-bar 
+    app
+    color="primary"
+    dark
+
     >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
+      <v-toolbar-title>Guest Registration</v-toolbar-title>
       <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
     </v-app-bar>
-
+    
+    <!-- Sizes your content based upon application components -->
     <v-content>
-      <HelloWorld/>
+     
+
+      <!-- Provides the application the proper gutter -->
+      <v-container fluid>
+        <!-- router view -->
+        <router-view></router-view>
+
+      </v-container>
     </v-content>
+
+    <v-footer app>
+      <small><a :href="site">2020. Guest Registration</a></small>
+    </v-footer>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
 
 export default {
   name: 'App',
-
-  components: {
-    HelloWorld,
+  data(){
+    return{
+      site: "http://guestregistration.co",
+      drawer: false
+    }
   },
 
-  data: () => ({
-    //
-  }),
-};
+  computed:{
+
+  },
+
+  //when the component is created
+    created(){
+
+    },
+    methods:{
+    
+    }
+
+}
 </script>
