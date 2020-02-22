@@ -11,6 +11,11 @@ const routes = [
     component: Home
   },
   {
+    path: '/r/:reservation',
+    name: 'reservation',
+    component: () => import('../views/Reservation.vue')
+  },
+  {
     path: '/about',
     name: 'about',
     // route level code-splitting

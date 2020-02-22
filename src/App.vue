@@ -1,7 +1,7 @@
 <template>
   <!-- App.vue -->
   <v-app>
-    <v-navigation-drawer 
+    <!-- <v-navigation-drawer 
     app 
     v-model="drawer"
     > 
@@ -13,7 +13,7 @@
             
         </div>
       </template>
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
 
     <v-app-bar 
     app
@@ -21,8 +21,7 @@
     dark
 
     >
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-
+ 
       <v-toolbar-title>Guest Registration</v-toolbar-title>
       <v-spacer></v-spacer>
     </v-app-bar>
