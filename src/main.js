@@ -23,7 +23,7 @@ const getHeaders = () => {
  };
  // Create an http link:
  const link = new HttpLink({
-   uri: 'http://localhost:5000/guestregistration-4140a/us-central1/api',
+   uri: 'https://us-central1-guestregistration-4140a.cloudfunctions.net/api',
    fetch,
    headers: getHeaders()
  });
