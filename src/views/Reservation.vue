@@ -140,7 +140,7 @@ export default {
   },
   methods:{
       ...mapActions([
-          'getUser',
+          'getUserByID',
           'checkinReservation'
       ]),
       start(){
@@ -152,9 +152,9 @@ export default {
     },
     phoneVerified(user){
         this.user = user
-        this.getUser(user.uid)
+        this.getUserByID(user.uid)
         .then(response => {
-            if(response.data.getUser == null){ //If the user does not have a profile yet
+            if(response.data.getUserByID == null){ //If the user does not have a profile yet
                 this.step++
             }else{
                 this.step = 5

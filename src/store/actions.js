@@ -1,7 +1,7 @@
 
 import firebase from './../firebase'
 import apollo from './../apollo'
-import GET_USER from './../graphql/query/get_user'
+import GET_USER_BY_ID from './../graphql/query/get_user_by_id'
 import CHECKIN_RESERVATION from './../graphql/mutation/checkin_reservation'
 
 const actions = {
@@ -63,10 +63,10 @@ const actions = {
      * @param {*} param0 
      * @param {*} id 
      */
-    getUser({commit}, id){
+    getUserByID({commit}, id){
         commit('PROCESSING', true)
         return apollo.client.query({
-            query: GET_USER,
+            query: GET_USER_BY_ID,
             variables: {
                 id
             }
