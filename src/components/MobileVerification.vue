@@ -22,7 +22,7 @@
                     dark color="accent-4"
                     class="primary"
                     block
-                    @click="sendPhoneVerification"
+                    @click="_sendPhoneVerification"
                     id="sign-in-button"
                     :loading="sending_verification"
                 >
@@ -34,7 +34,8 @@
 </template>
 
 <script>
-    import firebase from './../firebase'
+    import {mapActions, mapMutations} from 'vuex'
+
     export default {
         
         data(){
@@ -48,27 +49,24 @@
         },
         props: [],
         methods: {
-            sendPhoneVerification(){
+            ...mapActions([
+                'sendPhoneVerification'
+            ]),
+            ...mapMutations([
+                
+            ]),
+            _sendPhoneVerification(){
                 if(this.$refs.mobile_verification.validate()){
                         this.sending_verification = true
-                        window.recaptchaVerifier = new firebase.firebase.auth.RecaptchaVerifier('sign-in-button', {
-                        'size': 'invisible',
-                        'callback': function(response) {
-                            console.log(response)
-                            console.log('Recapcha solved')
-                        }
-                        });
-                        const appVerifier = window.recaptchaVerifier
-                        firebase.auth.signInWithPhoneNumber(this.mobile_number, appVerifier)
-                        .then( (confirmationResult) => {
+                        this.sendPhoneVerification(this.mobile_number)
+                        .then(() => {
                             this.sending_verification = false
                             // SMS sent. Prompt user to type the code from the message, then sign the
                             // user in with confirmationResult.confirm(code).
-                            window.confirmationResult = confirmationResult;
-                            alert(`A verification code has been sent to ${this.mobile_number}`)
                             this.$emit('done', this.mobile_number)
+                            alert(`A verification code has been sent to ${this.mobile_number}`)
+
                         }).catch( (error) => {
-                            this.sending_verification = false
                             alert("Could not send SMS "+error.message)
                         })
                 }

@@ -34,7 +34,7 @@
         props: ['reservation'],
         methods:{
             AcceptTnC(){
-                this.$emit('done')
+                this.$emit('done', this.accepted)
             }
         }
 

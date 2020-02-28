@@ -23,7 +23,7 @@
     >
       <v-toolbar-title>Guest Registration</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn text dark @click="signout" v-if="signed_in">Sign out</v-btn>
+      <v-btn text dark @click="signUserOut" v-if="current_user !== null">Sign out</v-btn>
     </v-app-bar>
     
     <!-- Sizes your content based upon application components -->
@@ -46,7 +46,7 @@
 
 <script>
 
-import firebase from './firebase'
+import {mapActions, mapState} from 'vuex'
 
 export default {
   name: 'App',
@@ -59,24 +59,26 @@ export default {
   },
 
   computed:{
-
+    ...mapState([
+      'current_user'
+    ])
   },
 
   //when the component is created
     created(){
-      // console.log(firebase.auth.currentUser)
-       if(firebase.auth.currentUser){
-            this.signed_in = true
-      }
+
     },
     methods:{
-    signout(){
-          firebase.auth.signOut()
-          .then(() => {
-              alert('signed out')
-              this.$router.go({path: '/'})
-          })
-        }
+      ...mapActions([
+          'signout'
+      ]),
+      signUserOut(){
+        this.signout()
+        .then(() => {
+            alert("signed out");
+            this.$route.go({path: '/'})
+        })
+      }
     }
 
 }

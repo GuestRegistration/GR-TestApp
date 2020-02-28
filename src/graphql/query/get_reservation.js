@@ -5,6 +5,9 @@ export default gql`
         getReservation(id: $id){
             id
             name
+            checkedin_at
+            already_checkedin
+            booking_channel
             checkin_date
             checkout_date
             property{

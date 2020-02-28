@@ -3,7 +3,6 @@
         <v-container>
             <v-row justify="center">
                 <v-col md="6">
-
                     <div v-if="$apollo.queries.reservation.loading">
                         <v-skeleton-loader
                                 height="80"
@@ -16,9 +15,33 @@
                         <div v-else>
                             <h4 class="grey--text">{{reservation.property.name}}</h4>
                             <p>{{reservation.property.city}}, {{reservation.property.country}}</p>
-
-                            <template v-if="finished">
-                                <CheckedIn :reservation="reservation" />
+                            <v-alert type="success" v-if="reservation.checkedin_at !== null">
+                                Already checked in {{checkin_time}}
+                            </v-alert>
+                            <template v-if="reservation.already_checkedin || finished">
+                                <CheckedIn :_reservation="reservation" />
+                            </template>
+                            <template  v-else-if="checkin_in">
+                                <v-dialog
+                                    v-model="checkin_in"
+                                    hide-overlay
+                                    persistent
+                                    width="300"
+                                >
+                                <v-card
+                                    color="primary"
+                                    dark
+                                >
+                                    <v-card-text>
+                                    Hold on {{reservation.name}} while we check you in to {{reservation.property.name}}
+                                    <v-progress-linear
+                                        indeterminate
+                                        color="white"
+                                        class="mb-0"
+                                    ></v-progress-linear>
+                                    </v-card-text>
+                                    </v-card>
+                                </v-dialog>
                             </template>
                             <template v-else>
                                 <template v-if="step == 0">
@@ -28,7 +51,7 @@
                                         <p>Hey, <strong>{{reservation.name}}</strong></p>
                                         <br>
                                         <p>Looking forward to hosting you at <strong>{{reservation.property.name}}</strong>. Below are the details of your bookings</p>
-                                        <ReservationDetails :reservation="reservation" />
+                                        <ReservationDetails :_reservation="reservation" />
                                         </v-card-text>
                                         
                                         <v-card-actions>
@@ -57,7 +80,7 @@
                                     <IdentityVerification @done="step++" />
                                 </template>
                                 <template v-else-if="step == 5">
-                                    <TermsAndCondition @done="finished=true;" />
+                                    <TermsAndCondition @done="reservationCheckin" />
                                 </template>
                                
                             </template>
@@ -72,8 +95,7 @@
 
 <script>
 
-import gql from 'graphql-tag'
-// import firebase from './../firebase'
+import helper from './../helper'
 import GET_RESERVATION from './../graphql/query/get_reservation'
 
 import MobileVerification from './../components/MobileVerification'
@@ -83,6 +105,7 @@ import CompleteProfile from './../components/CompleteProfile'
 import TermsAndCondition from './../components/TermsAndCondition'
 import ReservationDetails from './../components/ReservationDetails'
 import CheckedIn from './../components/CheckedIn'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'reservation',
@@ -102,14 +125,24 @@ export default {
         reservation: null,
         step: 0,
         mobile_number:'',
-        finished: false
+        finished: false,
+        checkin_in: false,
       }
   },
 
+    computed:{
+         checkin_time(){
+            return helper.resolveTimestamp(this.reservation.checkedin_at)
+        }
+    },
   created(){
       
   },
   methods:{
+      ...mapActions([
+          'getUser',
+          'checkinReservation'
+      ]),
       start(){
           this.step =  1;
       },
@@ -119,25 +152,43 @@ export default {
     },
     phoneVerified(user){
         this.user = user
-        this.$apollo.query({
-            query: gql`
-            query getUser($id: String!){
-                getUser(id: $id){
-                    id
-                }
-            }`,
-            variables: {
-                id: user.uid
-            }
-        })
+        this.getUser(user.uid)
         .then(response => {
-            if(response.data.getUser == null){ //If the user already completed profile
+            if(response.data.getUser == null){ //If the user does not have a profile yet
                 this.step++
             }else{
                 this.step = 5
             }
         })
         
+    },
+    reservationCheckin(accepted_tnc){
+        if(accepted_tnc){
+            this.checkin_in = true
+            const payload = {
+                reservation_id: this.reservation.id,
+                user_id: this.user.uid,
+                accepted_tnc: accepted_tnc
+            }
+            this.checkinReservation(payload)
+            .then(result => {
+                if(result.data.checkinReservation === null){
+                    alert('Failed to checkin')
+                }else{
+                    this.reservation = result.data.checkinReservation
+                }
+                alert('successfully checked in')
+                this.checkin_in = false
+                this.finished = true
+
+            })
+            .catch(e => {
+                this.checkin_in = false
+                alert("Something went wrong while checking you in. "+e.message);
+            })
+        }else{
+            alert('You need to accept the terms and condition')
+        }
     }
   },
   apollo:{

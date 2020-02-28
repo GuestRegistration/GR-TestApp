@@ -35,14 +35,18 @@
     export default {
         data(){
             return {
-                
+                reservation: this._reservation
             }
         },
-        props: ['reservation'],
+        props: ['_reservation'],
         methods:{
             
+        },
+        watch: {
+            _reservation: function (r){
+                this.reservation = r
+            }
         }
-
     }
 </script>
 

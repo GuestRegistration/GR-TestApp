@@ -25,7 +25,7 @@
                     dark color="accent-4"
                     class="primary"
                     block
-                    @click="confirmVerificationCode"
+                    @click="_confirmVerificationCode"
                     id="sign-in-button"
                     :loading="confirming_verification_code"
                 >
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import firebase from './../firebase'
+import {mapActions} from 'vuex'
 
     export default {
         data(){
@@ -51,18 +51,18 @@ import firebase from './../firebase'
         },
         props: ['mobile_number'],
         methods: {
-            confirmVerificationCode(){
+            ...mapActions([
+                'confirmVerificationCode'
+            ]),
+            _confirmVerificationCode(){
                 if(this.$refs.confirm_verification.validate()){
                     this.confirming_verification_code = true
-                    const credential = firebase.firebase.auth.PhoneAuthProvider.credential(window.confirmationResult.verificationId, this.verification_code);
-                    firebase.auth.signInWithCredential(credential)
-                    // window.confirmationResult.confirm(this.verification_code)
+                    this.confirmVerificationCode(this.verification_code)
                     .then( (result) => {
                             // User signed in successfully.
                             this.confirming_verification_code = false
                             alert("Sign in successfull "+result.user.uid)
                             this.$emit('done', result.user)
-                            // ...
                         }).catch( (error) => {
                             // User couldn't sign in (bad verification code?)
                             this.confirming_verification_code = false

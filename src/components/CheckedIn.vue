@@ -5,10 +5,10 @@
             <p>Hey, <strong>{{reservation.name}}</strong>,</p>
             <br>
             <p>Thank you for booking with us at <strong>{{reservation.property.name}}</strong>. Below are the details of your bookings</p>
-            <ReservationDetails :reservation="reservation" />
+            <ReservationDetails :_reservation="reservation" />
             <p>Here are some information, please make sure to review it when you have some time or click on the button below to receive a copy in your email. </p>
             </v-card-text>
-            
+             
             <v-card-actions>
                 <v-btn
                     text
@@ -16,7 +16,7 @@
                     class="primary"
                     block
                 >
-                    Send checkin instruction
+                    See checkin instruction
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -24,20 +24,35 @@
 </template>
 
 <script>
+    import {mapGetters} from 'vuex'
     import ReservationDetails from './../components/ReservationDetails'
 
     export default {
+        components: { ReservationDetails },
         data(){
             return {
-                
+                reservation: this._reservation
             }
         },
-        components: { ReservationDetails },
-        props: ['reservation'],
+        props: ['_reservation'],
+        computed: {
+            ...mapGetters([
+               
+            ])
+           
+        },
         methods:{
             
+        },
+        mounted(){
+            
+        },
+        watch: {
+            _reservation: function (r){
+                this.reservation = r
+            }
         }
-
+        
     }
 </script>
 
