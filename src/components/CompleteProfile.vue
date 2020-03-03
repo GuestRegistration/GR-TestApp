@@ -44,6 +44,7 @@
 
 <script>
     import CREATE_USER from './../graphql/mutation/create_user'
+    import form_validation from './../helper/form_validation'
 
     export default {
         
@@ -56,9 +57,7 @@
                     last_name: '',
                     email: ''
                 },
-                rules: {
-                    required: value => !!value || 'Required.'
-                }
+                rules: form_validation.rules
 
             }
         },

@@ -1,3 +1,6 @@
+
+  import firebase from './../firebase'
+
 export default {
     /**
      * Translate a timestamp to human readable time
@@ -21,5 +24,5 @@ export default {
           diff = Math.floor(seconds_difference/1000)+'s' //estimate in seconds
         }
         return `${date.toDateString()}, ${diff} ago`
-    }
+    },
 }

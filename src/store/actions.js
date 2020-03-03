@@ -80,7 +80,7 @@ const actions = {
      * @param {*} param0 
      * @param {*} param1 
      */
-    checkinReservation({commit}, {reservation_id, user_id, accepted_tnc}){
+    checkinReservation({commit}, {reservation_id, user_id, accepted_tnc, identity_ref}){
         commit('PROCESSING', true)
         return apollo.client.mutate({
             // Query
@@ -88,7 +88,8 @@ const actions = {
             variables: {
                     reservation_id,
                     user_id,
-                    accepted_tnc
+                    accepted_tnc,
+                    identity_ref
                 }
         })
     },

@@ -77,12 +77,11 @@
                                     <CompleteProfile @done="step++" :mobile_number="mobile_number" :_user="user" />
                                 </template>
                                 <template v-else-if="step == 4">
-                                    <IdentityVerification @done="step++" />
+                                    <CreateIdentity :_user="user" @done="getUserIdentity" />
                                 </template>
                                 <template v-else-if="step == 5">
                                     <TermsAndCondition @done="reservationCheckin" />
                                 </template>
-                               
                             </template>
                         </div>
                     </div>                    
@@ -100,7 +99,7 @@ import GET_RESERVATION from './../graphql/query/get_reservation'
 
 import MobileVerification from './../components/MobileVerification'
 import MobileVerificationConfirmation from './../components/MobileVerificationConfirmation'
-import IdentityVerification from './../components/IdentityVerification'
+import CreateIdentity from './../components/CreateIdentity'
 import CompleteProfile from './../components/CompleteProfile'
 import TermsAndCondition from './../components/TermsAndCondition'
 import ReservationDetails from './../components/ReservationDetails'
@@ -112,7 +111,7 @@ export default {
   components: {
       MobileVerification,
       MobileVerificationConfirmation, 
-      IdentityVerification,
+      CreateIdentity,
       CompleteProfile,
       TermsAndCondition,
       ReservationDetails,
@@ -125,6 +124,7 @@ export default {
         reservation: null,
         step: 0,
         mobile_number:'',
+        identity: null,
         finished: false,
         checkin_in: false,
       }
@@ -157,10 +157,18 @@ export default {
             if(response.data.getUserByID == null){ //If the user does not have a profile yet
                 this.step++
             }else{
-                this.step = 5
+                this.step = 4
             }
         })
         
+    },
+    getUserIdentity(identity){
+        if(identity === null){
+            alert('No valid identity')
+        }else{
+            this.identity = identity
+            this.step++
+        }
     },
     reservationCheckin(accepted_tnc){
         if(accepted_tnc){
@@ -168,6 +176,7 @@ export default {
             const payload = {
                 reservation_id: this.reservation.id,
                 user_id: this.user.uid,
+                identity_ref: this.identity.ref,
                 accepted_tnc: accepted_tnc
             }
             this.checkinReservation(payload)
