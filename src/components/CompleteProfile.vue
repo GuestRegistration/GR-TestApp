@@ -45,12 +45,12 @@
 <script>
     import CREATE_USER from './../graphql/mutation/create_user'
     import form_validation from './../helper/form_validation'
+import { mapState } from 'vuex'
 
     export default {
         
         data(){
             return {
-                user: this._user,
                 creating_profile: false,
                 profile: {
                     first_name: '',
@@ -61,12 +61,17 @@
 
             }
         },
-        props: ['mobile_number', '_user'],
+        computed: {
+            ...mapState([
+                'current_user'
+            ]),
+        },
+        props: ['mobile_number'],
         methods: {
             createProfile(){
                 if(this.$refs.profile.validate()){
                     const variables = {
-                            id: this.user.uid,
+                            id: this.current_user.auth.uid,
                             phone: this.mobile_number,
                             email: this.profile.email,
                             first_name: this.profile.first_name,
@@ -78,20 +83,16 @@
                         mutation: CREATE_USER,
                         variables: variables
                     })
-                    .then( data => {
+                    .then( response  => {
                         this.creating_profile = false
                         alert(`Your profile has been created. You can proceed now`)
-                        console.log(data)
-                        this.$emit('done')
+                        console.log(response)
+                        this.$emit('done', response.data.createUser)
                     })
                 }
             }
         },
-        watch: {
-            _user: function(user){
-                this.user = user
-            }
-        }
+       
 
     }
 </script>

@@ -1,7 +1,10 @@
 
 const state = {
     processing: false,
-    current_user: null,
+    current_user: {
+        auth: null,
+        profile: null
+    },
     //some authentication data
     auth: {
         appVerifier: null,

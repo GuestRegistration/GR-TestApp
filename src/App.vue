@@ -46,8 +46,8 @@
 
 <script>
 
-import {mapActions, mapState} from 'vuex'
-
+import {mapActions, mapState, mapMutations} from 'vuex'
+import firebase from './firebase'
 export default {
   name: 'App',
   data(){
@@ -66,15 +66,41 @@ export default {
 
   //when the component is created
     created(){
+        if(firebase.auth.currentUser){
+             this.SET_CURRENT_USER(firebase.auth.currentUser)
+        }
 
+      firebase.auth.onAuthStateChanged((user) => {
+        console.log(user)
+        if (user) {
+              this.getUserByID(user.uid)
+              .then(response => {
+                if(response.data.getUserByID !== null){ 
+                    this.SET_CURRENT_USER({
+                      auth: firebase.auth.currentUser,
+                      profile: response.data.getUserByID
+                    })
+                }
+            })
+        } 
+      });
     },
     methods:{
       ...mapActions([
-          'signout'
+          'signout',
+          'getUserByID'
       ]),
+      ...mapMutations([
+        'SET_CURRENT_USER'
+      ]),
+
       signUserOut(){
         this.signout()
         .then(() => {
+           this.SET_CURRENT_USER({
+                      auth: null,
+                      profile: null
+              })
             alert("signed out");
             this.$route.go({path: '/'})
         })

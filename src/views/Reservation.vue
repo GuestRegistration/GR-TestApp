@@ -2,19 +2,29 @@
     <div>
         <v-container>
             <v-row justify="center">
-                <v-col md="6">
+                <v-col cols="12" md="4" >
+                    <h1 v-if="reservation == null" color="grey" class="text-center">We could not find that reservation</h1>
+                    <div v-else>
+                        <h4 class="grey--text">{{reservation.property.name}}</h4>
+                        <p>{{reservation.property.city}}, {{reservation.property.country}}</p>
+                    </div>
+                    <template v-if="current_user.profile !== null">
+                        <v-divider></v-divider>
+                        <h1>Welcome,</h1>
+                        <h3>{{current_user.profile.name.first_name}} {{current_user.profile.name.last_name}}</h3>
+                        <p>{{current_user.profile.email}}</p>
+                    </template>
+                </v-col>
+                <v-col cols="12" md="6">
                     <div v-if="$apollo.queries.reservation.loading">
-                        <v-skeleton-loader
-                                height="80"
-                                type="list-item-two-line"
-                        >
-                        </v-skeleton-loader>
+                         <v-skeleton-loader
+                            class="mx-auto"
+                            type="card"
+                        ></v-skeleton-loader>
+                        <div class="text-center"><h3>Hold on while we get that reservation</h3></div>
                     </div>
                     <div v-else>
-                        <h1 v-if="reservation == null" color="grey" class="text-center">We cannot find that reservation</h1>
-                        <div v-else>
-                            <h4 class="grey--text">{{reservation.property.name}}</h4>
-                            <p>{{reservation.property.city}}, {{reservation.property.country}}</p>
+                        <template  v-if="reservation !== null">
                             <v-alert type="success" v-if="reservation.checkedin_at !== null">
                                 Already checked in {{checkin_time}}
                             </v-alert>
@@ -74,16 +84,16 @@
                                     <MobileVerificationConfirmation :mobile_number="mobile_number" @done="phoneVerified" @resend="step = 1"/>
                                 </template>
                                 <template v-else-if="step == 3">
-                                    <CompleteProfile @done="step++" :mobile_number="mobile_number" :_user="user" />
+                                    <CompleteProfile @done="getUserProfile" :mobile_number="mobile_number"  />
                                 </template>
                                 <template v-else-if="step == 4">
-                                    <CreateIdentity :_user="user" @done="getUserIdentity" />
+                                    <SelectIdentity  @done="getUserIdentity" />
                                 </template>
                                 <template v-else-if="step == 5">
                                     <TermsAndCondition @done="reservationCheckin" />
                                 </template>
                             </template>
-                        </div>
+                        </template>
                     </div>                    
                 </v-col>
             </v-row>
@@ -99,19 +109,19 @@ import GET_RESERVATION from './../graphql/query/get_reservation'
 
 import MobileVerification from './../components/MobileVerification'
 import MobileVerificationConfirmation from './../components/MobileVerificationConfirmation'
-import CreateIdentity from './../components/CreateIdentity'
+import SelectIdentity from './../components/SelectIdentity'
 import CompleteProfile from './../components/CompleteProfile'
 import TermsAndCondition from './../components/TermsAndCondition'
 import ReservationDetails from './../components/ReservationDetails'
 import CheckedIn from './../components/CheckedIn'
-import { mapActions } from 'vuex'
+import { mapActions, mapState, mapMutations } from 'vuex'
 
 export default {
   name: 'reservation',
   components: {
       MobileVerification,
       MobileVerificationConfirmation, 
-      CreateIdentity,
+      SelectIdentity,
       CompleteProfile,
       TermsAndCondition,
       ReservationDetails,
@@ -120,9 +130,8 @@ export default {
   data(){
       return {
         id: this.$route.params.reservation,
-        user: null,
-        reservation: null,
         step: 0,
+        reservation: null,
         mobile_number:'',
         identity: null,
         finished: false,
@@ -131,36 +140,57 @@ export default {
   },
 
     computed:{
+        ...mapState([
+            'current_user'
+        ]),
          checkin_time(){
             return helper.resolveTimestamp(this.reservation.checkedin_at)
         }
     },
   created(){
-      
-  },
+
+    },
   methods:{
       ...mapActions([
           'getUserByID',
           'checkinReservation'
       ]),
+      ...mapMutations([
+          'SET_CURRENT_USER'
+      ]),
       start(){
-          this.step =  1;
+          if(this.current_user){
+                this.step =  4;
+          }
       },
     getMobile(mobile){
         this.mobile_number = mobile
         this.step++
     },
     phoneVerified(user){
-        this.user = user
+        this.SET_CURRENT_USER({
+                    auth: user,
+                    profile: null
+        })
         this.getUserByID(user.uid)
         .then(response => {
             if(response.data.getUserByID == null){ //If the user does not have a profile yet
                 this.step++
             }else{
+                this.SET_CURRENT_USER({
+                    auth: user,
+                    profile: response.data.getUserByID
+                })
                 this.step = 4
             }
         })
         
+    },
+    getUserProfile(profile){
+        let user = this.current_user
+        user.profile = profile
+         this.SET_CURRENT_USER(user)
+        this.step++
     },
     getUserIdentity(identity){
         if(identity === null){
@@ -175,7 +205,7 @@ export default {
             this.checkin_in = true
             const payload = {
                 reservation_id: this.reservation.id,
-                user_id: this.user.uid,
+                user_id: this.current_user.auth.uid,
                 identity_ref: this.identity.ref,
                 accepted_tnc: accepted_tnc
             }
