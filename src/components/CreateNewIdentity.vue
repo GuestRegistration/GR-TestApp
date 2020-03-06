@@ -79,7 +79,7 @@
                                         prepend-icon="mdi-paperclip"
                                         outlined
                                         @change="uploadIdentity"
-                                            :rules="[rules.required]"
+                                        :rules="[rules.required]"
                                     >
                                         <template v-slot:selection="{ index, text }">
                                         <v-chip
@@ -95,9 +95,9 @@
                                     </template>
                             </div>
                             
-                            <div class="my-5">
+                            <!-- <div class="my-5">
                                     <v-checkbox v-model="save_file" :label="`Save file in my archive for future reservations`"></v-checkbox>
-                            </div>
+                            </div> -->
                             
                         </v-form>
                     </v-card-text>
@@ -167,9 +167,10 @@ export default {
     props: [],
     methods: {
         uploadIdentity(file){
+                this.document.file = file
                 file_helper.previewSelectedImage(this.document.file, '#document-preview')
                 this.verifying_identity = true
-                const ext = this.document.file.name.split('.')[1]
+                const ext = file.name.split('.')[1]
                 const saveAs = `private/identity/${this.current_user.auth.uid}.${ext}`
 
                 const uploadTask = file_helper.uploadFile(this.document.file, saveAs)
@@ -179,18 +180,18 @@ export default {
                 // 2. Error observer, called on failure
                 // 3. Completion observer, called on successful completion
                 uploadTask.on('state_changed', (snapshot) => {
-                // Observe state change events such as progress, pause, and resume
-                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                this.document.upload_progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                }, (error) => {
-                    alert("There was error uploading the file")
-                }, () => {
-                // Handle successful uploads on complete
-                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                        this.document.uploaded = true;
-                        this.document.file_url = downloadURL;
-                        console.log('uploaded to '+downloadURL)
-                    });
+                    // Observe state change events such as progress, pause, and resume
+                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                    this.document.upload_progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    }, (error) => {
+                        alert("There was error uploading the file")
+                    }, () => {
+                    // Handle successful uploads on complete
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            this.document.uploaded = true;
+                            this.document.file_url = downloadURL;
+                            console.log('uploaded to '+downloadURL)
+                        });
                 });
             },
             saveID(){

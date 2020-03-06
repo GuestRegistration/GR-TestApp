@@ -2,16 +2,16 @@
     <div>
         <div class="mb-5 text-center">
             <h2 class="">Identity</h2>
-            <p>We want to verify your Identity</p>
+            <p><strong>{{_reservation.property.name}}</strong>would like to verify your Identity</p>
         </div>
         <v-card 
         :loading="saving_identity"
         >
             <v-card-text>
                 <div class="my-5">
-                    <template v-if="$apollo.queries.identitities.loading">
+                    <template v-if="$apollo.queries.identities.loading">
                         <div class="text-center">
-                            <small>We are trying to see if we have any of your ID before...</small>
+                            <small>We want to save you some stress. We are trying to see if we have any of your ID from the past...</small>
                             <v-skeleton-loader
                                 height="80"
                                 type="list-item-two-line"
@@ -23,23 +23,23 @@
                         <v-container>
                           <v-row>
                             <v-col cols="12" md="7">
-                                <template v-if="prev_identitities && prev_identitities.length > 0"> 
-                                    <v-subheader>We found IDs you have uploaded in the past</v-subheader>
+                                <template v-if="identities && identities.length > 0"> 
+                                    <v-subheader>We found IDs you have uploaded</v-subheader>
                                      <v-divider></v-divider>
                                    <v-radio-group 
                                    v-model="identity_to_use"
                                     :mandatory="false"
                                     @change="selectID"
                                     >
-                                        <v-radio v-for="(identity, key) in prev_identitities" :key="key"
+                                        <v-radio v-for="(identity, key) in identities" :key="key"
                                         :label="`${identity.title} - ${identity.verified ? `Verified` :   `Not verified yet`} `"
                                         :value="identity"></v-radio>
                                     </v-radio-group>
                                 </template>
                                 <template v-else>
-                                    <p class="grey--text">We do not have any record of your identity yet</p>
+                                    <p class="grey--text">We do not have any record of your ID yet, you can add one now.</p>
                                 </template>
-                                <CreateNewIdentity :_user="user" @done="getUploadedID"/>
+                                <CreateNewIdentity @done="getUploadedID"/>
                             </v-col>
                             <v-col cols="12" md="5">
                                  <template v-if="identity_to_use !== null">
@@ -57,7 +57,7 @@
                                  </template>
                                  <template v-else>
                                     <v-sheet
-                                        :color="`grey lighten-4`"
+                                        color="grey lighten-4"
                                         class="px-3 pt-3 pb-3"
                                     >
                                         <v-skeleton-loader
@@ -95,14 +95,13 @@
     import GET_USER_IDENTITIES from './../graphql/query/get_user_identities'
     import form_validation from './../helper/form_validation'
     import CreateNewIdentity from './CreateNewIdentity'
-import { mapState } from 'vuex'
+    import { mapState } from 'vuex'
+
     export default {
         data(){
             return {
-                user: this._user,
                 saving_identity: false,
                 identity_to_use: null,
-                prev_identitities: this.identities || []
             }
         },
         computed: {
@@ -113,18 +112,22 @@ import { mapState } from 'vuex'
         components: {
             CreateNewIdentity
         },
-        props: [],
+        props: ['_reservation'],
         mounted(){
-            console.log(this.user)
+            
         },
         methods: {
             selectID(id){
-                console.log(id)
                 this.identity_to_use = id
             },
             getUploadedID(id){
                 this.identity_to_use = id
-                this.prev_identitities.push(id)
+                if(this.identities){
+                     this.identities.push(id)
+                }else{
+                     this.identities = [id]
+                }
+               
                 this.identity_to_use = id
             },
             submit(){
@@ -137,7 +140,7 @@ import { mapState } from 'vuex'
         
         },
         apollo:{
-            identitities: {
+            identities: {
                 query: GET_USER_IDENTITIES,
                 variables() {
                    return {

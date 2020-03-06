@@ -87,7 +87,7 @@
                                     <CompleteProfile @done="getUserProfile" :mobile_number="mobile_number"  />
                                 </template>
                                 <template v-else-if="step == 4">
-                                    <SelectIdentity  @done="getUserIdentity" />
+                                    <SelectIdentity  @done="getUserIdentity" :_reservation="reservation" />
                                 </template>
                                 <template v-else-if="step == 5">
                                     <TermsAndCondition @done="reservationCheckin" />
@@ -159,8 +159,10 @@ export default {
           'SET_CURRENT_USER'
       ]),
       start(){
-          if(this.current_user){
+          if(this.current_user.auth !== null){
                 this.step =  4;
+          }else{
+              this.step = 1
           }
       },
     getMobile(mobile){
