@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-card elevation-20>
+        <v-card outlined>
             <v-card-text>
             <p>Hey, <strong>{{reservation.name}}</strong>,</p>
             <br>

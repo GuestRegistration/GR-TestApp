@@ -5,7 +5,8 @@ const state = {
         auth: null,
         profile: null
     },
-    //some authentication data
+
+    //verification data during signing in
     auth: {
         appVerifier: null,
         confirmationResult: null

@@ -2,9 +2,9 @@
     <div>
         <div class="mb-5 text-center">
             <h2 class="">Identity</h2>
-            <p><strong>{{_reservation.property.name}}</strong>would like to verify your Identity</p>
+            <p><strong>{{reservation.property.name}}</strong> would like to verify your Identity</p>
         </div>
-        <v-card 
+        <v-card outlined
         :loading="saving_identity"
         >
             <v-card-text>
@@ -102,6 +102,7 @@
             return {
                 saving_identity: false,
                 identity_to_use: null,
+                reservation: this._reservation
             }
         },
         computed: {
@@ -148,6 +149,11 @@
                    } 
                 },
                update: data => data.getUserIdentities
+            }
+        },
+         watch: {
+            _reservation: function(r){
+                this.reservation = r
             }
         }
     }

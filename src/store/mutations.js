@@ -1,3 +1,4 @@
+
 const mutations = {
     SET_VERIFICATION_CONFIRMATION_RESULT(state, confirmationResult){
         state.auth.confirmationResult = confirmationResult
@@ -6,7 +7,10 @@ const mutations = {
         state.current_user = user
     },
     UNSET_CURRENT_USER(state){
-        state.current_user = null
+        state.current_user = {
+            auth: null,
+            profile: null
+        }
     },
     PROCESSING(state, status){
         state.processing = status

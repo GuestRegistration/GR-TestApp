@@ -17,8 +17,8 @@ const actions = {
         const appVerifier = new firebase.firebase.auth.RecaptchaVerifier('sign-in-button', {
             'size': 'invisible',
             'callback': function(response) {
-                console.log(response)
-                console.log('Recapcha solved')
+                // console.log(response)
+                // console.log('Recapcha solved')
             }
         });
        return new Promise((resolve, reject) => {
@@ -80,14 +80,13 @@ const actions = {
      * @param {*} param0 
      * @param {*} param1 
      */
-    checkinReservation({commit}, {reservation_id, user_id, accepted_tnc, identity_ref}){
+    checkinReservation({commit}, {reservation_id, accepted_tnc, identity_ref}){
         commit('PROCESSING', true)
         return apollo.client.mutate({
             // Query
             mutation: CHECKIN_RESERVATION,
             variables: {
                     reservation_id,
-                    user_id,
                     accepted_tnc,
                     identity_ref
                 }

@@ -1,9 +1,9 @@
 <template>
     <div>
-        <div class="my-5">
+        <div class="my-3">
             <h2 class="text-center">Create you profile</h2>
         </div>
-        <v-card 
+        <v-card outlined
         :loading="creating_profile"
         >
             <v-card-text>
@@ -45,7 +45,7 @@
 <script>
     import CREATE_USER from './../graphql/mutation/create_user'
     import form_validation from './../helper/form_validation'
-import { mapState } from 'vuex'
+    import { mapState, mapMutations } from 'vuex'
 
     export default {
         
@@ -68,6 +68,9 @@ import { mapState } from 'vuex'
         },
         props: ['mobile_number'],
         methods: {
+             ...mapMutations([
+                'SET_CURRENT_USER'
+            ]),
             createProfile(){
                 if(this.$refs.profile.validate()){
                     const variables = {
@@ -86,7 +89,9 @@ import { mapState } from 'vuex'
                     .then( response  => {
                         this.creating_profile = false
                         alert(`Your profile has been created. You can proceed now`)
-                        console.log(response)
+                        let user = this.current_user
+                        user.profile = response.data.createUser
+                        this.SET_CURRENT_USER(user)
                         this.$emit('done', response.data.createUser)
                     })
                 }

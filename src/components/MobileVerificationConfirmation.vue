@@ -1,14 +1,11 @@
 <template>
     <div>
-        <div class="my-5">
-            <h2 class="text-center">Check your mobile</h2>
-        </div>
-        <v-card 
+        <v-card outlined
         :loading="confirming_verification_code"
         >
             <v-card-text>
                 <div class="text-center">
-                    <p>We sent a one time validation code to your mobile number <strong>{{mobile_number}}</strong>. Enter the 6 digit code below before it expires in 2 minutes</p>
+                    <p>We sent a one time validation code to your phone number <strong>{{phone_number}}</strong>. Enter the 6 digit code below before it expires in 2 minutes</p>
                 </div>
                 <div class="my-5">
                     <v-form ref="confirm_verification" >
@@ -49,7 +46,7 @@ import {mapActions} from 'vuex'
                 }
             }
         },
-        props: ['mobile_number'],
+        props: ['phone_number'],
         methods: {
             ...mapActions([
                 'confirmVerificationCode'
@@ -61,12 +58,11 @@ import {mapActions} from 'vuex'
                     .then( (result) => {
                             // User signed in successfully.
                             this.confirming_verification_code = false
-                            alert("Sign in successfull "+result.user.uid)
-                            this.$emit('done', result.user)
+                            this.$emit('verified', result.user)
                         }).catch( (error) => {
                             // User couldn't sign in (bad verification code?)
                             this.confirming_verification_code = false
-                            alert("Could not sign in with the verification code "+ error.message)
+                            this.$emit("error", "Could not sign in with the verification code "+ error.message)
                         })
                 }
             },

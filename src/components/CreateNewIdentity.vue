@@ -16,7 +16,7 @@
                     </v-btn>
                 </template>
 
-                <v-card :loading="saving_identity"> 
+                <v-card outlined :loading="saving_identity"> 
                     <v-card-title
                     class="headline grey lighten-2"
                     primary-title

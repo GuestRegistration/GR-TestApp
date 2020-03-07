@@ -5,23 +5,20 @@ import ApolloClient from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { InMemoryCache } from "apollo-cache-inmemory";
+import firebase from './firebase'
+import tokens from './tokens'
 
 Vue.use(VueApollo);
 
-const getHeaders = () => {
-  const headers = {};
-   const token = window.localStorage.getItem('apollo-token');
-   if (token) {
-     headers.authorization = `Bearer ${token}`;
-   }
-   return headers;
- };
  // Create an http link:
  const httpLink = new HttpLink({
   uri: 'https://us-central1-guestregistration-4140a.cloudfunctions.net/api',
   // uri: 'http://localhost:5000/guestregistration-4140a/us-central1/api',
   fetch,
-   headers: getHeaders()
+   headers: {
+      'gr-client-token': tokens.client,
+      'gr-user-token': tokens.user
+    }
  });
 
  // Error Handling

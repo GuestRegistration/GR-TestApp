@@ -1,18 +1,15 @@
 <template>
     <div>
-         <div class="my-5">
-            <h2 class="text-center">Let's Get Started</h2>
-        </div>
-        <v-card 
+        <v-card outlined
         :loading="sending_verification"
         >
             <v-card-text>
                 <div class="text-center">
-                    <p>Give us your mobile number so we can identify you </p>
+                    <p>Give us your phone number so we can identify you </p>
                 </div>
                 <div class="my-5">
-                    <v-form ref="mobile_verification" >
-                        <v-text-field v-model="mobile_number" label="Mobile Number" :rules="[rules.required]" hide-details="auto"></v-text-field>
+                    <v-form ref="phone_verification" >
+                        <v-text-field v-model="phone_number" label="Phone Number" :rules="[rules.required]" hide-details="auto"></v-text-field>
                     </v-form>
                 </div>
             </v-card-text>
@@ -41,7 +38,7 @@
         data(){
             return {
                 sending_verification: false,
-                mobile_number: '',
+                phone_number: '',
                 rules: {
                     required: value => !!value || 'Required.'
                 }
@@ -56,18 +53,18 @@
                 
             ]),
             _sendPhoneVerification(){
-                if(this.$refs.mobile_verification.validate()){
+                if(this.$refs.phone_verification.validate()){
                         this.sending_verification = true
-                        this.sendPhoneVerification(this.mobile_number)
+                        this.sendPhoneVerification(this.phone_number)
                         .then(() => {
                             this.sending_verification = false
                             // SMS sent. Prompt user to type the code from the message, then sign the
                             // user in with confirmationResult.confirm(code).
-                            this.$emit('done', this.mobile_number)
-                            alert(`A verification code has been sent to ${this.mobile_number}`)
+                            this.$emit('sent', this.phone_number)
 
                         }).catch( (error) => {
-                            alert("Could not send SMS "+error.message)
+                            this.sending_verification = false
+                            this.$emit('error',  `Could not send SMS ${error.message}`)
                         })
                 }
             },

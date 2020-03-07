@@ -72,7 +72,9 @@ export default {
       firebase.auth.onAuthStateChanged((user) => {
         if (user) {
             this.setUser(user)  
-        } 
+        }else{
+          this.UNSET_CURRENT_USER
+        }
       });
     },
     methods:{
@@ -81,7 +83,8 @@ export default {
           'getUserByID'
       ]),
       ...mapMutations([
-        'SET_CURRENT_USER'
+        'SET_CURRENT_USER',
+        'UNSET_CURRENT_USER'
       ]),
 
       setUser(user){
@@ -99,11 +102,10 @@ export default {
       signUserOut(){
         this.signout()
         .then(() => {
+          window.localStorage.removeItem('gr-user')
+          console.log('user loged out')
           this.$router.go({path: '/'})
-           this.SET_CURRENT_USER({
-                      auth: null,
-                      profile: null
-              })
+           this.UNSET_CURRENT_USER
             alert("signed out");
         })
       }
