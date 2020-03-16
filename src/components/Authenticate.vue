@@ -1,10 +1,9 @@
 <template>
     <div>
-        <v-container v-if="error">
-            <Error :_message="error" />
+        <v-container v-if="report">
+            <Report :_message="report" @close="report = null"/>
         </v-container>
         <v-container>
-
             <template v-if="!verification_sent">
                 <MobileVerification @sent="verificationSent" @error="gotError" />
             </template>
@@ -21,7 +20,7 @@
 <script>
     import firebase from './../firebase'
 
-    import Error from './Error'
+    import Report from './Report'
     import MobileVerification from './../components/MobileVerification'
     import MobileVerificationConfirmation from './../components/MobileVerificationConfirmation'
 
@@ -29,7 +28,7 @@
 
     export default {
         components: {
-            Error,
+            Report,
             MobileVerification,
             MobileVerificationConfirmation, 
 
@@ -42,21 +41,22 @@
                 rules: {
                     required: value => !!value || 'Required.'
                 },
-                error: null
+                report: null
             }
         },
         props: [],
         methods: {
             ...mapActions([
+                'getIdToken',
                 'getUserByID',
                 'sendPhoneVerification'
             ]),
             ...mapMutations([
-                'SET_CURRENT_USER'
+                'SET_APP_STATE',
+                'SET_CURRENT_USER',
             ]),
             gotError(e){
-                this.error = e
-                this.$emit('error', e)
+                this.report = e
             },
 
             verificationSent(phone_number){
@@ -64,34 +64,7 @@
                this.phone_number = phone_number
             },
             phoneVerified(user){
-                // get the user idToken from firebase and save it in the local storage, then set the current_user state of the app
-                const auth_user = firebase.auth.currentUser
-                if(auth_user){
-                    // get user idTOken and store in the local storage
-                    auth_user.getIdToken()
-                        .then((idToken) => {
-                            window.localStorage.setItem('gr-user', idToken)
-                            console.log('logged in and token saved')
-                            return new Promise((resolve, reject) => {
-                                resolve(auth_user)
-                            })
-                        })
-                        // then, get the user profile and mutate it to the app state
-                        .then((user) => {
-                            //console.log(user)
-                             this.getUserByID(user.uid)
-                            .then(response => {
-                                this.SET_CURRENT_USER({
-                                        auth: user,
-                                        profile: response.data.getUserByID 
-                                    })
-                                this.$emit('authenticated')
-                            })
-                        })
-                    .catch(e => {
-                        this.error = e.message
-                    })
-                }
+                this.$emit('authenticated')
             }
         }
     }

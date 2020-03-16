@@ -1,8 +1,8 @@
 <template>
     <div>
-        <!-- if there is any error -->
-        <template  v-if="error">
-            <Error :_message="error" />
+        <!-- if there is any report -->
+        <template  v-if="report">
+            <Report :_message="report" @close="report = null" />
         </template>
         
         <!-- if the checkin process is on going -->
@@ -30,7 +30,7 @@
         </template>
 
         <!-- resource is still loading -->
-        <template v-if="$apollo.queries.reservation.loading">
+        <template v-if="loading">
             <v-container>
                 <v-row justify="center">
                     <v-col cols="12" md="6">
@@ -45,7 +45,7 @@
         </template>
 
         <!-- resource no longer loading but it not found -->
-        <template v-else-if="!$apollo.queries.reservation.loading && reservation == null">
+        <template v-else-if="!loading && reservation == null">
             <div class="text-center">
                 <h1>We could not find that reservation</h1>
                 <p color="grey">check that the url is valid or contact your host</p>
@@ -56,7 +56,7 @@
         <template v-else-if="reservation">
 
             <!-- if the reservation already checked in and the there is no auhenticated user, checked in reservation should no longer be accessible by the public, as user to authenticate -->
-            <template v-if="reservation.already_checkedin && !current_user.auth">
+            <template v-if="reservation.already_checkedin && current_user && !current_user.auth">
                 
                 <v-container>
                     <v-row justify="center">
@@ -71,7 +71,7 @@
             </template>
 
             <!-- if the reserveation was not checked in by the cureent authenticated user -->
-            <template v-else-if="reservation.already_checkedin && reservation.user_id !== current_user.auth.uid">
+            <template v-else-if="reservation.already_checkedin && current_user && reservation.user_id !== current_user.auth.uid">
                     <div class="text-center">
                         <h1>This reservation is already checked in by another guest</h1>
                         <p color="grey">check the url or contact your host</p>
@@ -148,7 +148,7 @@
                                             <Authenticate @authenticated="authenticated" />
                                         </template>
                                         <template v-else-if="step == 2">
-                                            <CompleteProfile @done="getUserProfile" :mobile_number="mobile_number"  />
+                                            <CompleteProfile @done="getUserProfile"  @error="gotError" />
                                         </template>
                                         <template v-else-if="step == 3">
                                             <SelectIdentity  @done="getUserIdentity" :_reservation="reservation" />
@@ -173,18 +173,19 @@
 
 <script>
 
-import helper from './../helper'
-import GET_RESERVATION from './../graphql/query/get_reservation'
+import helper from '@/helper'
+import GET_RESERVATION from '@/graphql/query/get_reservation'
 
-import Authenticate from './../components/Authenticate'
-import MobileVerificationConfirmation from './../components/MobileVerificationConfirmation'
-import SelectIdentity from './../components/SelectIdentity'
-import CompleteProfile from './../components/CompleteProfile'
-import TermsAndCondition from './../components/TermsAndCondition'
-import ReservationDetails from './../components/ReservationDetails'
-import CheckedIn from './../components/CheckedIn'
-import Error from './../components/Error'
-import { mapActions, mapState, mapMutations } from 'vuex'
+import Authenticate from '@/components/Authenticate'
+import MobileVerificationConfirmation from '@/components/MobileVerificationConfirmation'
+import SelectIdentity from '@/components/SelectIdentity'
+import CompleteProfile from '@/components/CompleteProfile'
+import TermsAndCondition from '@/components/TermsAndCondition'
+import ReservationDetails from '@/components/ReservationDetails'
+import CheckedIn from '@/components/CheckedIn'
+import Report from '@/components/Report'
+import _apollo from './../apollo'
+import { mapActions, mapState, mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: 'reservation',
@@ -195,23 +196,24 @@ export default {
       TermsAndCondition,
       ReservationDetails,
       CheckedIn,
-      Error
+      Report
   }, 
   data(){
       return {
+        loading: false,
         id: this.$route.params.reservation,
         step: 0,
         reservation: null,
         identity: null,
         finished: false,
         checkin_in: false,
-        error: null,
+        report: null,
         back: null
       }
   },
 
     computed:{
-        ...mapState([
+        ...mapGetters([
             'current_user'
         ]),
          checkin_time(){
@@ -221,8 +223,8 @@ export default {
             return helper.resolveTimestamp(this.reservation.approved_at)
         }
     },
-  created(){
-
+  mounted(){
+      this.getReservation()
     },
   methods:{
       ...mapActions([
@@ -250,10 +252,13 @@ export default {
         this.back = this.step - 1
 
     },
+    gotError(e){
+      this.report = e
+    },
     getUserIdentity(identity){
         //console.log(identity)
         if(identity === null){
-            this.error = 'No valid identity'
+            this.report = 'No valid identity'
         }else{
             this.identity = identity
             this.step++
@@ -270,38 +275,49 @@ export default {
             this.checkinReservation(payload)
             .then(result => {
                 if(result.data.checkinReservation === null){
-                   this.error = 'Failed to checkin'
+                   this.report = 'Failed to checkin'
+                   this.checkin_in = false
                 }else{
                     this.reservation = result.data.checkinReservation
+                    this.report = 'successfully checked in'
+                    this.checkin_in = false
+                    this.finished = true
+                    this.$router.push({
+                        path: '/'
+                    })
                 }
-                this.error = 'successfully checked in'
-                this.checkin_in = false
-                this.finished = true
+               
 
             })
             .catch(e => {
                 this.checkin_in = false
-                this.error = "Something went wrong while checking you in. "+e.message
+                this.report = "Something went wrong while checking you in: "+e.message
             })
         }else{
-           this.error = "You need to agree to the terms"
+           this.report = "You need to agree to the terms"
         }
+    },
+
+    getReservation(){
+        this.loading = true
+        const apollo = _apollo().client
+            apollo.query({
+                query: GET_RESERVATION,
+                variables: {
+                    id: this.id
+                }
+            })
+            .then(response => {
+                this.reservation = response.data.getReservation
+            })
+            .catch(e => {
+                this.report = e.message
+            })
+            .finally(() => {
+                this.loading = false
+            })
     }
   },
-  apollo:{
-    reservation: {
-    // graphql query
-        query: GET_RESERVATION,
-        variables(){
-            return {
-                id: this.id
-            }
-        },
-        update: data => data.getReservation,
-        error(error) {
-            this.error = error.message
-        }
-    }
-  } 
+
 }
 </script>

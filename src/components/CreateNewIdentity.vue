@@ -133,10 +133,11 @@
 
 <script>
     import CREATE_USER_ID from './../graphql/mutation/create_user_id'
-    import GET_USER_IDENTITIES from './../graphql/query/get_user_identities'
     import file_helper from './../helper/file'
     import form_validation from './../helper/form_validation'
-import { mapState } from 'vuex'
+    import _apollo from './../apollo'
+
+    import { mapState } from 'vuex'
 
 export default {
     
@@ -204,7 +205,8 @@ export default {
                            document_url: this.document.file_url
                         }
                     this.saving_identity = true
-                    this.$apollo.mutate({
+                    const apollo = _apollo()
+                    apollo.client.mutate({
                         // Query
                         mutation: CREATE_USER_ID,
                         variables: variables

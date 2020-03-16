@@ -1,5 +1,9 @@
 <template>
     <div>
+        <template  v-if="report">
+            <Report :_message="report" @close="report = null"/>
+        </template>
+
         <div class="mb-5 text-center">
             <h2 class="">Identity</h2>
             <p><strong>{{reservation.property.name}}</strong> would like to verify your Identity</p>
@@ -9,7 +13,7 @@
         >
             <v-card-text>
                 <div class="my-5">
-                    <template v-if="$apollo.queries.identities.loading">
+                    <template v-if="loading">
                         <div class="text-center">
                             <small>We want to save you some stress. We are trying to see if we have any of your ID from the past...</small>
                             <v-skeleton-loader
@@ -92,17 +96,22 @@
 </template>
 
 <script>
-    import GET_USER_IDENTITIES from './../graphql/query/get_user_identities'
+    import GET_MY_IDENTITIES from './../graphql/query/get_my_identities'
     import form_validation from './../helper/form_validation'
     import CreateNewIdentity from './CreateNewIdentity'
+    import Report from './Report'
+    import _apollo from './../apollo'
     import { mapState } from 'vuex'
 
     export default {
         data(){
             return {
+                loading: false,
+                identities: [],
                 saving_identity: false,
                 identity_to_use: null,
-                reservation: this._reservation
+                reservation: this._reservation,
+                report: null
             }
         },
         computed: {
@@ -111,11 +120,11 @@
             ])
         },
         components: {
-            CreateNewIdentity
+            CreateNewIdentity, Report
         },
         props: ['_reservation'],
         mounted(){
-            
+            this.getMyIdentities()
         },
         methods: {
             selectID(id){
@@ -128,7 +137,6 @@
                 }else{
                      this.identities = [id]
                 }
-               
                 this.identity_to_use = id
             },
             submit(){
@@ -137,20 +145,27 @@
                 }else{
                  this.$emit('done', this.identity_to_use)
                 }
+            },
+
+            getMyIdentities(){
+                this.loading = true
+                    const apollo = _apollo().client
+                    apollo.query({
+                        query: GET_MY_IDENTITIES,
+                    })
+                    .then(response => {
+                        this.identities = response.data.getMyIdentities
+                    })
+                    .catch(e => {
+                        this.report = e.message
+                    })
+                    .finally(() => {
+                        this.loading = false
+                    })
             }
         
         },
-        apollo:{
-            identities: {
-                query: GET_USER_IDENTITIES,
-                variables() {
-                   return {
-                       id: this.current_user.auth.uid
-                   } 
-                },
-               update: data => data.getUserIdentities
-            }
-        },
+
          watch: {
             _reservation: function(r){
                 this.reservation = r

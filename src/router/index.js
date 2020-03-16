@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import auth from './guards/auth'
+import guest from './guards/guest'
+import multiguard from 'vue-router-multiguard';
 
 Vue.use(VueRouter)
 
@@ -8,12 +10,20 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: () => import('../views/Reservations.vue'),
+    beforeEnter: multiguard([auth])
+  },
+  {
+    path: '/signin',
+    name: 'signin',
+    component: () => import('../views/Signin.vue'),
+    beforeEnter: multiguard([guest])
   },
   {
     path: '/r/:reservation',
     name: 'reservation',
-    component: () => import('../views/Reservation.vue')
+    component: () => import('../views/Reservation.vue'),
+    // beforeEnter: multiguard([auth])
   },
   {
     path: '/about',
@@ -30,5 +40,6 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
 
 export default router

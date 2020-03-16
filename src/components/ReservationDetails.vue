@@ -23,7 +23,7 @@
                         <v-icon>mdi-account</v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
-                        <v-list-item-title>Number of Guests: {{reservation.guests.length}}</v-list-item-title>
+                        <v-list-item-title>Number of Guests: {{reservation.guests ? reservation.guests.length: 0}}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
             </v-list-item-group>

@@ -21,20 +21,20 @@
     dark
 
     >
-      <v-toolbar-title>Guest Registration</v-toolbar-title>
+      <router-link to="/" class="white--text" style="text-decoration: none">
+        <v-toolbar-title dark>Guest Registration</v-toolbar-title>
+      </router-link>
       <v-spacer></v-spacer>
-      <v-btn text dark @click="signUserOut" v-if="current_user.auth !== null">Sign out</v-btn>
+      <v-btn text dark @click="signUserOut" v-if="auth">Sign out</v-btn>
     </v-app-bar>
     
     <!-- Sizes your content based upon application components -->
     <v-content>
-     
 
       <!-- Provides the application the proper gutter -->
       <v-container fluid>
         <!-- router view -->
-        <router-view></router-view>
-
+          <router-view></router-view>
       </v-container>
     </v-content>
 
@@ -46,12 +46,13 @@
 
 <script>
 
-import {mapActions, mapState, mapMutations} from 'vuex'
+import {mapActions, mapState, mapMutations, mapGetters} from 'vuex'
 import firebase from './firebase'
 export default {
   name: 'App',
   data(){
     return{
+      auth: false,
       site: "http://guestregistration.co",
       drawer: false,
       signed_in: false
@@ -59,54 +60,72 @@ export default {
   },
 
   computed:{
-    ...mapState([
+    ...mapGetters([
+      'app_ready',
       'current_user'
     ])
   },
 
-  //when the component is created
-    created(){
-        if(firebase.auth.currentUser){
-             this.setUser(firebase.auth.currentUser)  
-        }
+    mounted(){
       firebase.auth.onAuthStateChanged((user) => {
-        if (user) {
-            this.setUser(user)  
-        }else{
-          this.UNSET_CURRENT_USER
-        }
+          console.log("Auth changed ", user)
+            this.setUser()
       });
     },
+
     methods:{
       ...mapActions([
+          'getIdToken',
           'signout',
           'getUserByID'
       ]),
       ...mapMutations([
+        'SET_APP_STATE',
         'SET_CURRENT_USER',
         'UNSET_CURRENT_USER'
       ]),
 
-      setUser(user){
-        this.getUserByID(user.uid)
-              .then(response => {
-                if(response.data.getUserByID !== null){ 
-                    this.SET_CURRENT_USER({
-                      auth: firebase.auth.currentUser,
-                      profile: response.data.getUserByID
-                    })
-                }
+      setUser(){
+        this.SET_APP_STATE(false)
+        this.getIdToken()
+        .then(user =>  {
+          if(user){
+                this.auth = true
+               return this.getUserByID(user.uid)
+            }else{
+              return new Promise((r,e) => {
+                r(null)
             })
+          }
+        })
+        .then(response => {
+            if(response && response.data.getUserByID !== null){ 
+                this.SET_CURRENT_USER({
+                  auth: firebase.auth.currentUser,
+                  profile: response.data.getUserByID
+                })
+                this.SET_APP_STATE(true)
+            }
+        })
+        .catch(e => {
+          console.log(e)
+          this.signUserOut()
+        })
       },
 
       signUserOut(){
+        this.SET_APP_STATE(false)
         this.signout()
         .then(() => {
-          window.localStorage.removeItem('gr-user')
-          console.log('user loged out')
-          this.$router.go({path: '/'})
-           this.UNSET_CURRENT_USER
+            console.log('user loged out')
+            window.localStorage.removeItem('gr-user')
+            this.$router.push({
+              path: '/signin'
+            })
+            this.UNSET_CURRENT_USER
             alert("signed out");
+            this.SET_APP_STATE(true)
+            this.auth = false
         })
       }
     }

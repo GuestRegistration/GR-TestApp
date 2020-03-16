@@ -45,7 +45,7 @@
 <script>
     import CREATE_USER from './../graphql/mutation/create_user'
     import form_validation from './../helper/form_validation'
-    import { mapState, mapMutations } from 'vuex'
+    import { mapState, mapMutations, mapGetters } from 'vuex'
 
     export default {
         
@@ -62,11 +62,10 @@
             }
         },
         computed: {
-            ...mapState([
+            ...mapGetters([
                 'current_user'
             ]),
         },
-        props: ['mobile_number'],
         methods: {
              ...mapMutations([
                 'SET_CURRENT_USER'
@@ -75,7 +74,7 @@
                 if(this.$refs.profile.validate()){
                     const variables = {
                             id: this.current_user.auth.uid,
-                            phone: this.mobile_number,
+                            phone: this.current_user.auth.phoneNumber,
                             email: this.profile.email,
                             first_name: this.profile.first_name,
                             last_name: this.profile.last_name
@@ -93,6 +92,10 @@
                         user.profile = response.data.createUser
                         this.SET_CURRENT_USER(user)
                         this.$emit('done', response.data.createUser)
+                    })
+                    .catch(e => {
+                        this.$emit('error', e.message)
+                        this.creating_profile = false
                     })
                 }
             }

@@ -1,6 +1,7 @@
 
 const state = {
     processing: false,
+    app_ready: false,
     current_user: {
         auth: null,
         profile: null

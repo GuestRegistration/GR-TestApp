@@ -4,10 +4,11 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify';
-import apollo from './apollo'
+import _apollo from './apollo'
 
 Vue.config.productionTip = false
 
+const apollo = _apollo();
 
 new Vue({
   router,
