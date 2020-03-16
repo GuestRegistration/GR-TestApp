@@ -45,7 +45,6 @@ export default {
   },
   methods: {
     userAuthenticated(){
-      alert("Hurray!")
        if(this.current_user.profile == null){ //If the user does not have a profile yet
            this.create_profile = true;
         }else{
@@ -56,7 +55,6 @@ export default {
           this.$router.push({path: this.redirect_to})
     },
     profileCompleted(profile){
-      console.log(profile)
       this.redirect()
     },
     gotError(e){

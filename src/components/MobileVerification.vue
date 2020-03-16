@@ -9,7 +9,14 @@
                 </div>
                 <div class="my-5">
                     <v-form ref="phone_verification" >
-                        <v-text-field v-model="phone_number" label="Phone Number" :rules="[rules.required]" hide-details="auto"></v-text-field>
+                        <vue-tel-input 
+                            :valid-characters-only="true"
+                            @input="onInput"
+                        ></vue-tel-input>
+                        <div class="mt-2 text-center">
+                            <strong :class="`${phone.valid ? 'success--text' : 'red--text'}`">{{ phone.number }}</strong>
+                        </div>
+                        <!-- <v-text-field v-model="phone_number" label="Phone Number" :rules="[rules.required]" hide-details="auto"></v-text-field> -->
                     </v-form>
                 </div>
             </v-card-text>
@@ -31,18 +38,29 @@
 </template>
 
 <script>
+    import { VueTelInput } from 'vue-tel-input'
     import {mapActions, mapMutations} from 'vuex'
 
     export default {
-        
+        components:{
+            VueTelInput
+        },
         data(){
             return {
+                phone: {
+                    number: '',
+                    valid: false,
+                    country: undefined,
+                },
                 sending_verification: false,
                 phone_number: '',
                 rules: {
                     required: value => !!value || 'Required.'
                 }
             }
+        },
+        computed:{
+
         },
         props: [],
         methods: {
@@ -52,15 +70,20 @@
             ...mapMutations([
                 
             ]),
+            onInput(formattedNumber, { number, valid, country }) {
+                this.phone.number = number.international;
+                this.phone.valid = valid;
+                this.phone.country = country && country.name;
+            },
             _sendPhoneVerification(){
-                if(this.$refs.phone_verification.validate()){
+                if(this.phone.valid){
                         this.sending_verification = true
-                        this.sendPhoneVerification(this.phone_number)
+                        this.sendPhoneVerification(this.phone.number)
                         .then(() => {
                             this.sending_verification = false
                             // SMS sent. Prompt user to type the code from the message, then sign the
                             // user in with confirmationResult.confirm(code).
-                            this.$emit('sent', this.phone_number)
+                            this.$emit('sent', this.phone.number)
 
                         }).catch( (error) => {
                             this.sending_verification = false
