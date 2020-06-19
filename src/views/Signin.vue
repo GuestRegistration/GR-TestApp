@@ -3,18 +3,29 @@
     <template  v-if="report">
         <Report :_message="report" @close="report = null" />
     </template>
-    <v-container>
-      <v-row justify="center">
-        <v-col cols="12" sm="6" md="4">
-          <template v-if="create_profile">
-              <CompleteProfile @done="profileCompleted" @error="gotError" />
-          </template>
-          <template v-else>
-            <Authenticate @authenticated="userAuthenticated" />
-          </template>
-        </v-col>
-      </v-row>
-    </v-container>
+
+    <template v-if="!app_ready">
+        <Wait />
+    </template>
+
+    <template>
+      <v-container>
+        <v-row justify="center">
+          <v-col cols="12" sm="6" md="4">
+            <template v-if="current_user.auth === null && current_user.profile === null">
+              <Authenticate />
+            </template>
+            <template v-else-if="current_user.auth && current_user.profile === null">
+              <CompleteProfile  @done="profileCompleted" @error="gotError" />
+            </template>
+            <template v-else>
+              {{redirect()}}
+            </template>
+
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
   </div>
 </template>
 
@@ -23,34 +34,32 @@
 import Authenticate from '@/components/Authenticate'
 import CompleteProfile from '@/components/CompleteProfile'
 import Report from '@/components/Report'
+import Wait from '@/components/Wait'
 
-import { mapActions, mapState, mapMutations } from 'vuex'
+import { mapActions, mapState, mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: 'signin',
   components: {
-    Authenticate, CompleteProfile, Report
+    Wait,  Report, Authenticate, CompleteProfile
   },
   data(){
     return {
       redirect_to: '/',
-      create_profile: false,
-      report: null
+      report: null,
     }
   },
   computed: {
-    ...mapState([
-          'current_user'
+    ...mapGetters([
+        'phone',
+        'app_ready',
+        'current_user'
       ]),
   },
   methods: {
-    userAuthenticated(){
-       if(this.current_user.profile == null){ //If the user does not have a profile yet
-           this.create_profile = true;
-        }else{
-            this.redirect()
-        }
-    },
+    // userAuthenticated(){
+    //    this.check_profile = true;
+    // },
     redirect(){
           this.$router.push({path: this.redirect_to})
     },

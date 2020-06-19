@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import {mapActions} from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
 
     export default {
         data(){
@@ -45,6 +45,11 @@ import {mapActions} from 'vuex'
                     required: value => !!value || 'Required.'
                 }
             }
+        },
+        computed:{
+            ...mapGetters([
+                'app_ready'
+            ])
         },
         props: ['phone_number'],
         methods: {

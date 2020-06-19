@@ -2,6 +2,7 @@
 const state = {
     processing: false,
     app_ready: false,
+    phone: null,
     current_user: {
         auth: null,
         profile: null

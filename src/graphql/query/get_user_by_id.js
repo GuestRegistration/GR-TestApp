@@ -9,5 +9,9 @@ export default gql`
                 first_name
                 last_name
             }
+            phone{
+                country_code
+                phone_number
+            }
         }
     }`

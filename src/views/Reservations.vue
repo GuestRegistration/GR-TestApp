@@ -3,6 +3,10 @@
     <template  v-if="report">
         <Report :_message="report" @close="report = null"/>
     </template>
+    <template v-if="!app_ready">
+        <Wait />
+    </template>         
+    
       <template v-if="reservations.loading">
             <v-dialog
                v-model="loading"
@@ -41,8 +45,8 @@
                   </v-col>
               </v-row>
           </v-container>
-          
       </template>
+
   </div>
 </template>
 
@@ -50,14 +54,15 @@
 // @ is an alias to /src
 import GET_USER_RESERVATIONS from '@/graphql/query/get_user_reservations'
 import Reservation from '@/components/Reservation.vue'
+import Wait from '@/components/Wait.vue'
 import Report from '@/components/Report.vue'
 import _apollo from './../apollo'
-import { mapState } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'reservations',
   components: {
-    Reservation, Report
+    Reservation, Report, Wait
   },
   data(){
      return {
@@ -71,7 +76,9 @@ export default {
      }
   },
   computed: {
-
+      ...mapGetters([
+          'app_ready'
+      ])
   },
   props:[],
   mounted(){

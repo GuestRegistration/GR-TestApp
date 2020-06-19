@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="my-3">
-            <h2 class="text-center">Create you profile</h2>
+            <h2 class="text-center">Create your profile</h2>
         </div>
         <v-card outlined
         :loading="creating_profile"
@@ -63,9 +63,11 @@
         },
         computed: {
             ...mapGetters([
+                'phone',
                 'current_user'
             ]),
         },
+        props: [],
         methods: {
              ...mapMutations([
                 'SET_CURRENT_USER'
@@ -74,7 +76,8 @@
                 if(this.$refs.profile.validate()){
                     const variables = {
                             id: this.current_user.auth.uid,
-                            phone: this.current_user.auth.phoneNumber,
+                            phone_country_code: this.phone.country.dialCode,
+                            phone_number: this.phone.number.significant,
                             email: this.profile.email,
                             first_name: this.profile.first_name,
                             last_name: this.profile.last_name
@@ -100,7 +103,6 @@
                 }
             }
         },
-       
 
     }
 </script>

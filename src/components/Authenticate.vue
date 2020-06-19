@@ -3,13 +3,14 @@
         <v-container v-if="report">
             <Report :_message="report" @close="report = null"/>
         </v-container>
+        
         <v-container>
             <template v-if="!verification_sent">
                 <MobileVerification @sent="verificationSent" @error="gotError" />
             </template>
 
             <template v-else>
-                <MobileVerificationConfirmation :phone_number="phone_number" @verified="phoneVerified" @resend="verification_sent = false" @error="gotError" />
+                <MobileVerificationConfirmation :phone_number="phone.number.international" @verified="phoneVerified" @resend="verification_sent = false" @error="gotError" />
             </template>
 
         </v-container>
@@ -24,7 +25,7 @@
     import MobileVerification from './../components/MobileVerification'
     import MobileVerificationConfirmation from './../components/MobileVerificationConfirmation'
 
-    import {mapActions, mapMutations} from 'vuex'
+    import {mapActions, mapGetters, mapMutations} from 'vuex'
 
     export default {
         components: {
@@ -37,12 +38,17 @@
             return {
                 sending_verification: false,
                 verification_sent: false,
-                mobile_number: '',
+                phone: null,
                 rules: {
                     required: value => !!value || 'Required.'
                 },
                 report: null
             }
+        },
+        computed:{
+            ...mapGetters([
+ 
+            ])
         },
         props: [],
         methods: {
@@ -59,10 +65,11 @@
                 this.report = e
             },
 
-            verificationSent(phone_number){
+            verificationSent(phone){
               this.verification_sent = true
-               this.phone_number = phone_number
+               this.phone = phone
             },
+
             phoneVerified(user){
                 this.$emit('authenticated')
             }

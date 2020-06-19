@@ -14,7 +14,7 @@
                             @input="onInput"
                         ></vue-tel-input>
                         <div class="mt-2 text-center">
-                            <strong :class="`${phone.valid ? 'success--text' : 'red--text'}`">{{ phone.number }}</strong>
+                            <strong :class="`${phone.valid ? 'success--text' : 'red--text'}`">{{ phone.number.international }}</strong>
                         </div>
                         <!-- <v-text-field v-model="phone_number" label="Phone Number" :rules="[rules.required]" hide-details="auto"></v-text-field> -->
                     </v-form>
@@ -68,22 +68,22 @@
                 'sendPhoneVerification'
             ]),
             ...mapMutations([
-                
+
             ]),
             onInput(formattedNumber, { number, valid, country }) {
-                this.phone.number = number.international;
+                this.phone.number = number;
                 this.phone.valid = valid;
-                this.phone.country = country && country.name;
+                this.phone.country = country
             },
             _sendPhoneVerification(){
                 if(this.phone.valid){
                         this.sending_verification = true
-                        this.sendPhoneVerification(this.phone.number)
+                        this.sendPhoneVerification(this.phone.number.international)
                         .then(() => {
                             this.sending_verification = false
                             // SMS sent. Prompt user to type the code from the message, then sign the
                             // user in with confirmationResult.confirm(code).
-                            this.$emit('sent', this.phone.number)
+                            this.$emit('sent', this.phone)
 
                         }).catch( (error) => {
                             this.sending_verification = false

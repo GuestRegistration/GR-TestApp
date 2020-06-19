@@ -26,6 +26,13 @@ const routes = [
     // beforeEnter: multiguard([auth])
   },
   {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../views/Profile.vue'),
+    beforeEnter: multiguard([auth])
+  },
+
+  {
     path: '/about',
     name: 'about',
     // route level code-splitting

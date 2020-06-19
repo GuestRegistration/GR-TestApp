@@ -92,7 +92,7 @@
                                         </v-chip>
                                         </template>
                                     </v-file-input>
-                                    </template>
+                                </template>
                             </div>
                             
                             <!-- <div class="my-5">
