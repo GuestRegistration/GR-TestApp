@@ -9,12 +9,14 @@ const mutations = {
     SET_CURRENT_USER: (state, user) => {
         state.current_user = user
     },
+    TOAST_ERROR: (state, { show, message, retry }) => {
+        state.error = { show, message, retry };
+    },
     UNSET_CURRENT_USER: (state) => {
         state.current_user = {
-            auth: null,
-            profile: null
+            auth: {},
+            profile: {}
         }
-
     },
     PROCESSING(state, status){
         state.processing = status

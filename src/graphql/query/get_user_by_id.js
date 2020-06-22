@@ -4,12 +4,13 @@ export default gql`
     query getUserByID($id: String!){
         getUserByID(id: $id){
             id
-            email
+            email,
+            phone,
             name{
                 first_name
                 last_name
             }
-            phone{
+            phone_meta{
                 country_code
                 phone_number
             }

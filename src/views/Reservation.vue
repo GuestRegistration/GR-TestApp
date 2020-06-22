@@ -1,55 +1,8 @@
 <template>
+    <app-layer ref="app">
     <div>
-        <!-- if there is any report -->
-        <template  v-if="report">
-            <Report :_message="report" @close="report = null" />
-        </template>
-
-        <template v-if="!app_ready">
-            <Wait />
-        </template>         
-    
-            <!-- if the checkin process is on going -->
-            <template  v-if="checkin_in">
-                <v-dialog
-                    v-model="checkin_in"
-                    hide-overlay
-                    persistent
-                    width="300"
-                >
-                <v-card
-                    color="primary"
-                    dark
-                >
-                    <v-card-text>
-                    Hold on {{current_user.profile.name.first_name}} while we check you in to {{reservation.property.name}}
-                    <v-progress-linear
-                        indeterminate
-                        color="white"
-                        class="mb-0"
-                    ></v-progress-linear>
-                    </v-card-text>
-                    </v-card>
-                </v-dialog>
-            </template>
-
-            <!-- resource is still loading -->
-            <template v-if="loading">
-                <v-container>
-                    <v-row justify="center">
-                        <v-col cols="12" md="6">
-                            <v-skeleton-loader
-                                class="mx-auto"
-                                type="card"
-                            ></v-skeleton-loader>
-                            <div class="text-center"><h3>Hold on while we get that reservation for you</h3></div>
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </template>
-
             <!-- resource no longer loading but it not found -->
-            <template v-else-if="!loading && reservation == null">
+            <template v-if="reservation == null">
                 <div class="text-center">
                     <h1>We could not find that reservation</h1>
                     <p color="grey">check that the url is valid or contact your host</p>
@@ -60,7 +13,7 @@
             <template v-else-if="reservation">
 
                 <!-- if the reservation already checked in and the there is no auhenticated user, checked in reservation should no longer be accessible by the public, as user to authenticate -->
-                <template v-if="reservation.already_checkedin && current_user && !current_user.auth">
+                <template v-if="reservation.already_checkedin && current_user &&  !current_user.auth">
                     
                     <v-container>
                         <v-row justify="center">
@@ -68,7 +21,6 @@
                                     <div class="text-center">
                                         <h4>We discover that this reservation has been checked in, If it's for you, you can continue</h4>
                                     </div>
-                                    <Authenticate />
                             </v-col>
                         </v-row>
                     </v-container>
@@ -86,15 +38,11 @@
                     <v-container>
                         <v-row justify="center">
                             <v-col cols="12" md="4" >
-                                <!-- <v-btn class="ma-2" color="primary" dark v-if="back !== null && step !== back" @click="step = back">
-                                    <v-icon dark left>mdi-arrow-left</v-icon>Back
-                                </v-btn> -->
-
                                 <div>
                                     <h4 class="grey--text">{{reservation.property.name}}</h4>
                                     <p>{{reservation.property.country}}</p>
                                 </div>
-                                <template v-if="current_user.profile">
+                                <template v-if="profile_loaded">
                                     <v-divider></v-divider>
                                     <h1>Welcome,</h1>
                                     <h3>{{current_user.profile.name.first_name}} {{current_user.profile.name.last_name}}</h3>
@@ -118,11 +66,11 @@
                             <v-col cols="12" md="6">
                                 <div>
                                     <template  v-if="reservation">
-                                        <template v-if="reservation.already_checkedin || finished">
+                                        <template v-if="reservation.already_checkedin">
                                             <CheckedIn :_reservation="reservation" />
                                         </template>
                                         <template v-else>
-                                            <template v-if="step == 0">
+                                            <template v-if="!start">
                                                 <h2>It's time to check in.</h2>
                                                 <v-card outlined>
                                                     <v-card-text>
@@ -138,28 +86,23 @@
                                                             dark color="accent-4"
                                                             class="primary"
                                                             block
-                                                            @click="start"
+                                                            @click="getStarted"
                                                         >
                                                             Checkin
                                                         </v-btn>
                                                     </v-card-actions>
                                                 </v-card>
                                             </template>
-                                            <template v-else-if="step == 1">
-                                                <div class="my-5">
-                                                    <h2 class="text-center">Let's Get Started</h2>
-                                                </div>
-                                                <Authenticate @authenticated="authenticated" />
+                                            <template v-else>
+
+                                                <template v-if="stage == 'identity'">
+                                                    <SelectIdentity  @done="getUserIdentity" @alert="({message, type}) => $refs.app.alert(message, type)" :_reservation="reservation" />
+                                                </template>
+                                                <template v-if="stage == 'tnc'">
+                                                    <TermsAndCondition @done="reservationCheckin" />
+                                                </template>
                                             </template>
-                                            <template v-else-if="step == 2">
-                                                <CompleteProfile @done="getUserProfile"  @error="gotError" />
-                                            </template>
-                                            <template v-else-if="step == 3">
-                                                <SelectIdentity  @done="getUserIdentity" :_reservation="reservation" />
-                                            </template>
-                                            <template v-else-if="step == 4">
-                                                <TermsAndCondition @done="reservationCheckin" />
-                                            </template>
+                                            
                                         </template>
                                     </template>
                                 </div>                    
@@ -168,12 +111,8 @@
                     </v-container>
                 </template>
             </template>
-
-            <template v-else>
-                <h1 class="text-center">hahaha...escaped scenerio</h1>
-            </template>
-
-    </div>
+        </div>
+    </app-layer>
 </template>
 
 <script>
@@ -181,48 +120,40 @@
 import helper from '@/helper'
 import GET_RESERVATION from '@/graphql/query/get_reservation'
 
-import Authenticate from '@/components/Authenticate'
-import MobileVerificationConfirmation from '@/components/MobileVerificationConfirmation'
+import AppLayer from './../AppLayer';
 import SelectIdentity from '@/components/SelectIdentity'
 import CompleteProfile from '@/components/CompleteProfile'
 import TermsAndCondition from '@/components/TermsAndCondition'
 import ReservationDetails from '@/components/ReservationDetails'
 import CheckedIn from '@/components/CheckedIn'
-import Report from '@/components/Report'
-import Wait from '@/components/Wait'
 import _apollo from './../apollo'
 import { mapActions, mapState, mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: 'reservation',
   components: {
-      Authenticate,
+      AppLayer,
       SelectIdentity,
-      CompleteProfile,
       TermsAndCondition,
       ReservationDetails,
       CheckedIn,
-      Report,
-      Wait
   }, 
   data(){
       return {
-        loading: false,
+        start: false,
         id: this.$route.params.reservation,
-        step: 0,
         reservation: null,
         identity: null,
-        finished: false,
-        checkin_in: false,
-        report: null,
-        back: null
+        stage: '',
       }
   },
 
     computed:{
         ...mapGetters([
             'app_ready',
-            'current_user'
+            'authenticated',
+            'current_user',
+            'profile_loaded'
         ]),
          checkin_time(){
             return helper.resolveTimestamp(this.reservation.checkedin_at)
@@ -232,7 +163,7 @@ export default {
         }
     },
   mounted(){
-      this.getReservation()
+        this.getReservation()
     },
   methods:{
       ...mapActions([
@@ -241,40 +172,42 @@ export default {
       ...mapMutations([
           'SET_CURRENT_USER'
       ]),
-      start(){
-          if(this.current_user.auth !== null){
-                this.step =  3
-          }else{
-              this.step = 1
+
+      getStarted(){
+          if(!this.authenticated){
+                this.$router.push({
+                    name: 'signin',
+                    query: {
+                        redirect: this.$router.currentRoute.path
+                    },
+                })
+          }
+        else if(!this.profile_loaded){
+           this.$router.push({
+                name: 'profile',
+                query: {
+                    redirect: this.$router.currentRoute.path
+                },
+            })
+      }
+          else{
+              this.start = true;
+              this.stage = 'identity';
           }
       },
-    authenticated(){
-        if(this.current_user.profile == null){ //If the user does not have a profile yet
-            this.step++
-        }else{
-            this.step = 3
-        }
-    },
-    getUserProfile(profile){
-        this.step++
-        this.back = this.step - 1
 
-    },
-    gotError(e){
-      this.report = e
-    },
     getUserIdentity(identity){
-        //console.log(identity)
         if(identity === null){
-            this.report = 'No valid identity'
+             this.$refs.app.alert(`No Id selected`, `red`);
         }else{
             this.identity = identity
-            this.step++
+            this.stage = 'tnc';
         }
     },
+
     reservationCheckin(accepted_tnc){
         if(accepted_tnc){
-            this.checkin_in = true
+            this.$refs.app.setState(false, `Checking you in to ${this.reservation.property.name}`)
             const payload = {
                 reservation_id: this.reservation.id,
                 identity_ref: this.identity.ref,
@@ -283,31 +216,40 @@ export default {
             this.checkinReservation(payload)
             .then(result => {
                 if(result.data.checkinReservation === null){
-                   this.report = 'Failed to checkin'
-                   this.checkin_in = false
-                }else{
-                    this.reservation = result.data.checkinReservation
-                    this.report = 'successfully checked in'
-                    this.checkin_in = false
-                    this.finished = true
-                    this.$router.push({
-                        path: '/'
-                    })
-                }
-               
+                    this.$refs.app.toastError({
+                        message: `Failed to checkin`,
+                        retry: () => {
+                            this.reservationCheckin(accepted_tnc)
+                        }
+                    });
+                }else{ 
+                    this.reservation = result.data.checkinReservation;
+                    this.reservation.user_id = this.current_user.auth.uid;
+                    this.$refs.app.alert(`Successfully checked in to ${this.reservation.property.name}`, `success`);
 
+                    // this.$router.push({
+                    //     name: 'home'
+                    // })
+                }
             })
             .catch(e => {
-                this.checkin_in = false
-                this.report = "Something went wrong while checking you in: "+e.message
+                this.$refs.app.toastError({
+                    message: `Something went wrong while checking you in. ${ e.message}`,
+                     retry: () => {
+                        this.reservationCheckin(accepted_tnc)
+                    }
+                });
+            })
+            .finally(() => {
+                this.$refs.app.setState(true)
             })
         }else{
-           this.report = "You need to agree to the terms"
+           this.$refs.app.alert(`You need to agree to the terms`, `red`);
         }
     },
 
     getReservation(){
-        this.loading = true
+        this.$refs.app.setState(false, "Getting the reservation...");
         const apollo = _apollo().client
             apollo.query({
                 query: GET_RESERVATION,
@@ -316,13 +258,19 @@ export default {
                 }
             })
             .then(response => {
-                this.reservation = response.data.getReservation
+                this.reservation = response.data.getReservation;
+                this.$refs.app.alert(`Welcome to ${this.reservation.property.name}`);
             })
             .catch(e => {
-                this.report = e.message
+                this.$refs.app.toastError({
+                    message: `Could not get reservation. ${ e.message}`,
+                    retry: () => {
+                        this.getReservation()
+                    } 
+                });
             })
             .finally(() => {
-                this.loading = false
+                this.$refs.app.setState(true);
             })
     }
   },

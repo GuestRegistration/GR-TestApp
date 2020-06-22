@@ -1,35 +1,6 @@
 <template>
-  <div class="reservations">
-    <template  v-if="report">
-        <Report :_message="report" @close="report = null"/>
-    </template>
-    <template v-if="!app_ready">
-        <Wait />
-    </template>         
-    
-      <template v-if="reservations.loading">
-            <v-dialog
-               v-model="loading"
-                hide-overlay
-                persistent
-                width="300"
-                >
-                <v-card
-                    color="primary"
-                    dark
-                >
-                    <v-card-text>
-                    Please stand by
-                    <v-progress-linear
-                        indeterminate
-                        color="white"
-                        class="mb-0"
-                    ></v-progress-linear>
-                    </v-card-text>
-                </v-card>
-            </v-dialog>
-      </template>
-      <template v-else>
+    <app-layer ref="app">
+        <div class="reservations">    
           <v-container>
               <v-row justify="center">
                   <v-col cols="12" sm="8" md="6">
@@ -45,47 +16,41 @@
                   </v-col>
               </v-row>
           </v-container>
-      </template>
-
-  </div>
+        </div>
+    </app-layer>
 </template>
 
 <script>
 // @ is an alias to /src
 import GET_USER_RESERVATIONS from '@/graphql/query/get_user_reservations'
 import Reservation from '@/components/Reservation.vue'
-import Wait from '@/components/Wait.vue'
-import Report from '@/components/Report.vue'
+import AppLayer from '@/AppLayer.vue'
 import _apollo from './../apollo'
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
-  name: 'reservations',
+  name: 'Reservations',
   components: {
-    Reservation, Report, Wait
+    Reservation, AppLayer
   },
   data(){
      return {
-         loading: true,
-         report: null,
          apollo: _apollo(),
          reservations: {
-             loading: true,
              data: []
          }
      }
   },
   computed: {
-      ...mapGetters([
-          'app_ready'
-      ])
-  },
+
+    },
   props:[],
   mounted(){
     this.getReservations()
   },
   methods:{
       getReservations(){
+          this.$refs.app.setState(false, 'Getting your reservations...')
           this.apollo.client.query({
               query: GET_USER_RESERVATIONS
           })
@@ -93,23 +58,17 @@ export default {
               this.reservations.data = response.data.getUserReservations
           })
           .catch(e => {
-              console.log(e)
-              this.report = e.message
+             this.$refs.app.toastError({
+                 message: `Couldn't get your reservations. ${e.message}`,
+                 retry: () => {
+                     this.getReservations()
+                 }
+             })
           })
           .finally(() => {
-              this.reservations.loading = false
+              this.$refs.app.setState(true);
           })
       }
   },
-//   apollo:{
-//     reservations: {
-//     // graphql query
-//         query: GET_USER_RESERVATIONS,
-//         update: data => data.getUserReservations,
-//         error(error) {
-//             this.report = error.message
-//         }
-//     }
-//   } 
 }
 </script>

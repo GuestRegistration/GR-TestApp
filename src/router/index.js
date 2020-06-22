@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import auth from './guards/auth'
-import guest from './guards/guest'
+import middleware from './middleware'
 import multiguard from 'vue-router-multiguard';
 
 Vue.use(VueRouter)
@@ -11,34 +10,37 @@ const routes = [
     path: '/',
     name: 'home',
     component: () => import('../views/Reservations.vue'),
-    beforeEnter: multiguard([auth])
+    beforeEnter: multiguard([middleware.auth])
   },
   {
     path: '/signin',
     name: 'signin',
-    component: () => import('../views/Signin.vue'),
-    beforeEnter: multiguard([guest])
+    component: () => import('../views/Auth/Signin.vue'),
+    beforeEnter: multiguard([middleware.guest])
   },
   {
+    path: '/signin/verification',
+    name: 'signin.verification',
+    component: () => import('../views/Auth/Verification.vue'),
+    beforeEnter: multiguard([middleware.guest, middleware.verificationSent])
+  },
+
+  {
     path: '/r/:reservation',
-    name: 'reservation',
+    name: 'reservation.show',
     component: () => import('../views/Reservation.vue'),
-    // beforeEnter: multiguard([auth])
   },
   {
     path: '/profile',
     name: 'profile',
     component: () => import('../views/Profile.vue'),
-    beforeEnter: multiguard([auth])
+    beforeEnter: multiguard([middleware.auth])
   },
 
   {
     path: '/about',
     name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: () => import('../views/About.vue')
   }
 ]
 

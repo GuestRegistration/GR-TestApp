@@ -15,7 +15,7 @@ const actions = {
                     window.localStorage.setItem('gr-user', idToken)
                     commit('SET_CURRENT_USER', {
                         auth: auth_user,
-                        profile: null
+                        profile: {}
                     })
                     console.log('logged in and token saved')
                     resolve(auth_user)
@@ -123,8 +123,8 @@ const actions = {
             firebase.auth.signOut()
             .then(() => {
                 commit('SET_CURRENT_USER', {
-                    auth: null,
-                    profile: null
+                    auth: {},
+                    profile: {}
                 })
                 resolve()
             })

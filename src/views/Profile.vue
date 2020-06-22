@@ -1,38 +1,37 @@
 <template>
-    <div>
-        <!-- if there is any report -->
-        <template  v-if="report">
-            <Report :_message="report" @close="report = null" />
-        </template>
-        <template v-if="!app_ready">
-            <Wait />
-        </template>         
-        
-        <template v-else>
+    <app-layer ref="app" >
+        <template >
             <v-container>
                 <v-row justify="center">
                     <v-col cols="12" md="6">
                         <div class="my-3">
                             <h2 class="text-center">{{!update ? 'Create your profile' : 'Update profile'}}</h2>
                         </div>
-                        <v-card outlined
-                        :loading="processing"
-                        >
+                        <v-card outlined>
                             <v-card-text>
                                 <p v-if="!update">Secure your activity and validate your account</p>
                                 <div class="my-5">
-                                    <v-form ref="profile" >
+                                    <v-form ref="profile">
                                         <div class="my-3">
-                                            <v-text-field v-model="profile.first_name" label="First name" :rules="[rules.required]" hide-details="auto"></v-text-field>
+                                            <label>Phone: {{profile.phone}}</label>
+                                            <!-- <v-icon @click="change_phone  = !change_phone">edit</v-icon> -->
+                                             <vue-tel-input v-if="change_phone" 
+                                                :valid-characters-only="true"
+                                                 @input="onPhoneInput"
+                                            ></vue-tel-input>
+                                        </div>
+                                        <div class="my-3">
+                                            <v-text-field outlined v-model="profile.first_name" label="First name" :rules="[rules.required]" hide-details="auto"></v-text-field>
                                         </div>
                                             <div class="my-3">  
-                                            <v-text-field v-model="profile.last_name" label="Last name" :rules="[rules.required]" hide-details="auto"></v-text-field>
+                                            <v-text-field outlined v-model="profile.last_name" label="Last name" :rules="[rules.required]" hide-details="auto"></v-text-field>
                                         </div>
                                         <div class="my-3">
-                                            <v-text-field v-model="profile.phone" label="Phone" :rules="[rules.required]" hide-details="auto" disabled=""></v-text-field>
+                                           
+                                            <!-- <v-text-field v-model="profile.phone" label="Phone" :rules="[rules.required]" hide-details="auto" disabled=""></v-text-field> -->
                                         </div>
                                         <div class="my-3">
-                                            <v-text-field v-model="profile.email" label="Email" :rules="[rules.required]" hide-details="auto"></v-text-field>
+                                            <v-text-field outlined v-model="profile.email" label="Email" :rules="[rules.required]" hide-details="auto"></v-text-field>
                                         </div>
                                         <div class="my-5">
                                             <v-btn
@@ -41,7 +40,7 @@
                                                 class="primary"
                                                 @click="createProfile"
                                                 id="sign-in-button"
-                                                :loading="processing"
+                                                :loading="loading"
                                             >
                                                 Save
                                             </v-btn>
@@ -57,7 +56,7 @@
                 </v-row>
             </v-container>
         </template>
-    </div>
+    </app-layer>
 </template>
 
 <script>
@@ -65,92 +64,105 @@
     import CREATE_USER from './../graphql/mutation/create_user'
     import form_validation from './../helper/form_validation'
     import { mapState, mapMutations, mapGetters } from 'vuex'
-    import Report from './../components/Report'
-    import Wait from './../components/Wait'
+    import AppLayer from './../AppLayer';
+    import { VueTelInput } from 'vue-tel-input';
+
     import _apollo from './../apollo'
+    
 
     export default {
+        name: "ProfileUpdate",
         components: {
-            Wait, Report
+            AppLayer, VueTelInput
         },
         data(){
             return {
-                user: this.current_user,
-                processing: false,
+                loading: false,
                 rules: form_validation.rules,
-                report: null,
-                redirect_to: this.$route.query.then
+                change_phone: false,
+                newPhone: null
             }
         },
         computed: {
             ...mapGetters([
-                'app_ready',
-                'current_user'
+                'current_user',
+                'authenticated',
+                'profile_loaded',
             ]),
-            profile() {
-                return {
-                    first_name: this.current_user.profile ? this.current_user.profile.name.first_name : '',
-                    last_name: this.current_user.profile ? this.current_user.profile.name.last_name : '',
-                    email: this.current_user.profile ? this.current_user.profile.email : '',
-                    phone: this.current_user.auth.phoneNumber,
-                }
+            update(){
+                return Object.keys(this.current_user.profile).length  ? true : false
+            },
+
+            profile(){
+                 const profile = {
+                     id: this.current_user.auth.uid,
+                     phone: this.newPhone ? this.newPhone.number.international : this.current_user.auth.phoneNumber,
+                     phone_country_code: null,
+                     phone_number: null,
+                 }
+                 return this.profile_loaded ?
+                  {
+                   ...profile,
+                    email: this.current_user.profile.email,
+                    first_name: this.current_user.profile.name.first_name,
+                    last_name: this.current_user.profile.name.last_name
+                 } : profile
             },
         },
-        mounted(){
 
+        mounted(){
+            this.$refs.app.setState(true);
         },
         methods: {
              ...mapMutations([
                 'SET_CURRENT_USER'
             ]),
-            update(){
-                return this.current_user.profile ? true : false
+            
+            onPhoneInput(formattedNumber, { number, valid, country }) {
+               this.newPhone = { number, valid, country };
             },
+
             createProfile(){
+                if(this.newPhone && !this.newPhone.valid){
+                    this.$refs.app.alert('Invalid phone number', 'red');
+                    return;
+                }
                 if(this.$refs.profile.validate()){
-                    const variables = {
-                            id: this.current_user.auth.uid,
-                            phone_country_code: this.current_user.profile.phone.country_code,
-                            phone_number: this.current_user.profile.phone.phone_number,
-                            email: this.profile.email,
-                            first_name: this.profile.first_name,
-                            last_name: this.profile.last_name
-                        }
-                    this.processing = true
-                    const apollo = _apollo()
+                    this.loading = true;
+                    const apollo = _apollo();
+                    
                     apollo.client.mutate({
+                        variables: this.profile,
                         mutation: this.update ? UPDATE_USER : CREATE_USER,
-                        variables: variables
                     })
                     .then( response  => {
-                        this.processing = false
-                        this.report = this.update ? `Profile updated` : `Profile created`
                         let user = this.current_user
                         user.profile = this.update ? response.data.updateUser : response.data.createUser 
-                        this.SET_CURRENT_USER(user)
-                        if(this.redirect_to){
-                            this.redirect()
-                        }else{
-                            this.update = true
+                        this.SET_CURRENT_USER(user);
+
+                        this.$refs.app.alert('Profile updated', 'success');
+
+                        if(this.$route.query.redirect){
+                            this.$router.push({
+                                path: this.redirect
+                            })
                         }
                     })
                     .catch(e => {
-                        this.report = e.message
-                        this.processing = false
+                        this.$refs.app.toastError({
+                            message: e.message,
+                            retry: () => {
+                                this.createProfile()
+                            }
+                        });
+                    })
+                    .finally(() => {
+                        this.loading = false;
                     })
                 }
             },
-
-            redirect(){
-                this.$router.push({
-                        path: this.redirect_to
-                    })
-            }
         },
     }
 </script>
 
-<style scoped>
-
-</style>
 

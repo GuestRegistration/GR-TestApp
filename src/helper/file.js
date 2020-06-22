@@ -35,7 +35,7 @@ const fileHelper = {
      * upload file to firestore storage
      */
     uploadFile: (file, path) => {
-        const storageRef = firebase.storage.ref()
+        const storageRef = firebase.storage.ref();
        return  storageRef.child(path).put(file)
     }
 }

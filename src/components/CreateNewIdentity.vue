@@ -134,10 +134,10 @@
 <script>
     import CREATE_USER_ID from './../graphql/mutation/create_user_id'
     import file_helper from './../helper/file'
-    import form_validation from './../helper/form_validation'
+    import validations from './../helper/form_validation'
     import _apollo from './../apollo'
 
-    import { mapState } from 'vuex'
+    import { mapState, mapMutations } from 'vuex'
 
 export default {
     
@@ -151,13 +151,12 @@ export default {
                     uploaded: false,
                     file_url: null
                 },
-            rules: form_validation.rules,
+            rules: validations.rules,
             country: '',
-            
-            save_file: false,
             countries: ['Canada', 'US', 'UK'],
             document_type: '',
             document_types: ['National Id card', 'International passport', 'Driving license'],
+            save_file: false,
         }
     },
     computed: {
@@ -167,13 +166,14 @@ export default {
     },
     props: [],
     methods: {
+        ...mapMutations([
+                'TOAST_ERROR',
+        ]),
         uploadIdentity(file){
                 this.document.file = file
                 file_helper.previewSelectedImage(this.document.file, '#document-preview')
-                this.verifying_identity = true
                 const ext = file.name.split('.')[1]
                 const saveAs = `private/identity/${this.current_user.auth.uid}.${ext}`
-
                 const uploadTask = file_helper.uploadFile(this.document.file, saveAs)
                 
                 // Register three observers:
@@ -185,13 +185,22 @@ export default {
                     // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
                     this.document.upload_progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     }, (error) => {
-                        alert("There was error uploading the file")
+                        this.TOAST_ERROR({
+                            show: true,
+                            message: `There was error uploading the file`,
+                            retry: () => {
+                                return new Promise((resolve, reject) => {
+                                    this.uploadIdentity(file);
+                                    resolve();
+                                })
+                            }
+                        });
                     }, () => {
                     // Handle successful uploads on complete
                     uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
                             this.document.uploaded = true;
                             this.document.file_url = downloadURL;
-                            console.log('uploaded to '+downloadURL)
+                            // console.log('uploaded to '+downloadURL)
                         });
                 });
             },
@@ -212,15 +221,26 @@ export default {
                         variables: variables
                     })
                     .then( response => {
-                        this.saving_identity = false
-                        alert(`Your identity has been saved`)
-                        console.log(response)
                         this.create_new_identity = false;
                         this.$emit('done', response.data.createUserIdentity)
+                    })
+                    .catch(e => {
+                        this.TOAST_ERROR({
+                            show: true,
+                            message: `ID not saved`,
+                            retry: () => {
+                                return new Promise((resolve, reject) => {
+                                    this.saveID();
+                                    resolve();
+                                })
+                            }
+                        });
+                    })
+                    .finally(() => {
+                        this.saving_identity = false
                     })
                  }
             },
         }
-        
-}
+    }
 </script>

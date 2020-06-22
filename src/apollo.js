@@ -5,7 +5,7 @@ import ApolloClient from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { InMemoryCache } from "apollo-cache-inmemory";
-import firebase from './firebase'
+// import firebase from './firebase'
 import gr_tokens from './tokens'
 
 Vue.use(VueApollo);
@@ -17,7 +17,7 @@ export default () => {
     uri: 'https://us-central1-guestregistration-4140a.cloudfunctions.net/api',
     // uri: 'http://localhost:5000/guestregistration-4140a/us-central1/api',
     fetch,
-      headers: {
+    headers: {
         'gr-client-token': tokens.client,
         'gr-user-token': tokens.user
       }

@@ -2,16 +2,14 @@
 const state = {
     processing: false,
     app_ready: false,
-    phone: null,
     current_user: {
-        auth: null,
-        profile: null
+        auth: {},
+        profile: {}
     },
-
-    //verification data during signing in
-    auth: {
-        appVerifier: null,
-        confirmationResult: null
-    }
+    error: {
+        show: false,
+        message: '',
+        retry: null
+    },
 }
 export default state

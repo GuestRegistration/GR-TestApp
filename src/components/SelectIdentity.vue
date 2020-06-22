@@ -1,16 +1,10 @@
 <template>
     <div>
-        <template  v-if="report">
-            <Report :_message="report" @close="report = null"/>
-        </template>
-
         <div class="mb-5 text-center">
             <h2 class="">Identity</h2>
             <p><strong>{{reservation.property.name}}</strong> would like to verify your Identity</p>
         </div>
-        <v-card outlined
-        :loading="saving_identity"
-        >
+        <v-card outlined>
             <v-card-text>
                 <div class="my-5">
                     <template v-if="loading">
@@ -84,7 +78,6 @@
                             block
                             @click="submit"
                             id="sign-in-button"
-                            :loading="saving_identity"
                         >
                             Continue
                         </v-btn>
@@ -99,19 +92,16 @@
     import GET_MY_IDENTITIES from './../graphql/query/get_my_identities'
     import form_validation from './../helper/form_validation'
     import CreateNewIdentity from './CreateNewIdentity'
-    import Report from './Report'
     import _apollo from './../apollo'
-    import { mapState } from 'vuex'
+    import { mapState, mapMutations } from 'vuex'
 
     export default {
         data(){
             return {
                 loading: false,
                 identities: [],
-                saving_identity: false,
                 identity_to_use: null,
                 reservation: this._reservation,
-                report: null
             }
         },
         computed: {
@@ -120,35 +110,36 @@
             ])
         },
         components: {
-            CreateNewIdentity, Report
+            CreateNewIdentity
         },
         props: ['_reservation'],
         mounted(){
             this.getMyIdentities()
         },
         methods: {
+            ...mapMutations([
+                'TOAST_ERROR',
+            ]),
+
             selectID(id){
                 this.identity_to_use = id
             },
-            getUploadedID(id){
-                this.identity_to_use = id
+            getUploadedID(identity){
+                this.$emit('alert', {message:'New identity uploaded', type: 'success'});
                 if(this.identities){
-                     this.identities.push(id)
+                     this.identities.push(identity);
                 }else{
-                     this.identities = [id]
+                     this.identities = [identity];
                 }
-                this.identity_to_use = id
+                this.identity_to_use = identity;
             },
+
             submit(){
-                if(this.identity_to_use == null){
-                    alert('No Id has been selected')
-                }else{
-                 this.$emit('done', this.identity_to_use)
-                }
+                this.$emit('done', this.identity_to_use);
             },
 
             getMyIdentities(){
-                this.loading = true
+                    this.loading = true
                     const apollo = _apollo().client
                     apollo.query({
                         query: GET_MY_IDENTITIES,
@@ -157,7 +148,16 @@
                         this.identities = response.data.getMyIdentities
                     })
                     .catch(e => {
-                        this.report = e.message
+                        this.TOAST_ERROR({
+                            show: true,
+                            message: `Could not gey your Ids. ${e.message}`,
+                            retry: () => {
+                                return new Promise((resolve, reject) => {
+                                    this.getMyIdentities();
+                                    resolve();
+                                })
+                            }
+                        })
                     })
                     .finally(() => {
                         this.loading = false
