@@ -89,11 +89,10 @@
 </template>
 
 <script>
-    import GET_MY_IDENTITIES from './../graphql/query/get_my_identities'
-    import form_validation from './../helper/form_validation'
-    import CreateNewIdentity from './CreateNewIdentity'
-    import _apollo from './../apollo'
-    import { mapState, mapMutations } from 'vuex'
+    import GET_MY_IDENTITIES from './../graphql/query/get_my_identities';
+    import form_validation from './../helper/form_validation';
+    import CreateNewIdentity from './CreateNewIdentity';
+    import { mapState, mapMutations, mapActions } from 'vuex';
 
     export default {
         data(){
@@ -120,6 +119,10 @@
             ...mapMutations([
                 'TOAST_ERROR',
             ]),
+            ...mapActions([
+                'query',
+                'mutate'
+            ]),
 
             selectID(id){
                 this.identity_to_use = id
@@ -139,9 +142,8 @@
             },
 
             getMyIdentities(){
-                    this.loading = true
-                    const apollo = _apollo().client
-                    apollo.query({
+                    this.loading = true;
+                    this.query({
                         query: GET_MY_IDENTITIES,
                     })
                     .then(response => {
@@ -150,13 +152,14 @@
                     .catch(e => {
                         this.TOAST_ERROR({
                             show: true,
-                            message: `Could not gey your Ids. ${e.message}`,
+                            message: `Could not get your Ids.`,
                             retry: () => {
                                 return new Promise((resolve, reject) => {
                                     this.getMyIdentities();
                                     resolve();
                                 })
-                            }
+                            },
+                            exception: e
                         })
                     })
                     .finally(() => {

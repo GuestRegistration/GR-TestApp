@@ -89,10 +89,11 @@ export default {
                             // User couldn't sign in (bad verification code?)
                             this.confirming_verification_code = false;
                             this.$refs.app.toastError({
-                              message: `Could not sign in with the verification code. ${error.message}`,
+                              message: `Could not sign in with the verification code.`,
                               retry: () => {
                                   this._confirmVerificationCode()
                               }, 
+                              exception: error,
                             });
                         });
                 }

@@ -4,7 +4,7 @@
         :timeout="0" 
         color="red" 
         bottom>
-            {{error.message}}
+            {{error.message}} {{error.exception ? error.exception.message.replace('GraphQL error:', '').trim() : ''}}
              <v-btn  dark text @click="retryError" v-if="error.retry">
                 Retry
             </v-btn>
@@ -84,16 +84,17 @@
                  }
             },
 
-            toastError({message, retry}){
+            toastError({message, retry, exception}){
                 this.TOAST_ERROR({
                     show: true,
-                    message: message,
                     retry: () => {
                         return new Promise((resolve, reject) => {
                             retry();
                             resolve();
                         })
-                    }
+                    },
+                    message,
+                    exception
                 })
             },
             retryError(){
@@ -105,8 +106,6 @@
                 retry().then(() => {
                     this.TOAST_ERROR({
                         show: false,
-                        message: '',
-                        retry: null,
                     });
                 })
                 .catch(e => {
@@ -116,7 +115,6 @@
             closeError(){
                 this.TOAST_ERROR({
                     show: false,
-                    message: '',
                 });
             }
         },

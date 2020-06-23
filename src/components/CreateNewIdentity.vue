@@ -26,20 +26,22 @@
                     <v-card-text>
                         <v-form ref="upload_identity" >
                             <div class="my-5">
-                                        <v-select
-                                        v-model="country"
-                                        :items="countries"
-                                        menu-props="auto"
-                                        label="Select country"
-                                        hide-details
-                                        prepend-icon="mdi-flag"
-                                        single-line
-                                        :rules="[rules.required]"
+                                        <v-select 
+                                            outlined
+                                            v-model="country"
+                                            :items="countries"
+                                            menu-props="auto"
+                                            label="Select country"
+                                            hide-details
+                                            prepend-icon="mdi-flag"
+                                            single-line
+                                            :rules="[rules.required]"
                                         ></v-select>
                             </div>
 
                             <div class="my-5">  
                                     <v-select
+                                        outlined
                                         v-model="document_type"
                                         :items="document_types"
                                         menu-props="auto"
@@ -120,8 +122,8 @@
                         :disabled="!document.uploaded"
                         :loading="saving_identity"
                         @click="saveID"
+                        v-html="`${document.uploading ? 'Uploading ID...' : 'Save and use ID'}`"
                     >
-                        Save and use ID
                     </v-btn>
                     </v-card-actions>
                 </v-card>
@@ -135,9 +137,8 @@
     import CREATE_USER_ID from './../graphql/mutation/create_user_id'
     import file_helper from './../helper/file'
     import validations from './../helper/form_validation'
-    import _apollo from './../apollo'
 
-    import { mapState, mapMutations } from 'vuex'
+    import { mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
     
@@ -149,7 +150,8 @@ export default {
                     file: null,
                     upload_progress: 0,
                     uploaded: false,
-                    file_url: null
+                    file_url: null,
+                    uploading: false,
                 },
             rules: validations.rules,
             country: '',
@@ -169,13 +171,17 @@ export default {
         ...mapMutations([
                 'TOAST_ERROR',
         ]),
+        ...mapActions([
+            'query',
+            'mutate',
+        ]),
         uploadIdentity(file){
                 this.document.file = file
                 file_helper.previewSelectedImage(this.document.file, '#document-preview')
-                const ext = file.name.split('.')[1]
-                const saveAs = `private/identity/${this.current_user.auth.uid}.${ext}`
-                const uploadTask = file_helper.uploadFile(this.document.file, saveAs)
-                
+                const ext = file.name.split('.')[1];
+                const saveAs = `private/identity/${this.current_user.auth.uid}.${ext}`;
+                const uploadTask = file_helper.uploadFile(this.document.file, saveAs);
+                this.document.uploading = true;
                 // Register three observers:
                 // 1. 'state_changed' observer, called any time the state changes
                 // 2. Error observer, called on failure
@@ -195,6 +201,7 @@ export default {
                                 })
                             }
                         });
+                        this.document.uploading = false;
                     }, () => {
                     // Handle successful uploads on complete
                     uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
@@ -202,6 +209,8 @@ export default {
                             this.document.file_url = downloadURL;
                             // console.log('uploaded to '+downloadURL)
                         });
+                     this.document.uploading = false;
+
                 });
             },
             saveID(){
@@ -214,9 +223,7 @@ export default {
                            document_url: this.document.file_url
                         }
                     this.saving_identity = true
-                    const apollo = _apollo()
-                    apollo.client.mutate({
-                        // Query
+                    this.mutate({
                         mutation: CREATE_USER_ID,
                         variables: variables
                     })
@@ -233,7 +240,8 @@ export default {
                                     this.saveID();
                                     resolve();
                                 })
-                            }
+                            },
+                            exception: e,
                         });
                     })
                     .finally(() => {

@@ -96,10 +96,11 @@
                               });
                         }).catch( (error) => {
                             this.$refs.app.toastError({
-                                message: `Could not send SMS ${error.message}`,
+                                message: `Could not send SMS.`,
                                 retry: () => {
                                     this._sendPhoneVerification();
                                 },
+                                exception: error
                             });
                         })
                         .finally(() => {

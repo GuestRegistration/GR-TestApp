@@ -38,7 +38,7 @@
                                                 text
                                                 dark color="accent-4"
                                                 class="primary"
-                                                @click="createProfile"
+                                                @click="submit"
                                                 id="sign-in-button"
                                                 :loading="loading"
                                             >
@@ -63,12 +63,9 @@
     import UPDATE_USER from './../graphql/mutation/update_user'
     import CREATE_USER from './../graphql/mutation/create_user'
     import form_validation from './../helper/form_validation'
-    import { mapState, mapMutations, mapGetters } from 'vuex'
+    import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
     import AppLayer from './../AppLayer';
     import { VueTelInput } from 'vue-tel-input';
-
-    import _apollo from './../apollo'
-    
 
     export default {
         name: "ProfileUpdate",
@@ -117,9 +114,19 @@
              ...mapMutations([
                 'SET_CURRENT_USER'
             ]),
+            ...mapActions([
+                'query',
+                'mutate',
+            ]),
             
             onPhoneInput(formattedNumber, { number, valid, country }) {
                this.newPhone = { number, valid, country };
+            },
+
+            submit(){
+                 if(this.$refs.profile.validate()){
+                     this.createProfile();
+                 }
             },
 
             createProfile(){
@@ -127,40 +134,37 @@
                     this.$refs.app.alert('Invalid phone number', 'red');
                     return;
                 }
-                if(this.$refs.profile.validate()){
-                    this.loading = true;
-                    const apollo = _apollo();
-                    
-                    apollo.client.mutate({
-                        variables: this.profile,
-                        mutation: this.update ? UPDATE_USER : CREATE_USER,
-                    })
-                    .then( response  => {
-                        let user = this.current_user
-                        user.profile = this.update ? response.data.updateUser : response.data.createUser 
-                        this.SET_CURRENT_USER(user);
+                this.loading = true;
+                this.mutate({
+                    variables: this.profile,
+                    mutation: this.update ? UPDATE_USER : CREATE_USER,
+                })
+                .then(response  => {
+                    let user = this.current_user
+                    user.profile = this.update ? response.data.updateUser : response.data.createUser 
+                    this.SET_CURRENT_USER(user);
 
-                        this.$refs.app.alert('Profile updated', 'success');
+                    this.$refs.app.alert('Profile updated', 'success');
 
-                        if(this.$route.query.redirect){
-                            this.$router.push({
-                                path: this.redirect
-                            })
-                        }
-                    })
-                    .catch(e => {
-                        this.$refs.app.toastError({
-                            message: e.message,
-                            retry: () => {
-                                this.createProfile()
-                            }
-                        });
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    })
-                }
-            },
+                    if(this.$route.query.redirect){
+                        this.$router.push({
+                            path: this.redirect
+                        })
+                    }
+                })
+                .catch(e => {
+                    this.$refs.app.toastError({
+                        message: 'Failed.',
+                        retry: () => {
+                            this.createProfile()
+                        },
+                        exception: e
+                    });
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+            }
         },
     }
 </script>

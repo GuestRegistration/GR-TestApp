@@ -10,8 +10,8 @@ import gr_tokens from './tokens'
 
 Vue.use(VueApollo);
 
-export default () => {
-    const tokens = gr_tokens()
+export default async () => {
+    const tokens = await gr_tokens();
     // Create an http link:
     const httpLink = new HttpLink({
     uri: 'https://us-central1-guestregistration-4140a.cloudfunctions.net/api',

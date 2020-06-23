@@ -25,7 +25,6 @@
 import GET_USER_RESERVATIONS from '@/graphql/query/get_user_reservations'
 import Reservation from '@/components/Reservation.vue'
 import AppLayer from '@/AppLayer.vue'
-import _apollo from './../apollo'
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
@@ -35,7 +34,6 @@ export default {
   },
   data(){
      return {
-         apollo: _apollo(),
          reservations: {
              data: []
          }
@@ -49,9 +47,14 @@ export default {
     this.getReservations()
   },
   methods:{
-      getReservations(){
+      ...mapActions([
+          'query',
+          'mutate',
+      ]),
+
+    getReservations(){
           this.$refs.app.setState(false, 'Getting your reservations...')
-          this.apollo.client.query({
+          this.query({
               query: GET_USER_RESERVATIONS
           })
           .then(response => {
@@ -59,10 +62,11 @@ export default {
           })
           .catch(e => {
              this.$refs.app.toastError({
-                 message: `Couldn't get your reservations. ${e.message}`,
+                 message: `Couldn't get your reservations.`,
                  retry: () => {
                      this.getReservations()
-                 }
+                 },
+                 exception: e
              })
           })
           .finally(() => {

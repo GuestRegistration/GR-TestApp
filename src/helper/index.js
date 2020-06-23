@@ -25,4 +25,9 @@ export default {
         }
         return `${date.toDateString()}, ${diff} ago`
     },
+
+    nowTimestamp: () => {
+      let now = new Date();
+      return Math.floor(now.getTime()/1000);
+    }
 }

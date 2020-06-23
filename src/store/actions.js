@@ -1,8 +1,7 @@
 
-import firebase from './../firebase'
-import _apollo from './../apollo'
-import GET_USER_BY_ID from './../graphql/query/get_user_by_id'
-import CHECKIN_RESERVATION from './../graphql/mutation/checkin_reservation'
+import firebase from './../firebase';
+import _apollo from './../apollo';
+import helper from './../helper';
 
 const actions = {
 
@@ -12,7 +11,8 @@ const actions = {
             if(auth_user){
                 auth_user.getIdToken()
                 .then((idToken) => {
-                    window.localStorage.setItem('gr-user', idToken)
+                    window.localStorage.setItem('gr-user', idToken);
+                    window.localStorage.setItem('token-expires', helper.nowTimestamp()+3500);
                     commit('SET_CURRENT_USER', {
                         auth: auth_user,
                         profile: {}
@@ -77,44 +77,37 @@ const actions = {
         })
     },
 
-    /**
-     * run the getUser graphQL query with the specified id,
-     * returns the result of the query
-     * 
-     * @param {*} param0 
-     * @param {*} id 
-     */
-    getUserByID({commit}, id){
-        commit('PROCESSING', true)
-        const apollo = _apollo()
-        return apollo.client.query({
-            query: GET_USER_BY_ID,
-            variables: {
-                id
-            }
+    query({commit}, {query, variables}){
+        return new Promise((resolve, reject) => {
+            _apollo().then(apollo => {
+                return apollo.client.query({
+                    query,variables
+                })
+            })
+            .then(response => {
+                resolve(response);
+            })
+            .catch(e => {
+                reject(e);
+            })
+        })
+    },
+    mutate({commit}, {mutation, variables}){
+        return new Promise((resolve, reject) => {
+            _apollo().then(apollo => {
+                return apollo.client.mutate({
+                    mutation,variables
+                })
+            })
+            .then(response => {
+                resolve(response);
+            })
+            .catch(e => {
+                reject(e);
+            })
         })
     },
 
-    /**
-     * runs the checkinReservation mutation to checkin a reservation. 
-     * returns the result of the mutation
-     * 
-     * @param {*} param0 
-     * @param {*} param1 
-     */
-    checkinReservation({commit}, {reservation_id, accepted_tnc, identity_ref}){
-        commit('PROCESSING', true)
-        const apollo = _apollo()
-        return apollo.client.mutate({
-            // Query
-            mutation: CHECKIN_RESERVATION,
-            variables: {
-                    reservation_id,
-                    accepted_tnc,
-                    identity_ref
-                }
-        })
-    },
     /**
      * sign out the cureently authenticated user
      */
@@ -122,6 +115,8 @@ const actions = {
        return new Promise((resolve, reject) => {
             firebase.auth.signOut()
             .then(() => {
+                window.localStorage.removeItem('gr-user');
+                window.localStorage.removeItem('token-expires');
                 commit('SET_CURRENT_USER', {
                     auth: {},
                     profile: {}

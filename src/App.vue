@@ -10,13 +10,14 @@
         <template v-slot:prepend>
           <template  v-if="profile_loaded">
             <v-list-item two-line>
-              <v-list-item-avatar>
-                <img src="https://randomuser.me/api/portraits/women/81.jpg">
-              </v-list-item-avatar>
-              <v-list-item-content v-if="profile_loaded">
+              
+              <v-avatar color="primary" size="40" class="mr-2">
+                <span class="white--text headline">{{current_user.profile.name.first_name.substring(0,1)}}</span>
+              </v-avatar>
+              
+              <v-list-item-content>
                 <v-list-item-title>{{current_user.profile.name.first_name}} {{current_user.profile.name.last_name}}</v-list-item-title>
                 <v-list-item-subtitle>{{current_user.profile.email}}</v-list-item-subtitle>
-                <v-list-item-subtitle class="mt-1"><small>signed in</small></v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </template>
@@ -24,28 +25,29 @@
             <v-list-item two-line>
               <v-list-item-content>
                 <v-list-item-title>Guest</v-list-item-title>
-                <v-list-item-subtitle class="mt-1"><small>not signed in</small></v-list-item-subtitle>
+                <v-list-item-subtitle class="mt-1"><small>tot signed in</small></v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </template>
-
         </template>
-        <v-list shaped>
-          <v-list-item-group v-model="current" color="primary">
-            <router-link  v-for="(item, i) in navItems"
-              :key="i" :to="{name: item.route.name, params: item.route.params}"
-              style="text-decoration: none">
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon v-text="item.icon"></v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.text"></v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </router-link>
-          </v-list-item-group>
-        </v-list>
+
+      <v-list>
+        <v-list-item-group v-model="current" >
+          <router-link :to="{name: item.route.name, params: item.route.params}"  class="prevent-default" v-for="(item, i) in navItems"
+            :key="i" style="text-decoration: none">
+            <v-list-item color="primary">
+            <v-list-item-icon>
+              <v-icon v-text="item.icon"></v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title v-text="item.text"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          </router-link>
+          
+        </v-list-item-group>
+      </v-list>
+
 
         <template v-slot:append>
         <div class="pa-2">
@@ -87,7 +89,9 @@
 <script>
 
 import {mapActions, mapState, mapMutations, mapGetters} from 'vuex'
-import firebase from './firebase'
+import firebase from './firebase';
+import GET_USER_BY_ID from './graphql/query/get_user_by_id';
+
 export default {
   name: 'App',
   data(){
@@ -137,7 +141,7 @@ export default {
       ...mapActions([
           'getIdToken',
           'signout',
-          'getUserByID'
+          'query'
       ]),
       ...mapMutations([
         'TOAST_ERROR',
@@ -152,7 +156,12 @@ export default {
         .then(user =>  {
           if(user){
               this.auth = true
-               return this.getUserByID(user.uid)
+               return this.query({
+                 query: GET_USER_BY_ID,
+                 variables: {
+                   id: user.uid
+                 }
+               }); 
             }else{
               return new Promise((r,e) => {
                 this.signout().then(() => {
@@ -178,13 +187,14 @@ export default {
         })
         .catch(e => {
           this.TOAST_ERROR({
-            message: 'Authentication error',
+            message: 'Authentication error.',
             retry: () => {
               return new Promise((resolve, reject) => {
                 this.setUser();
                 resolve();
               })
-            } ,
+            },
+            exception: e
           });
           this.SET_APP_STATE(true);
         })
@@ -196,7 +206,6 @@ export default {
             this.UNSET_CURRENT_USER;
             this.auth = false;
             this.SET_APP_STATE(true)
-            window.localStorage.removeItem('gr-user')
             this.$router.push({
               name: 'signin'
             })

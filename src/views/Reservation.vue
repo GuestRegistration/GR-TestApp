@@ -13,13 +13,19 @@
             <template v-else-if="reservation">
 
                 <!-- if the reservation already checked in and the there is no auhenticated user, checked in reservation should no longer be accessible by the public, as user to authenticate -->
-                <template v-if="reservation.already_checkedin && current_user &&  !current_user.auth">
+                <template v-if="reservation.already_checkedin && !current_user.auth.uid">
                     
                     <v-container>
                         <v-row justify="center">
                             <v-col xs="12" md="4">
                                     <div class="text-center">
                                         <h4>We discover that this reservation has been checked in, If it's for you, you can continue</h4>
+                                    </div>
+                                    <br>
+                                    <div class="text-center">
+                                        <router-link :to="{name: 'signin', query: {redirect: $router.currentRoute.path }}">
+                                            <v-btn color="primary">Continue</v-btn>
+                                        </router-link>
                                     </div>
                             </v-col>
                         </v-row>
@@ -50,14 +56,26 @@
                                 </template>
 
                                 <template v-if="reservation.already_checkedin">
-                                    <v-alert type="success">
+                                    <v-alert 
+                                        border="top"
+                                        colored-border
+                                        elevation="2"
+                                        type="success">
                                         Reservation checked in {{checkin_time}}
                                     </v-alert>
 
-                                    <v-alert type="success" v-if="reservation.approved">
-                                    Reservation approved {{approved_time}}
+                                    <v-alert
+                                        border="top"
+                                        colored-border
+                                        elevation="2"
+                                        type="success" v-if="reservation.approved">
+                                        Reservation approved {{approved_time}}
                                     </v-alert>
-                                    <v-alert type="warning" v-else>
+                                    <v-alert 
+                                        border="top"
+                                        colored-border
+                                        elevation="2"
+                                        type="warning" v-else>
                                         The approval of your checkin is still pending 
                                     </v-alert>
                                 </template>
@@ -126,7 +144,7 @@ import CompleteProfile from '@/components/CompleteProfile'
 import TermsAndCondition from '@/components/TermsAndCondition'
 import ReservationDetails from '@/components/ReservationDetails'
 import CheckedIn from '@/components/CheckedIn'
-import _apollo from './../apollo'
+import CHECKIN_RESERVATION from './../graphql/mutation/checkin_reservation';
 import { mapActions, mapState, mapMutations, mapGetters } from 'vuex'
 
 export default {
@@ -167,7 +185,8 @@ export default {
     },
   methods:{
       ...mapActions([
-          'checkinReservation'
+          'query',
+          'mutate',
       ]),
       ...mapMutations([
           'SET_CURRENT_USER'
@@ -213,9 +232,12 @@ export default {
                 identity_ref: this.identity.ref,
                 accepted_tnc: accepted_tnc
             }
-            this.checkinReservation(payload)
-            .then(result => {
-                if(result.data.checkinReservation === null){
+            this.mutate({
+                mutation: CHECKIN_RESERVATION,
+                variables: payload
+            })
+            .then(response => {
+                if(response.data.checkinReservation === null){
                     this.$refs.app.toastError({
                         message: `Failed to checkin`,
                         retry: () => {
@@ -223,21 +245,18 @@ export default {
                         }
                     });
                 }else{ 
-                    this.reservation = result.data.checkinReservation;
+                    this.reservation = response.data.checkinReservation;
                     this.reservation.user_id = this.current_user.auth.uid;
                     this.$refs.app.alert(`Successfully checked in to ${this.reservation.property.name}`, `success`);
-
-                    // this.$router.push({
-                    //     name: 'home'
-                    // })
                 }
             })
             .catch(e => {
                 this.$refs.app.toastError({
-                    message: `Something went wrong while checking you in. ${ e.message}`,
+                    message: `Something went wrong while checking you in.`,
                      retry: () => {
                         this.reservationCheckin(accepted_tnc)
-                    }
+                    },
+                    exception: e
                 });
             })
             .finally(() => {
@@ -250,28 +269,28 @@ export default {
 
     getReservation(){
         this.$refs.app.setState(false, "Getting the reservation...");
-        const apollo = _apollo().client
-            apollo.query({
-                query: GET_RESERVATION,
-                variables: {
-                    id: this.id
-                }
-            })
-            .then(response => {
-                this.reservation = response.data.getReservation;
-                this.$refs.app.alert(`Welcome to ${this.reservation.property.name}`);
-            })
-            .catch(e => {
-                this.$refs.app.toastError({
-                    message: `Could not get reservation. ${ e.message}`,
-                    retry: () => {
-                        this.getReservation()
-                    } 
-                });
-            })
-            .finally(() => {
-                this.$refs.app.setState(true);
-            })
+        this.query({
+            query: GET_RESERVATION,
+            variables: {
+                id: this.id
+            }
+        })
+        .then(response => {
+            this.reservation = response.data.getReservation;
+            this.$refs.app.alert(`Welcome to ${this.reservation.property.name}`);
+        })
+        .catch(e => {
+            this.$refs.app.toastError({
+                message: `Could not get reservation.`,
+                retry: () => {
+                    this.getReservation()
+                },
+                exception: e
+            });
+        })
+        .finally(() => {
+            this.$refs.app.setState(true);
+        })
     }
   },
 
