@@ -28,15 +28,33 @@ const routes = [
   {
     path: '/r/:reservation',
     name: 'reservation.show',
-    component: () => import('../views/Reservation.vue'),
+    component: () => import('../views/Reservation/Show.vue'),
   },
+
+  {
+    path: '/property/:property',
+    name: 'property.show',
+    component: () => import('../views/Property/Show.vue'),
+  },
+
+  {
+    path: '/property/:property/rules',
+    name: 'property.rules',
+    component: () => import('../views/Property/Rules.vue'),
+  },
+
   {
     path: '/profile',
     name: 'profile',
     component: () => import('../views/Profile.vue'),
     beforeEnter: multiguard([middleware.auth])
   },
-
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: () => import('../views/Notifications.vue'),
+    beforeEnter: multiguard([middleware.auth])
+  },
   {
     path: '/about',
     name: 'about',

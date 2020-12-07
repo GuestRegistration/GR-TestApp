@@ -37,7 +37,13 @@
                       Continue
                   </v-btn>
               </v-card-actions>
-          </v-card>
+            </v-card>
+
+            <div class="text-center mt-3">
+                <v-btn text dark class="primary ma-1" @click="signInWithGoogle">
+                    Signin with Google
+                </v-btn>
+            </div>
         </v-col>
       </v-row>
     </app-layer>
@@ -47,6 +53,7 @@
     import { VueTelInput } from 'vue-tel-input'
     import {mapActions, mapMutations} from 'vuex'
     import AppLayer from '@/AppLayer';
+    import firebase from '../../firebase';
 
     import validations from './../../helper/form_validation';
 
@@ -109,6 +116,25 @@
                 }else{
                     this.$refs.app.alert('Invalid phone number', 'red');
                 }
+            },
+
+            signInWithGoogle(){
+                let userRef, signin, setup_profile = false;
+                
+                let provider = new firebase.firebase.auth.GoogleAuthProvider();
+                
+                firebase.auth.signInWithPopup(provider).then((result) => {
+                    console.log(result);
+                    // This gives a Google Access Token. You can use it to access the Google API.
+                    // var token = result.credential.accessToken;
+
+                    //pass some data to the global scope of the method to be used in other chained promise
+                    signin = result
+                    
+                    })
+                    .catch((error) => {
+                        alert(`Sign in failed: ${error.message}`)
+                });
             },
         },
         mounted(){

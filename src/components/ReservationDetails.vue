@@ -9,7 +9,7 @@
                     <v-list-item-title>Stay from {{reservation.checkin_date}} to {{reservation.checkout_date}}</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
-            <v-list-item >
+            <!-- <v-list-item >
                 <v-list-item-icon>
                     <v-icon>mdi-flag</v-icon>
                 </v-list-item-icon>
@@ -24,7 +24,7 @@
                 <v-list-item-content>
                     <v-list-item-title>Number of Guests: {{reservation.guests ? reservation.guests.length: 0}}</v-list-item-title>
                 </v-list-item-content>
-            </v-list-item>
+            </v-list-item> -->
         </v-list>
     </div>
 </template>

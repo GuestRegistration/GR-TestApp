@@ -89,6 +89,7 @@
                                             dark
                                             label
                                             small
+                                            :id="`file-${index}`"
                                         >
                                             {{ text }}
                                         </v-chip>

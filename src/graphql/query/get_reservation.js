@@ -13,6 +13,7 @@ export default gql`
             booking_channel
             checkin_date
             checkout_date
+            instruction
             property{
                 id
                 name

@@ -1,6 +1,9 @@
 .DS_Store
 node_modules
 /dist
+/.firebase
+/src/firebase-config.js
+/public/firebase-messaging-sw.js
 
 # local env files
 .env.local

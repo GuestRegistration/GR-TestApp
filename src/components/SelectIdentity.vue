@@ -1,5 +1,6 @@
 <template>
     <div>
+        <v-btn @click="$emit('back')" class="primary">Back</v-btn>
         <div class="mb-5 text-center">
             <h2 class="">Identity</h2>
             <p><strong>{{reservation.property.name}}</strong> would like to verify your Identity</p>

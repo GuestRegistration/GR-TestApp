@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-snackbar v-model="error.show"
-        :timeout="0" 
+        :timeout="-1" 
         color="red" 
         bottom>
             {{error.message}} {{error.exception ? error.exception.message.replace('GraphQL error:', '').trim() : ''}}
@@ -14,12 +14,12 @@
         </v-snackbar>
 
         <v-snackbar v-model="snackbar.status" 
-        :timeout="10000" 
-        :color="snackbar.color" 
-        :top="snackbar.top" 
-        :left="snackbar.left" 
-        :right="snackbar.right"
-        :bottom="snackbar.bottom">
+            :timeout="5000" 
+            :color="snackbar.color" 
+            :top="snackbar.top" 
+            :left="snackbar.left" 
+            :right="snackbar.right"
+            :bottom="snackbar.bottom">
             {{ snackbar.text }}
              <v-btn  dark text @click="closeAlert" >
                 Close
@@ -29,6 +29,7 @@
         <div v-if="app_ready && isset">
             <slot />
         </div>
+        
         <div v-else>
             <v-row justify="center">
                 <v-col cols="12" md="6" class="mt-5">

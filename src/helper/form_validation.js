@@ -1,7 +1,7 @@
 
 const formValidation = {
         rules: {
-            required: value => !!value || 'Required.'
+            required: value => !!value || 'Fied required.'
         }
 }
 

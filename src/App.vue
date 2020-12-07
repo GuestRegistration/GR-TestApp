@@ -25,13 +25,13 @@
             <v-list-item two-line>
               <v-list-item-content>
                 <v-list-item-title>Guest</v-list-item-title>
-                <v-list-item-subtitle class="mt-1"><small>tot signed in</small></v-list-item-subtitle>
+                <v-list-item-subtitle class="mt-1"><small>Not signed in</small></v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </template>
         </template>
 
-      <v-list>
+      <v-list nav> 
         <v-list-item-group v-model="current" >
           <router-link :to="{name: item.route.name, params: item.route.params}"  class="prevent-default" v-for="(item, i) in navItems"
             :key="i" style="text-decoration: none">
@@ -72,13 +72,9 @@
       <v-btn text dark @click="signUserOut" v-if="authenticated">Sign out</v-btn>
     </v-app-bar>
     <!-- Sizes your content based upon application components -->
-    <v-content>
-      <!-- Provides the application the proper gutter -->
-      <v-container fluid>
-        <!-- router view -->
+    <v-main>
           <router-view></router-view>
-      </v-container>
-    </v-content>
+    </v-main>
 
     <v-footer app>
       <small><a :href="site">2020. Guest Registration</a></small>
@@ -91,6 +87,7 @@
 import {mapActions, mapState, mapMutations, mapGetters} from 'vuex'
 import firebase from './firebase';
 import GET_USER_BY_ID from './graphql/query/get_user_by_id';
+import UPDATE_USER_DEVICE from './graphql/mutation/update_user_device';
 
 export default {
   name: 'App',
@@ -99,7 +96,7 @@ export default {
       auth: false,
       drawer: false,
       site: "http://guestregistration.co",
-      current: 0,
+      current: null,
     }
   },
 
@@ -125,6 +122,13 @@ export default {
             name: 'profile'
           } 
         },
+        { 
+          text: 'Notifications', 
+          icon: 'mdi-bell', 
+          route: {
+            name: 'notifications'
+          } 
+        },
       ]
     }
   },
@@ -134,14 +138,15 @@ export default {
     
       firebase.auth.onAuthStateChanged((user) => {
         this.setUser();
-      });
+      });firebase
   },
 
     methods:{
       ...mapActions([
           'getIdToken',
           'signout',
-          'query'
+          'query',
+          'mutate'
       ]),
       ...mapMutations([
         'TOAST_ERROR',
@@ -149,6 +154,32 @@ export default {
         'SET_CURRENT_USER',
         'UNSET_CURRENT_USER'
       ]),
+
+      getNotificationToken(){
+        const messaging = firebase.messaging;
+        messaging.getToken().then((currentToken) => {
+          if(currentToken) {                  
+              this.mutate({
+                mutation: UPDATE_USER_DEVICE,
+                variables: {
+                  device_id: navigator.userAgent,
+                  notification_token: currentToken
+                }
+              })
+              .then(response => {
+                  console.log('Device updated');
+                })
+              .catch(e => {
+                console.log('Could not update user device information')
+              })
+            } 
+          });
+          messaging.onMessage((payload) => {
+            new Notification(payload.notification.title, {
+              body: payload.notification.body
+            });
+          });
+      },
 
       setUser(){
         this.SET_APP_STATE(false)
@@ -177,6 +208,17 @@ export default {
                 auth: firebase.auth.currentUser,
                 profile: response.data.getUserByID || {}
               })
+              if(Notification.permission === "granted"){
+                this.getNotificationToken();
+              }else{
+                  Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                      new Notification("Holla! We can now send you notification here");
+                      this.getNotificationToken();
+                    }
+                  });
+              }
+
             }else if(this.$router.currentRoute.name !== 'profile'){
               this.$router.push({
                 name:'profile',
