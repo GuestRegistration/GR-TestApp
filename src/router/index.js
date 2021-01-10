@@ -1,7 +1,13 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import middleware from './middleware'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import middleware from './middleware';
 import multiguard from 'vue-router-multiguard';
+
+
+import AuthRoutes from '../domain/Auth/routes';
+import UserRoutes from '../domain/User/routes';
+import PropertyRoutes from '../domain/Property/routes';
+import ReservationRoutes from '../domain/Reservation/routes';
 
 Vue.use(VueRouter)
 
@@ -9,58 +15,12 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: () => import('../views/Reservations.vue'),
+    component: () => import('../views/Home.vue'),
     beforeEnter: multiguard([middleware.auth])
   },
-  {
-    path: '/signin',
-    name: 'signin',
-    component: () => import('../views/Auth/Signin.vue'),
-    beforeEnter: multiguard([middleware.guest])
-  },
-  {
-    path: '/signin/verification',
-    name: 'signin.verification',
-    component: () => import('../views/Auth/Verification.vue'),
-    beforeEnter: multiguard([middleware.guest, middleware.verificationSent])
-  },
-
-  {
-    path: '/r/:reservation',
-    name: 'reservation.show',
-    component: () => import('../views/Reservation/Show.vue'),
-  },
-
-  {
-    path: '/property/:property',
-    name: 'property.show',
-    component: () => import('../views/Property/Show.vue'),
-  },
-
-  {
-    path: '/property/:property/rules',
-    name: 'property.rules',
-    component: () => import('../views/Property/Rules.vue'),
-  },
-
-  {
-    path: '/profile',
-    name: 'profile',
-    component: () => import('../views/Profile.vue'),
-    beforeEnter: multiguard([middleware.auth])
-  },
-  {
-    path: '/notifications',
-    name: 'notifications',
-    component: () => import('../views/Notifications.vue'),
-    beforeEnter: multiguard([middleware.auth])
-  },
-  {
-    path: '/about',
-    name: 'about',
-    component: () => import('../views/About.vue')
-  }
-]
+].concat(
+  AuthRoutes, UserRoutes, PropertyRoutes, ReservationRoutes
+);
 
 const router = new VueRouter({
   mode: 'history',
@@ -69,4 +29,4 @@ const router = new VueRouter({
 })
 
 
-export default router
+export default router;

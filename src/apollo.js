@@ -7,6 +7,7 @@ import { onError } from "apollo-link-error";
 import { InMemoryCache } from "apollo-cache-inmemory";
 // import firebase from './firebase'
 import gr_tokens from './tokens'
+import config from './config';
 
 Vue.use(VueApollo);
 
@@ -14,8 +15,7 @@ export default async () => {
     const tokens = await gr_tokens();
     // Create an http link:
     const httpLink = new HttpLink({
-    uri: 'https://us-central1-guestregistration-4140a.cloudfunctions.net/api',
-    // uri: 'http://localhost:5000/guestregistration-4140a/us-central1/api',
+    uri: config.apollo.uri,
     fetch,
     headers: {
         'gr-client-token': tokens.client,
@@ -42,7 +42,7 @@ export default async () => {
       })
     });
   
-    const provider = new VueApollo({
+  const provider = new VueApollo({
     defaultClient: client,
   })
 

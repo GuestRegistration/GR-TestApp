@@ -1,5 +1,5 @@
 
-import firebase from './../firebase'
+import firebase from './../firebase';
 
 const fileHelper = {
     /**
@@ -38,6 +38,6 @@ const fileHelper = {
         const storageRef = firebase.storage.ref();
        return  storageRef.child(path).put(file)
     }
-}
+};
 
-export default fileHelper
+export default fileHelper;

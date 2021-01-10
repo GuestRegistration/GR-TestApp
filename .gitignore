@@ -2,8 +2,10 @@
 node_modules
 /dist
 /.firebase
+/src/config.js
 /src/firebase-config.js
 /public/firebase-messaging-sw.js
+.jshintrc
 
 # local env files
 .env.local

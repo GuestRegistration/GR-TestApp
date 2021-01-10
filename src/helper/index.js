@@ -1,6 +1,4 @@
 
-  import firebase from './../firebase'
-
 export default {
     /**
      * Translate a timestamp to human readable time
@@ -30,4 +28,4 @@ export default {
       let now = new Date();
       return Math.floor(now.getTime()/1000);
     }
-}
+};

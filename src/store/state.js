@@ -1,15 +1,18 @@
 
 const state = {
+    navDrawer: false,
     processing: false,
     app_ready: false,
     current_user: {
         auth: {},
-        profile: {}
+        profile: {},
+        property: {}
     },
     error: {
         show: false,
         message: '',
-        retry: null
+        retry: null,
+        exception: null
     },
 }
-export default state
+export default state;

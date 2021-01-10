@@ -10,6 +10,8 @@ Vue.config.productionTip = false
 
 const apollo = _apollo();
 
+Vue.prototype.$eventHub = new Vue(); // Global event bus
+
 new Vue({
   router,
   store,

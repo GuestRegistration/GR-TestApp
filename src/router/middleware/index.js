@@ -3,9 +3,9 @@ import store from './../../store';
 const middleware = {
     auth: (to, from, next) => {
         if(window.localStorage.getItem('gr-user')){
-            if(store.getters.app_ready && !store.getters.profile_loaded && to.name !== 'profile'){
+            if(store.getters.app_ready && !store.getters.profile_loaded && to.name !== 'account'){
                 next({
-                    name: 'profile',
+                    name: 'account',
                     query:{
                         redirect: to.fullPath
                     }
@@ -24,11 +24,11 @@ const middleware = {
     },
     guest: (to, from, next) => {
         if(!window.localStorage.getItem('gr-user')){
-             next()
+             next();
         }else{
             next({
                 name: 'home',
-            })
+            });
         }
     },
     
@@ -41,6 +41,6 @@ const middleware = {
             });
         }
     }
-}
+};
  
 export default middleware;
