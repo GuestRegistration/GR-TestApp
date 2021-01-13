@@ -39,7 +39,7 @@
                     </v-card>
                 </v-dialog>
                 <div class="text-center mt-3">
-                    <router-link :to="{name: 'property.rules', params: {property: reservation.property.id} }">
+                    <router-link :to="{name: 'property.rules', params: {id: reservation.property.id, _property: reservation.property} }">
                         Property Rules
                     </router-link>
                 </div>

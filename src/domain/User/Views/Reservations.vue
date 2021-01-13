@@ -9,12 +9,12 @@
                         <v-tab v-for="tab in tabs" :key="tab">{{ tab }}</v-tab>
                     </v-tabs>
 
-                    <template  v-if="tabs[currentTab] == 'my trips'">
+                    <template  v-if="tabs[currentTab] == 'user'">
                        <template v-if="reservations.data.length > 0">
                             <user-reservation  v-for="reservation in reservations.data" :_reservation="reservation" :key="reservation.id" class="my-2" />
                         </template>
                         <template v-else>
-                            <div class="text-center py-5">
+                            <div class="text-center">
                                 <p class="grey--text">No reservation yet</p>
                             </div>
                         </template>
@@ -22,13 +22,13 @@
 
                     <template  v-if="tabs[currentTab] == 'property'">
                         <div class="my-5">
-                            <property-switch @change="getPropertyReservations" />
+                            <property-switch @change="getPropertyNotifications" />
                         </div>
-                        <template v-if="reservations.data.length">
+                        <template v-if="reservations.data.length > 0">
                             <property-reservation  v-for="reservation in reservations.data" :_reservation="reservation" :key="reservation.id" class="my-2" />
                         </template>
                         <template v-else>
-                            <div class="text-center py-5">
+                            <div class="text-center">
                                 <p class="grey--text">No reservation created in {{ current_user.property.name }} yet</p>
                             </div>
                         </template>
@@ -36,18 +36,6 @@
                       
                   </v-col>
               </v-row>
-              <reservation-form-dialog ref="reservationFormDialog" @success="reservationFormSuccess" :property="current_user.property" />
-              <v-btn
-                v-if="tabs[currentTab] == 'property'"
-                class="mx-2"
-                fab dark bottom right fixed
-                color="primary"
-                @click="$refs.reservationFormDialog.open()"
-                >
-                <v-icon dark>
-                    mdi-plus
-                </v-icon>
-              </v-btn>
           </v-container>
         </div>
     </app-layer>
@@ -57,19 +45,18 @@
 import { mapActions, mapState, mapMutations, mapGetters } from 'vuex'
 
 import AppLayer from '@/AppLayer';
-import UserReservation from '../Components/Reservation';
-import PropertyReservation from '../Components/PropertyReservation';
+import UserReservation from '../../Reservation/Components/Reservation';
+import PropertyReservation from '../../Property/Components/PropertyNotification';
 import PropertySwitch from '../../Property/Components/PropertySwitch';
-import ReservationFormDialog from '../Components/ReservationFormDialog.vue';
 
-import GET_USER_RESERVATIONS from '../Queries/getUserReservations';
-import GET_PROPERTY_RESERVATIONS from '../Queries/getPropertyReservations';
+import GET_USER_RESERVATIONS from '../../Reservation/Queries/getUserReservations';
+import GET_PROPERTY_RESERVATIONS from '../../Reservation/Queries/getPropertyReservations';
 
 export default {
   name: 'Reservations',
   components: {
-      AppLayer, PropertySwitch,
-      UserReservation, PropertyReservation, ReservationFormDialog
+      AppLayer, 
+      UserNotification, PropertyNotification, PropertySwitch
   }, 
   data(){
       return {
@@ -99,12 +86,12 @@ export default {
         ]),
 
         tabChanged(){
-            if(this.tabs[this.currentTab] == 'my trips'){
-                this.getUserReservations();
+            if(this.tabs[this.currentTab] == 'user'){
+                this.getUserNotifications();
             }
 
             else if(this.tabs[this.currentTab] == 'property'){
-                this.getPropertyReservations();
+                this.getPropertyNotifications();
             }
         },
 
@@ -154,19 +141,6 @@ export default {
                 this.$refs.app.setState(true);
             })
         },
-
-        reservationFormSuccess(reservation){
-            this.$refs.app.alert(`New reservation created for ${reservation.name}`, 'success');
-            this.reservations.data.push(reservation);
-            this.$refs.reservationFormDialog.close();
-            this.$router.push({
-                name: 'property.reservation.show',
-                params: {
-                    id: reservation.id,
-                    _reservation: reservation
-                }
-            })
-        }
 
     },
     mounted(){

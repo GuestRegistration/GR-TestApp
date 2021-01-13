@@ -13,7 +13,7 @@ export default [
     },
     
     {
-        path: '/r/:reservation',
+        path: '/r/:id',
         name: 'reservation.show',
         component: ReservationShow,
     },

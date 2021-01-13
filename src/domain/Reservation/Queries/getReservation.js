@@ -14,6 +14,7 @@ export default gql`
             checkin_date
             checkout_date
             instruction
+            checkin_url
             property{
                 id
                 name

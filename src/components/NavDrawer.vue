@@ -84,9 +84,9 @@
         <v-divider></v-divider>
       </template>
 
-      <v-list dense>
-        <v-list-item-group v-model="GuestCurrentNav" >
-          <template v-for="(item, i) in GuestNavItems">
+      <v-list>
+        <v-list-item-group v-model="currentNav" >
+          <template v-for="(item, i) in navItems">
             <component :key="i" :is="`${item.router ? 'router-link' : 'a'}`" :to="{name: item.route.name, params: item.route.params}" v-if="item.render" class="no-underline-nav-link"  >
               <v-list-item color="primary" >
               <v-list-item-icon>
@@ -108,49 +108,6 @@
           </template>
         </v-list-item-group>
       </v-list>
-
-      <v-divider v-if="current_user.profile.properties && current_user.profile.properties.length" class="my-2"></v-divider>
-
-      <v-list v-if="current_user.profile.properties && current_user.profile.properties.length" dense>
-        <v-subheader>HOST</v-subheader>
-        <v-list-item color="primary" >
-          <v-list-item-content>
-            <v-select
-              class="mx-2"
-              :items="propertiesSwitch"
-              item-text="name"
-              item-value="id"
-              dense
-              :value="current_user.property.id"
-              @change="switchProperty"
-            ></v-select>
-          </v-list-item-content>
-        </v-list-item>
-
-        <v-list-item-group v-model="HostCurrentNav" >
-          <template v-for="(item, i) in HostNavItems">
-            <component :key="i" :is="`${item.router ? 'router-link' : 'a'}`" :to="{name: item.route.name, params: item.route.params}" v-if="item.render" class="no-underline-nav-link"  >
-              <v-list-item color="primary" >
-              <v-list-item-icon>
-                <v-icon v-text="item.icon"></v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title v-text="item.title"></v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </component>
-          <v-list-item v-else disabled :key="i">
-              <v-list-item-icon>
-                <v-icon v-text="item.icon"></v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title v-text="item.title"></v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-        </v-list-item-group>
-      </v-list>
-
 
       <template v-slot:append>
         <div class="pa-2">
@@ -170,8 +127,7 @@ export default {
     name: "NavDrawer",
     data(){
         return {
-            HostCurrentNav: null,
-            GuestCurrentNav: null
+            currentNav: null
         }
     },
     computed:{
@@ -180,11 +136,7 @@ export default {
       'authenticated',
       'profile_loaded',
     ]),
-    propertiesSwitch(){
-      return this.profile_loaded && this.current_user.profile.properties ? 
-             this.current_user.profile.properties : []
-    },
-    GuestNavItems(){
+    navItems(){
       return [
         { 
           title: 'Home', 
@@ -214,7 +166,7 @@ export default {
           router: true,
         },
         { 
-          title: 'Trips', 
+          title: 'Reservations', 
           icon: 'mdi-clock', 
           route: {
             name: 'reservation.list'
@@ -235,45 +187,14 @@ export default {
        
       ]
     },
-
-    HostNavItems(){
-      return [
-        { 
-          title: 'Reservations', 
-          icon: 'mdi-clock', 
-          route: {
-            name: 'property.reservation.list'
-          },
-          render: true,
-          router: true,
-        },
-        { 
-          title: 'Notifications', 
-          icon: 'mdi-bell', 
-          route: {
-            name: 'property.notifications'
-          },
-          render: true,
-          router: true,
-        },
-      ]
-    }
   },
 
   methods: {
-    ...mapMutations([
-      'SET_ACTIVE_PROPERTY'
-    ]),
-
-    switchProperty(property){
-      this.SET_ACTIVE_PROPERTY(this.current_user.profile.properties.find(p => p.id == property));
-      this.$eventHub.$emit('property-switched');
-    }
+   
   },
 
   mounted(){
-    this.HostCurrentNav = this.HostNavItems.findIndex(nav => nav.route.name == this.$router.currentRoute.name);
-    this.GuestCurrentNav = this.GuestNavItems.findIndex(nav => nav.route.name == this.$router.currentRoute.name);
+    this.currentNav = this.navItems.findIndex(nav => nav.route.name == this.$router.currentRoute.name);
   }
 }
 </script>

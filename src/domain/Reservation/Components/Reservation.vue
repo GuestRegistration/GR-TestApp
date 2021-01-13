@@ -9,16 +9,16 @@
             <v-card-actions>
                 <v-chip
                     class="ma-2"
-                    :color="`${reservation.approved ? `teal` : `warning`}`"
+                    :color="`${reservation.checkedin_at ? (reservation.approved ? `teal` : `info`) : `warning`}`"
                     text-color="white"
                     >
                     <v-avatar left>
                         <v-icon>mdi-checkbox-marked-circle</v-icon>
                     </v-avatar>
-                    {{reservation.approved ? `Approved`: `Pending approval`}}
+                    {{reservation.checkedin_at ? (reservation.approved ? `Approved`: `Pending approval`) : `Checkin pending`}}
                 </v-chip>
                 <v-spacer></v-spacer>
-                <router-link :to="`/r/${reservation.id}`" >
+                <router-link :to="{name: 'reservation.show', params:  {id: reservation.id, _reservation: reservation}}" >
                     <v-btn text dark class="primary">View Reservation</v-btn>
                 </router-link>
             </v-card-actions>

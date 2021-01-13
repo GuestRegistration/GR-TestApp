@@ -33,6 +33,18 @@
                 </div>
             </div>
         </v-snackbar>
+
+        <v-snackbar bottom right :value="updateExists" :timeout="-1" color="primary">
+            <div class="d-flex align-center">
+                <div>
+                    An update is available
+                </div>
+                <v-spacer></v-spacer>
+                <v-btn text @click="refreshApp">
+                    Update
+                </v-btn>
+            </div>
+        </v-snackbar>
         
         <div class="ma-3">
             <slot name="header" />
@@ -55,6 +67,7 @@
 </template>
 
 <script>
+    import update from './mixins/update';
     import {mapActions, mapState, mapMutations, mapGetters} from 'vuex';
     import firebase from '@/firebase';
     import helper from '@/helper';
@@ -256,5 +269,7 @@
                 this.setUser();
             });
         },
+
+        mixins: [update]
     }
 </script>

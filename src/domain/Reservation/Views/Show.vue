@@ -48,7 +48,7 @@
                                     <h4 class="grey--text">{{reservation.property.name}}</h4>
                                     <p>{{property ? [property.address.street, property.address.country].join(', ') : reservation.property.country}}</p>
                                     <div class="my-3">
-                                        <router-link :to="{name: 'property.show', params: {property: reservation.property.id} }">
+                                        <router-link :to="{name: 'property.show', params: { id: reservation.property.id, _property: reservation.property} }">
                                             <v-btn color="primary">View property</v-btn>
                                         </router-link>
                                     </div>
@@ -184,7 +184,7 @@ export default {
         ]),
 
         id(){
-            return this.$route.params.reservation
+            return this.$route.params.id
         },
 
          checkin_time(){

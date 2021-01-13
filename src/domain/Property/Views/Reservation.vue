@@ -15,15 +15,17 @@
                 <v-row justify="center">
                     <v-col cols="12" md="6">
                         <h2>{{ reservation.name }}</h2>
+                        <small class="text--gray">{{ reservation.checkin_url }}</small>
                         <ReservationDetails :_reservation="reservation" />
                         <template v-if="reservation.already_checkedin">
-                             <v-alert 
+                            <v-alert 
                                 border="top"
                                 colored-border
                                 elevation="2"
                                 type="success">
                                 Reservation checked in {{checkin_time}}
                             </v-alert>
+
                             <v-alert
                                 border="top"
                                 colored-border
@@ -52,6 +54,15 @@
                             </confirmation-dialog>
                             <v-btn color="primary" @click="$refs.reservationCheckinConfirmation.open()" >View checkin info</v-btn>
 
+                        </template>
+                        <template v-else>
+                            <v-alert 
+                                border="top"
+                                colored-border
+                                elevation="2"
+                                type="warning">
+                                Waiting for checkin...
+                            </v-alert>
                         </template>
                     </v-col>
                 </v-row>
@@ -97,7 +108,7 @@ export default {
         ]),
 
         id(){
-            return this.$route.params.reservation
+            return this.$route.params.id
         },
 
          checkin_time(){
@@ -106,17 +117,6 @@ export default {
         approved_time(){
             return helper.resolveTimestamp(this.reservation.approved_at)
         }
-    },
-    created() {
-        this.$eventHub.$on('property-switched', () => {
-            this.$router.push({
-                name: 'property.reservation.list'
-            })
-        });
-    },
-
-    beforeDestroy() {
-        this.$eventHub.$off('property-switched');
     },
   mounted(){
         

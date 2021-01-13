@@ -19,7 +19,7 @@
                
                 >
                 <v-col class="text-center" cols="12">
-                <h1>{{ property.name }}</h1>
+                    <h1>{{ property.name }}</h1>
                     <p>{{ [property.address.street, property.address.city, property.address.state, property.address.country].join(', ') }}</p>
                     <v-icon color="white" v-if="property.phone_meta.complete_phone">mdi-phone</v-icon> {{ property.phone_meta.complete_phone }}
                     <br>
@@ -54,17 +54,19 @@ export default {
 
     computed:{
          id(){
-            return this.$route.params.property;
+            return this.$route.params.id;
         },
     },
 
     mounted(){
-        if(this.$route.params._property){
-            this.property = this.$route.params._property;
-            this.$refs.app.setState(true);
-        }else{
-            this.getProperty()
-        }
+        this.getProperty();
+        
+        // if(this.$route.params._property){
+        //     this.property = this.$route.params._property;
+        //     this.$refs.app.setState(true);
+        // }else{
+        //     this.getProperty()
+        // }
     },
     
     methods:{

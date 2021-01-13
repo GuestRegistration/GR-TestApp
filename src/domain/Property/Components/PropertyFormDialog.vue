@@ -101,7 +101,9 @@
                     ></v-text-field>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn type="button" @click.prevent="submit" color="primary" large :loading="loading">Submit</v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn text @click.prevent="close" color="red">Cancel</v-btn>
+                    <v-btn type="button" @click.prevent="submit" color="primary" :loading="loading">Submit</v-btn>
                 </v-card-actions>
             </v-card>
         </v-form>

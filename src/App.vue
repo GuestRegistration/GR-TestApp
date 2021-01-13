@@ -13,7 +13,7 @@
         <v-toolbar-title dark>Guest Registration</v-toolbar-title>
       </router-link>
       <v-spacer></v-spacer>
-      <v-btn text dark @click="signUserOut" v-if="authenticated">Sign out</v-btn>
+      <!-- <v-btn text dark @click="signUserOut" v-if="authenticated">Sign out</v-btn> -->
     </v-app-bar>
     <!-- Sizes your content based upon application components -->
     <v-main>

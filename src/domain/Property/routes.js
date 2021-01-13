@@ -5,8 +5,6 @@ import PropertyList from './Views/List.vue';
 import PropertyShow from './Views/Show.vue';
 import PropertyRules from './Views/Rules.vue';
 import PropertyReservation from './Views/Reservation.vue';
-import PropertyReservations from './Views/Reservations.vue';
-import PropertyNotifications from './Views/Notifications.vue';
 
 export default [
     {
@@ -17,36 +15,21 @@ export default [
     },
 
     {
-        path: '/property/:property',
+        path: '/property/:id',
         name: 'property.show',
         component: PropertyShow,
     },
     
     {
-        path: '/property/:property/rules',
+        path: '/property/:id/rules',
         name: 'property.rules',
         component: PropertyRules,
     }, 
-    
+        
     {
-        path: '/host/reservations',
-        name: 'property.reservation.list',
-        component: PropertyReservations,
-        beforeEnter: multiguard([middleware.auth])
-    },
-    
-    {
-        path: '/host/reservation/:reservation',
+        path: '/host/reservation/:id',
         name: 'property.reservation.show',
         component: PropertyReservation,
-        beforeEnter: multiguard([middleware.auth])
-    },
-
-      
-    {
-        path: '/host/notifications',
-        name: 'property.notifications',
-        component: PropertyNotifications,
         beforeEnter: multiguard([middleware.auth])
     },
 

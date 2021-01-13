@@ -17,7 +17,7 @@
                     {{reservation.approved ? `Approved`: `Pending approval`}}
                 </v-chip>
                 <v-spacer></v-spacer>
-                <router-link :to="{name: 'property.reservation.show', params: {reservation: reservation.id}}" >
+                <router-link :to="{name: 'property.reservation.show', params: {id: reservation.id, _reservation: reservation}}" >
                     <v-btn text dark class="primary">View Reservation</v-btn>
                 </router-link>
             </v-card-actions>

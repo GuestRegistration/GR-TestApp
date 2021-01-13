@@ -26,13 +26,13 @@
                             <div>
                                 <label for="checkin-date">Checkin date</label>
                             </div>
-                            <v-date-picker id="checkin-date" v-model="form.checkin_date"></v-date-picker>
+                            <v-date-picker id="checkin-date" v-model="form.checkin_date" :min="today"></v-date-picker>
                         </v-col>
                         <v-col  cols="12" md="6">
                             <div>
                                 <label for="checkout-date">Checkout date</label>
                             </div>
-                            <v-date-picker id="checkout-date" v-model="form.checkout_date" :min="form.checkin_date"></v-date-picker>
+                            <v-date-picker id="checkout-date" v-model="form.checkout_date" :min="form.checkin_date ? form.checkin_date : today"></v-date-picker>
                         </v-col>
                     </v-row>
                   
@@ -43,7 +43,9 @@
                     ></v-textarea>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn type="button" @click.prevent="submit" color="primary" large :loading="loading">Submit</v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn text @click.prevent="close" color="red">Cancel</v-btn>
+                    <v-btn type="button" @click.prevent="submit" color="primary" :loading="loading">Submit</v-btn>
                 </v-card-actions>
             </v-card>
         </v-form>
@@ -76,7 +78,10 @@ export default {
     computed: {
         ...mapGetters([
             'current_user'
-        ])
+        ]),
+        today(){
+            return new Date().toISOString().substr(0, 10);
+        }
     },
 
     methods: {
