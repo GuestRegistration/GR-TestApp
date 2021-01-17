@@ -46,7 +46,7 @@
                             <v-col cols="12" md="4" >
                                 <div>
                                     <h4 class="grey--text">{{reservation.property.name}}</h4>
-                                    <p>{{property ? [property.address.street, property.address.country].join(', ') : reservation.property.country}}</p>
+                                    <p>{{property ? property.full_address : reservation.property.address}}</p>
                                     <div class="my-3">
                                         <router-link :to="{name: 'property.show', params: { id: reservation.property.id, _property: reservation.property} }">
                                             <v-btn color="primary">View property</v-btn>

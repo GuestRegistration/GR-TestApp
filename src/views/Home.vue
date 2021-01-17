@@ -51,10 +51,7 @@ export default {
             id: reservation.property_id,
             name: reservation.property_name,
             image: reservation.property_image,
-            address: {
-              city: reservation.property_city,
-              country: reservation.property_country,
-            }
+            address: reservation.property_address
           }
         }
       }) : [];
@@ -66,10 +63,7 @@ export default {
           id: property.id,
           name: property.name,
           image: property.image,
-          address: {
-            city: property.city,
-            country: property.country
-          }
+          full_address: property.address
         }
       }) : []
     }

@@ -32,56 +32,20 @@
                     <phone-number v-model="phone" />
 
                     <v-row>
-                        <v-col cols="12" sm="8">
-                            <v-text-field
+                        <v-col cols="12">
+                            <p v-if="mode == 'edit'" class="text--gray mt-2">{{ form.full_address }}</p>
+                            <location 
+                                flat
+                                hide-no-data
+                                hide-details
+                                :label="`${mode == 'edit' ? 'Update location' : 'Location'}`"
                                 outlined
-                                label="Street"
-                                :rules="[rules.required]"
-                                type="text"
-                                name="street"
-                                v-model="form.street"
-                            ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="12" sm="4">
-                            <v-text-field
-                                outlined
-                                label="Postal code"
-                                :rules="[rules.required, rules.numeric]"
-                                type="number"
-                                name="postal_code"
-                                v-model="form.postal_code"
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="4">
-                            <v-text-field
-                                outlined
-                                label="City"
-                                :rules="[rules.required]"
-                                type="text"
-                                name="city"
-                                v-model="form.city"
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="4">
-                            <v-text-field
-                                outlined
-                                label="State"
-                                :rules="[rules.required]"
-                                type="text"
-                                name="state"
-                                v-model="form.state"
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="4"> 
-                            <v-text-field
-                                outlined
-                                label="Country"
-                                :rules="[rules.required]"
-                                type="text"
-                                name="country"
-                                v-model="form.country"
-                            ></v-text-field>
+                                clearable
+                                cache-items
+                                class="mb-5"
+                                v-model="form.full_address"
+                             />
+                            
                         </v-col>
                     </v-row>
 
@@ -114,13 +78,15 @@
 import { mapActions, mapMutations } from 'vuex';
 import formValidation from '@/helper/formValidation';
 import PhoneNumber from '@/components/Utilities/PhoneNumber.vue';
+import Location from '@/components/Utilities/GooglePlaces.vue';
+
 import CREATE_PROPERTY from '../Mutations/createProperty';
 import UPDATE_PROPERTY from '../Mutations/updateProperty';
 
 export default {
     name: "PropertyFormDialog",
     components: {
-        PhoneNumber,
+        PhoneNumber, Location
     },
     data(){
         return {
@@ -212,14 +178,14 @@ export default {
             })
             .then(response => {
                 console.log(response);
-                this.$emit('success', response.data.createProperty);
+                this.$emit('success', response.data.updateProperty);
             })
             .catch(e => {
                 
                 this.$emit('error', e);
             })
             .finally(() => {
-                this.loading = true;
+                this.loading = false;
             })
         }
     },
@@ -234,6 +200,10 @@ export default {
                         id: property.id,
                         name: property.name, 
                         email: property.email, 
+                        phone: property.phone, 
+                        phone_country_code: property.phone_meta ? property.phone_meta.country_code: null,
+                        phone_number: property.phone_meta ? property.phone_meta.phone_number : null,
+                        full_address: property.full_address,
                         street: property.address.street, 
                         city: property.address.city, 
                         state: property.address.state, 
@@ -246,11 +216,13 @@ export default {
                         country_code: property.phone_meta.country_code,
                         international: property.phone,
                         significant: property.phone_meta.phone_number,
+                        valid: true,
                     }
                 }else{
                     this.form = {
                         name: null, 
                         email: null, 
+                        full_address: null,
                         street: null, 
                         city: null, 
                         state: null, 

@@ -14,7 +14,7 @@
     </v-card-title>
 
     <v-card-subtitle>
-      {{ reservation.property.city }} {{ reservation.property.country }}
+      {{ reservation.property.address }}
     </v-card-subtitle>
     <v-card-actions>
       <v-spacer></v-spacer>

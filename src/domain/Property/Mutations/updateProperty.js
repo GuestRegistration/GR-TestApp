@@ -9,6 +9,7 @@ export default gql`
         $phone: String!,
         $phone_country_code: String, 
         $phone_number: String, 
+        $full_address: String!,
         $street: String, 
         $city: String, 
         $state: String, 
@@ -24,6 +25,7 @@ export default gql`
             phone: $phone,
             phone_country_code: $phone_country_code, 
             phone_number: $phone_number, 
+            full_address: $full_address
             street: $street, 
             city: $city, 
             state: $state, 
@@ -38,11 +40,13 @@ export default gql`
             terms
             email
             image
+            phone
             phone_meta {
                 country_code
                 phone_number
                 complete_phone
             }
+            full_address
             address {
                 street
                 city

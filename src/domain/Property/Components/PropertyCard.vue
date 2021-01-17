@@ -8,14 +8,14 @@
     ></v-img>
 
     <v-card-title>
-      <router-link :to="{name: 'property.show', params: {property: property.id, _property: property}}">
+      <router-link :to="{name: 'property.show', params: {id: property.id, _property: property}}">
         {{ property.name }}
       </router-link>
       
     </v-card-title>
 
     <v-card-subtitle>
-      {{ property.address.city }} {{ property.address.country }}
+      {{ property.full_address }}
     </v-card-subtitle>
 
   </v-card>

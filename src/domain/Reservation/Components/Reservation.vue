@@ -2,7 +2,7 @@
     <div>
         <v-card outline>
             <v-card-title>{{reservation.property.name}}</v-card-title>
-            <v-card-subtitle>{{reservation.property.country}}</v-card-subtitle>
+            <v-card-subtitle>{{reservation.property.address}}</v-card-subtitle>
             <v-card-text v-if="reservation.already_checkedin">
                 <p>checked in {{checkin_time}}</p>
             </v-card-text>

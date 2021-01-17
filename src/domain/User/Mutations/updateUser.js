@@ -34,16 +34,14 @@ export default gql`
                 id
                 name
                 image
-                city
-                country
+                address
             }
             reservations{
                 id
                 name
                 property_id
                 property_name
-                property_city
-                property_country
+                property_address
                 property_image
                 checkin_date
                 checkout_date

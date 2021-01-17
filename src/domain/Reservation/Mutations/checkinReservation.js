@@ -16,8 +16,7 @@ export default gql`
             property{
                 id
                 name
-                city
-                country
+                address
                 image
             }
             guests{

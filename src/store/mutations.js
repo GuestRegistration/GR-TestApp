@@ -24,13 +24,26 @@ const mutations = {
             id: property.id,
             name: property.name,
             image: property.image,
-            city: property.address.city,
-            country: property.address.country,
+            address: property.full_address,
         };
        if(state.current_user.profile.properties){
             state.current_user.profile.properties.push(userProperty);
        }else{
             state.current_user.profile.properties = [userProperty];
+       }
+    },
+
+    UPDATE_USER_PROPERTY: (state, property) => {
+        const userProperty = {
+            id: property.id,
+            name: property.name,
+            image: property.image,
+            address: property.full_address,
+        };
+       if(state.current_user.profile.properties){
+            let index = state.current_user.profile.properties.findIndex(p => p.id == property.id);
+            if(index < 0) return;
+            state.current_user.profile.properties.splice(index, 1,userProperty);
        }
     },
 

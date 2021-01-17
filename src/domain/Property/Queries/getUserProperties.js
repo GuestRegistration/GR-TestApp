@@ -14,6 +14,7 @@ export default gql`
                 phone_number
                 complete_phone
             }
+            full_address
             address {
                 street
                 city
