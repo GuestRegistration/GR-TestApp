@@ -122,7 +122,7 @@
                             :disabled="!document.uploaded"
                             :loading="saving_identity"
                             @click="saveID"
-                            v-html="`${document.uploading ? 'Uploading ID...' : 'Save and use ID'}`"
+                            v-html="`${document.uploading ? 'Uploading ID...' : 'Save ID'}`"
                         >
                         </v-btn>
                         </v-card-actions>

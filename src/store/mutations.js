@@ -19,6 +19,25 @@ const mutations = {
         state.current_user.property = property
     },
 
+    ADD_USER_RESERVATION: (state, reservation) => {
+        const userReservation = {
+            id: reservation.id,
+            name: reservation.name,
+            property_id: reservation.property.id,
+            property_name: reservation.property.name,
+            property_address: reservation.property.address,
+            property_image: reservation.property.image,
+            checkin_date: reservation.checkin_date,
+            checkout_date: reservation.checkout_date,
+            role: ''
+        };
+       if(state.current_user.profile.reservations){
+            state.current_user.profile.reservations.push(userReservation);
+       }else{
+            state.current_user.profile.reservations = [userReservation];
+       }
+    },
+
     ADD_USER_PROPERTY: (state, property) => {
         const userProperty = {
             id: property.id,

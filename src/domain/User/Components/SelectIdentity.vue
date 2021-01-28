@@ -115,9 +115,11 @@
             CreateNewIdentity
         },
         props: ['_reservation'],
+
         mounted(){
             this.getMyIdentities()
         },
+        
         methods: {
             ...mapMutations([
                 'TOAST_ERROR',
@@ -150,7 +152,8 @@
                         query: GET_USER_IDENTITIES,
                     })
                     .then(response => {
-                        this.identities = response.data.getMyIdentities
+                        console.log(response);
+                        this.identities = response.data.getUserIdentities
                     })
                     .catch(e => {
                         this.TOAST_ERROR({
@@ -172,7 +175,7 @@
         
         },
 
-         watch: {
+        watch: {
             _reservation: function(r){
                 this.reservation = r
             }

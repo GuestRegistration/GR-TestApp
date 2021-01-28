@@ -203,7 +203,7 @@ export default {
           'mutate',
       ]),
       ...mapMutations([
-
+          'ADD_USER_RESERVATION'
         ]),
 
       getStarted(){
@@ -260,8 +260,10 @@ export default {
                         }
                     });
                 }else{ 
+
                     this.reservation = response.data.checkinReservation;
                     this.reservation.user_id = this.current_user.auth.uid;
+                    this.ADD_USER_RESERVATION({...this.reservation});
                     this.$refs.app.alert(`Successfully checked in to ${this.reservation.property.name}`, `success`);
                 }
             })

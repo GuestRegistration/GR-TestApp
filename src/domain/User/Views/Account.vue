@@ -3,6 +3,8 @@
         <template >
             <v-container>
                 <v-row justify="center">
+
+                    <!-- Profile -->
                     <v-col cols="12" md="6">
                         <v-card outlined>
                             <v-card-title >
@@ -32,15 +34,14 @@
                                         </div>
                                     </v-form>
                                 </div>
-                                <div class="text-center">
-                                    
-                                </div>
                             </v-card-text>
                         </v-card>
                         <div class="mt-5" v-if="!update">
                             <p class="grey--text">By creating an account, you agree to our <a href="#">Terms of service</a> and <a href="#">Privacy policy</a></p>
                         </div>
                     </v-col>
+
+                    <!-- credentials -->
                     <v-col cols="12" md="6">
                         <v-card outlined class="mt-2 mt-md-0">
                             <v-card-title>
@@ -48,6 +49,17 @@
                             </v-card-title>
                             <v-card-text>
                                 <account-connects @report="accountConnectReport" @auth-updated="syncAuthWithProfile" @notification="sendAccountPushNotification" />
+                            </v-card-text>
+                        </v-card>
+                    </v-col>
+
+                    <v-col cols="12" md="6">
+                        <v-card outlined class="mt-2 mt-md-0">
+                            <v-card-title>
+                                Identities
+                            </v-card-title>
+                            <v-card-text>
+                                <identities />
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -64,6 +76,7 @@
     import formvalidation from '@/helper/formValidation'
     import AppLayer from '@/AppLayer';
     import AccountConnects from '../../Auth/Components/AccountConnects';
+    import Identities from '../Components/Identities';
 
     import UPDATE_USER from '../Mutations/updateUser';
     import CREATE_USER from '../Mutations/createUser';
@@ -73,7 +86,7 @@
     export default {
         name: "UserAccount",
         components: {
-            AppLayer, AccountConnects
+            AppLayer, AccountConnects, Identities
         },
         data(){
             return {
