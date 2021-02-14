@@ -12,7 +12,7 @@ export default [
         beforeEnter: multiguard([middleware.auth])
       },
     {
-        path: '/notifications',
+        path: '/notifications/:notification?',
         name: 'notification.list',
         component: UserNotifications,
         beforeEnter: multiguard([middleware.auth])

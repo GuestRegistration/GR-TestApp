@@ -57,28 +57,17 @@
                     </v-list>
 
                     <v-list>
-                        <v-subheader>Identity: {{ checkin.identity.title }}</v-subheader>
+                        <v-subheader>Identity</v-subheader>
                         <v-list-item>
                             <v-list-item-content>
                                 <v-list-item-title>
-                                    Country: {{ checkin.identity.country }}
+                                    Document: {{ userVerification.document ? userVerification.document : 'unverified'  }}
                                 </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-content>
-                                <v-list-item-title>
-                                    Document Type: {{ checkin.identity.document_type }}
-                                </v-list-item-title>
-                            </v-list-item-content>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-content>
-                                <v-img :src="checkin.identity.document_url" :alt="checkin.identity.title" width="100%"></v-img>
                             </v-list-item-content>
                         </v-list-item>
                     </v-list>
-
+                    <v-btn class="ma-1" color="primary" @click="$refs.userVerificationReport.open()">View Verification Report</v-btn>
+                    <verification-report ref="userVerificationReport" :user-id="user.id" />
                 </template>
                 <template v-else>
                     <div class="py-5 text-center">
@@ -124,10 +113,15 @@ import { mapActions, mapMutations } from 'vuex';
 
 import GET_RESERVATION_CHECKIN from '../Queries/getReservationCheckin';
 import APPROVE_RESERVATION_CHECKIN from '../Mutations/approveReservationCheckin';
+import VerificationReport from '../../User/Components/VerificationReport.vue';
 
 export default {
     name: "ReservationCheckin",
+    components: {
+        VerificationReport
+    },
     data(){
+
         return {
             dialog: false,
             checkin: null,
@@ -135,6 +129,15 @@ export default {
             approval: {
                 loading: false,
             }
+        }
+    },
+
+    computed: {
+        user(){
+            return this.checkin ? this.checkin.user : {}
+        },
+        userVerification(){
+            return this.user.verification ? this.user.verification : {}
         }
     },
 

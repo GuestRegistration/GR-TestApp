@@ -69,6 +69,7 @@ const mutations = {
     TOAST_ERROR: (state, { show, message, retry, exception }) => {
         state.error = { show, message, retry, exception };
     },
+    
     UNSET_CURRENT_USER: (state) => {
         state.current_user = {
             auth: {},

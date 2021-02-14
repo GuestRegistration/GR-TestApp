@@ -118,7 +118,30 @@
                                             <template v-else>
 
                                                 <template v-if="stage == 'identity'">
-                                                    <SelectIdentity  @done="getUserIdentity" @alert="({message, type}) => $refs.app.alert(message, type)" @back="start = false" :_reservation="reservation" />
+                                                    <v-btn class="my-5" color="primary" @click="start = false">Back</v-btn>
+                                                    <template  v-if="current_user.profile.verification && current_user.profile.verification.document === 'verified'">
+                                                        <v-alert 
+                                                            border="left"
+                                                            colored-border
+                                                            elevation="2"
+                                                            type="success">
+                                                                <strong>{{ property.name }}</strong> would be able to view your verified ID to approve your checkin.
+                                                        </v-alert>
+
+                                                    </template>
+                                                    <template v-else>
+                                                        <v-alert 
+                                                            border="left"
+                                                            colored-border
+                                                            elevation="2"
+                                                            type="warning">
+                                                                <strong>{{ property.name }}</strong> would need a valid identity to approve your checkin, but you currently do not have a verified ID
+                                                            </v-alert>
+                                                            <v-btn class="ma-1" @click="$router.push({name: 'account'})" color="primary">Verify Your ID</v-btn>
+                                                    </template>
+                                                    <v-btn color="primary" class="ma-1" @click="stage = 'tnc'">Continue</v-btn>
+
+                                                    <!-- <SelectIdentity  @done="getUserIdentity" @alert="({message, type}) => $refs.app.alert(message, type)" @back="start = false" :_reservation="reservation" /> -->
                                                 </template>
                                                 <template v-if="stage == 'tnc'">
                                                     <TermsAndCondition :property="property" @done="reservationCheckin" @back="stage = 'identity'" />
@@ -139,15 +162,13 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
+import { mapActions, mapMutations, mapGetters } from 'vuex';
 
 import helper from '@/helper'
 
 import AppLayer from '@/AppLayer';
 
-import SelectIdentity from '../../User/Components/SelectIdentity';
-import CompleteProfile from '../../User/Components/CompleteProfile';
-
+// import SelectIdentity from '../../User/Components/SelectIdentity';
 import CheckedIn from '../Components/CheckedIn';
 import TermsAndCondition from '../Components/TermsAndCondition';
 import ReservationDetails from '../Components/ReservationDetails';
@@ -160,7 +181,7 @@ export default {
   name: 'reservation',
   components: {
       AppLayer,
-      SelectIdentity,
+    //   SelectIdentity,
       TermsAndCondition,
       ReservationDetails,
       CheckedIn,
@@ -188,10 +209,10 @@ export default {
         },
 
          checkin_time(){
-            return helper.resolveTimestamp(this.reservation.checkedin_at)
+            return this.reservation ? helper.resolveTimestamp(this.reservation.checkedin_at) : '';
         },
         approved_time(){
-            return helper.resolveTimestamp(this.reservation.approved_at)
+            return this.reservation ? helper.resolveTimestamp(this.reservation.approved_at) : '';
         }
     },
   mounted(){
@@ -217,16 +238,16 @@ export default {
           }
         else if(!this.profile_loaded){
            this.$router.push({
-                name: 'profile',
+                name: 'account',
                 query: {
                     redirect: this.$router.currentRoute.path
                 },
             })
-      }
-          else{
-              this.start = true;
-              this.stage = 'identity';
-          }
+        }
+        else{
+            this.start = true;
+            this.stage = 'identity';
+        }
       },
 
     getUserIdentity(identity){
@@ -242,14 +263,13 @@ export default {
     reservationCheckin(accepted_tnc){
         if(accepted_tnc){
             this.$refs.app.setState(false, `Checking you in to ${this.reservation.property.name}`)
-            const payload = {
-                reservation_id: this.reservation.id,
-                identity_ref: this.identity.ref,
-                accepted_tnc: accepted_tnc
-            }
             this.mutate({
                 mutation: CHECKIN_RESERVATION,
-                variables: payload
+                variables: {
+                    reservation_id: this.reservation.id,
+                    // identity_ref: this.identity.ref,
+                    accepted_tnc: accepted_tnc
+                }
             })
             .then(response => {
                 if(response.data.checkinReservation === null){

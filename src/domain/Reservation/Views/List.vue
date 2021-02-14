@@ -1,178 +1,80 @@
 <template>
-    <app-layer ref="app">
+    <app-layer ref="app" @ready="ready">
         <div class="notifications">    
           <v-container>
               <v-row justify="center">
                   <v-col cols="12" sm="8" md="6">
+
                     <v-tabs v-if="hasAnyProperty" v-model="currentTab" @change="tabChanged" align-with-title>
                         <v-tabs-slider color="primary"></v-tabs-slider>
-                        <v-tab v-for="tab in tabs" :key="tab">{{ tab }}</v-tab>
+                        <v-tab v-for="tab in tabs" :key="tab.name">{{ tab.name }}</v-tab>
                     </v-tabs>
 
-                    <template  v-if="tabs[currentTab] == 'my trips'">
-                       <template v-if="reservations.data.length > 0">
-                            <user-reservation  v-for="reservation in reservations.data" :_reservation="reservation" :key="reservation.id" class="my-2" />
-                        </template>
-                        <template v-else>
-                            <div class="text-center py-5">
-                                <p class="grey--text">No reservation yet</p>
-                            </div>
-                        </template>
-                    </template>
-
-                    <template  v-if="tabs[currentTab] == 'property'">
-                        <div class="my-5">
-                            <property-switch @change="getPropertyReservations" />
-                        </div>
-                        <template v-if="reservations.data.length">
-                            <property-reservation  v-for="reservation in reservations.data" :_reservation="reservation" :key="reservation.id" class="my-2" />
-                        </template>
-                        <template v-else>
-                            <div class="text-center py-5">
-                                <p class="grey--text">No reservation created in {{ current_user.property.name }} yet</p>
-                            </div>
-                        </template>
-                    </template>
+                    <component :is="`${reservation}-reservations`"></component>
                       
                   </v-col>
               </v-row>
-              <reservation-form-dialog ref="reservationFormDialog" @success="reservationFormSuccess" :property="current_user.property" />
-              <v-btn
-                v-if="tabs[currentTab] == 'property'"
-                class="mx-2"
-                fab dark bottom right fixed
-                color="primary"
-                @click="$refs.reservationFormDialog.open()"
-                >
-                <v-icon dark>
-                    mdi-plus
-                </v-icon>
-              </v-btn>
+              
           </v-container>
         </div>
     </app-layer>
 </template>
 
 <script>
-import { mapActions, mapState, mapMutations, mapGetters } from 'vuex'
-
 import AppLayer from '@/AppLayer';
-import UserReservation from '../Components/Reservation';
-import PropertyReservation from '../Components/PropertyReservation';
-import PropertySwitch from '../../Property/Components/PropertySwitch';
-import ReservationFormDialog from '../Components/ReservationFormDialog.vue';
-
-import GET_USER_RESERVATIONS from '../Queries/getUserReservations';
-import GET_PROPERTY_RESERVATIONS from '../Queries/getPropertyReservations';
+import PersonalReservations from '../Widgets/UserReservations.vue';
+import PropertyReservations from '../Widgets/PropertyReservations.vue';
 
 export default {
   name: 'Reservations',
   components: {
-      AppLayer, PropertySwitch,
-      UserReservation, PropertyReservation, ReservationFormDialog
+      AppLayer, PersonalReservations, PropertyReservations
   }, 
   data(){
       return {
-            tabs: ['my trips', 'property'],
-            currentTab: 0,
-            reservations: {
-                data: []
-            }
+            tabs: [
+                {
+                    name: 'My Trips',
+                    alias: 'personal',
+                    route: {name: 'reservation.list', params: {reservation: 'personal'}}
+                },
+                {
+                    name: 'Property',
+                    alias: 'property',
+                    route: {name: 'reservation.list', params: {reservation: 'property'}}
+                }
+            ],
       }
   },
 
     computed:{
-        ...mapGetters([
-            'app_ready',
-            'authenticated',
-            'current_user',
-        ]),
         hasAnyProperty(){
-            return this.current_user.profile.properties && this.current_user.profile.properties.length
+            return this.$store.getters.current_user.profile.properties && this.$store.getters.current_user.profile.properties.length
+        },
+
+        reservation(){
+            return this.$route.params.reservation ?  this.$route.params.reservation  : 'personal';
+        },
+
+        currentTab: {
+            get: function(){
+                return this.tabs.findIndex(t => t.alias == this.reservation)
+            },
+            set: function(tab){}
         }
     },
 
     methods:{
-      ...mapActions([
-          'query',
-          'mutate',
-        ]),
 
-        tabChanged(){
-            if(this.tabs[this.currentTab] == 'my trips'){
-                this.getUserReservations();
-            }
-
-            else if(this.tabs[this.currentTab] == 'property'){
-                this.getPropertyReservations();
-            }
+        ready(){
+            this.$refs.app.setState(true);
         },
 
-        getUserReservations(){
-          this.$refs.app.setState(false, 'Getting your reservations...')
-          this.query({
-              query: GET_USER_RESERVATIONS
-          })
-          .then(response => {
-              this.reservations.data = response.data.getUserReservations
-          })
-          .catch(e => {
-             this.$refs.app.toastError({
-                 message: `Couldn't get your reservations.`,
-                 retry: () => {
-                     this.getUserReservations()
-                 },
-                 exception: e
-             })
-          })
-          .finally(() => {
-              this.$refs.app.setState(true);
-          })
-        },
-
-        getPropertyReservations(){
-            this.$refs.app.setState(false, `Getting reservations in ${this.current_user.property.name}...`);
-            this.query({
-                query: GET_PROPERTY_RESERVATIONS,
-                variables: {
-                    id: this.current_user.property.id
-                }
-            })
-            .then(response => {
-                this.reservations.data = response.data.getPropertyReservations
-            })
-            .catch(e => {
-                this.$refs.app.toastError({
-                    message: `Couldn't get reservations.`,
-                    retry: () => {
-                        this.getPropertyReservations()
-                    },
-                    exception: e
-                })
-            })
-            .finally(() => {
-                this.$refs.app.setState(true);
-            })
-        },
-
-        reservationFormSuccess(reservation){
-            this.$refs.app.alert(`New reservation created for ${reservation.name}`, 'success');
-            this.reservations.data.push(reservation);
-            this.$refs.reservationFormDialog.close();
-            this.$router.push({
-                name: 'property.reservation.show',
-                params: {
-                    id: reservation.id,
-                    _reservation: reservation
-                }
-            })
+        tabChanged(tab){
+            this.$router.push(this.tabs[tab].route)
         }
 
     },
-    mounted(){
-        this.getUserReservations();
-    },
-
 
 }
 </script>

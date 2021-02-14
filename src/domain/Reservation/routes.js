@@ -6,7 +6,7 @@ import ReservationShow from './Views/Show.vue';
 
 export default [
     {
-        path: '/reservations',
+        path: '/reservations/:reservation?',
         name: 'reservation.list',
         component: ReservationList,
         beforeEnter: multiguard([middleware.auth])

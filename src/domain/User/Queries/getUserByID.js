@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    query getUserByID($id: String!){
+    query getUserByID($id: ID!){
         getUserByID(id: $id){
             id
             email,
@@ -13,6 +13,10 @@ export default gql`
             phone_meta{
                 country_code
                 phone_number
+            }
+            verification{
+                document
+                selfie
             }
             properties{
                 id

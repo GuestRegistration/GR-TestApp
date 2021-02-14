@@ -5,7 +5,7 @@
                 <v-row justify="center">
 
                     <!-- Profile -->
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" id="profile">
                         <v-card outlined>
                             <v-card-title >
                                 {{!update ? 'Create your profile' : 'Update profile'}}
@@ -42,7 +42,7 @@
                     </v-col>
 
                     <!-- credentials -->
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" id="credentials">
                         <v-card outlined class="mt-2 mt-md-0">
                             <v-card-title>
                                 Credentials
@@ -53,13 +53,14 @@
                         </v-card>
                     </v-col>
 
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" id="id-verification">
                         <v-card outlined class="mt-2 mt-md-0">
                             <v-card-title>
-                                Identities
+                                Identity verification
                             </v-card-title>
                             <v-card-text>
-                                <identities />
+                                <!-- <identities /> -->
+                                <identity-verification />
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -71,13 +72,13 @@
 </template>
 
 <script>
-    import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
+    import { mapMutations, mapGetters, mapActions } from 'vuex'
 
     import formvalidation from '@/helper/formValidation'
     import AppLayer from '@/AppLayer';
     import AccountConnects from '../../Auth/Components/AccountConnects';
-    import Identities from '../Components/Identities';
-
+    // import Identities from '../Components/Identities';
+    import IdentityVerification from '../Components/IdentityVerification';
     import UPDATE_USER from '../Mutations/updateUser';
     import CREATE_USER from '../Mutations/createUser';
     
@@ -86,9 +87,11 @@
     export default {
         name: "UserAccount",
         components: {
-            AppLayer, AccountConnects, Identities
+            AppLayer, AccountConnects, IdentityVerification,
+            //Identities,
         },
         data(){
+        
             return {
                 loading: false,
                 rules: formvalidation.rules,
@@ -166,7 +169,7 @@
                     mutation: this.update ? UPDATE_USER : CREATE_USER,
                 })
                 .then(response  => {
-                    this.SET_USER_PROFILE(response.data.createUser);
+                    this.SET_USER_PROFILE(this.update ? response.data.updateUser : response.data.createUser);
                     this.setProfile();
                     this.$refs.app.alert('Profile updated', 'success');
 

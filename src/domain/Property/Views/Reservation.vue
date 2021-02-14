@@ -84,7 +84,6 @@ import ReservationDetails from '../../Reservation/Components/ReservationDetails'
 import ReservationCheckin from '../../Reservation/Components/ReservationCheckin';
 
 import GET_RESERVATION from '../../Reservation/Queries/getReservation';
-import GET_PROPERTY from '../Queries/getProperty';
 
 export default {
   name: 'reservation',

@@ -1,35 +1,19 @@
 <template>
-    <app-layer ref="app">
+    <app-layer ref="app" @ready="ready">
         <div class="notifications">    
           <v-container>
               <v-row justify="center">
                   <v-col cols="12" sm="8" md="6">
+
                     <v-tabs v-if="hasAnyProperty" v-model="currentTab" @change="tabChanged" align-with-title>
                         <v-tabs-slider color="primary"></v-tabs-slider>
-                        <v-tab v-for="tab in tabs" :key="tab">{{ tab }}</v-tab>
+                        <v-tab v-for="tab in tabs" :key="tab.name">
+                            {{ tab.name }}
+                        </v-tab>
                     </v-tabs>
 
-                    <template  v-if="tabs[currentTab] == 'personal'">
-                        <template v-if="notifications.length">
-                            <user-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
-                        </template>
-                        <div v-else class="text-center py-5">
-                            <p class="grey--text">No notification yet</p>
-                        </div>
-                    </template>
+                    <component :is="`${notification}-notifications`"></component>
 
-                    <template  v-if="tabs[currentTab] == 'property'">
-                        <div class="my-5">
-                            <property-switch @change="getPropertyNotifications" />
-                        </div>
-                        <template v-if="notifications.length">
-                            <property-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
-                        </template>
-                        <div v-else class="text-center py-5">
-                            <p class="grey--text">No notification</p>
-                        </div>
-                    </template>
-                      
                   </v-col>
               </v-row>
           </v-container>
@@ -38,108 +22,61 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapMutations, mapGetters } from 'vuex'
-
 import AppLayer from '@/AppLayer';
-import UserNotification from '../Components/UserNotification';
-import PropertyNotification from '../../Property/Components/PropertyNotification';
-import PropertySwitch from '../../Property/Components/PropertySwitch';
-import GET_USER_NOTIFICATIONS from '../Queries/getUserNotifications';
-import GET_PROPERTY_NOTIFICATIONS from '../../Property/Queries/getPropertyNotifications';
+import PersonalNotifications from '../Widgets/UserNotifications.vue';
+import PropertyNotifications from '../Widgets/PropertyNotifications.vue';
 
 export default {
-  name: 'Notifications',
-  components: {
-      AppLayer, PropertySwitch,
-      UserNotification, PropertyNotification
-  }, 
-  data(){
+    name: 'Notifications',
+    components: {
+        AppLayer, PersonalNotifications, PropertyNotifications
+    }, 
+    
+    data(){
       return {
-          tabs: ['personal', 'property'],
-          currentTab: 0,
-          notifications: []
+          tabs: [
+              {
+                  name: 'Personal',
+                  alias: 'personal',
+                  route: {name: 'notification.list', params: {notification: 'personal'}}
+              },
+              {
+                  name: 'Property',
+                  alias: 'property',
+                  route: {name: 'notification.list', params: {notification: 'property'}}
+              }
+          ],
       }
-  },
+    },
 
     computed:{
-        ...mapGetters([
-            'app_ready',
-            'authenticated',
-            'current_user',
-        ]),
         hasAnyProperty(){
-            return this.current_user.profile.properties && this.current_user.profile.properties.length
+            return this.$store.getters.current_user.profile.properties && this.$store.getters.current_user.profile.properties.length
+        },
+
+        notification(){
+            return this.$route.params.notification ?  this.$route.params.notification  : 'personal';
+        },
+
+        currentTab: {
+            get: function(){
+                return this.tabs.findIndex(t => t.alias == this.notification)
+            },
+            set: function(tab){}
         }
-    },
-
-    methods:{
-      ...mapActions([
-          'query',
-          'mutate',
-        ]),
-
-        tabChanged(){
-            if(this.tabs[this.currentTab]== 'personal'){
-                this.getUserNotifications();
-            }
-
-            else if(this.tabs[this.currentTab] == 'property'){
-                this.getPropertyNotifications();
-            }
-        },
-
-        getUserNotifications(){
-            this.$refs.app.setState(false, "Getting your notifications");
-            this.query({
-                query: GET_USER_NOTIFICATIONS,
-            })
-            .then(response => {
-                this.notifications = response.data.getUserNotifications;
-            })
-            .catch(e => {
-                this.$refs.app.toastError({
-                    message: `Could not get notifications.`,
-                    retry: () => {
-                        this.getUserNotifications()
-                    },
-                    exception: e
-                });
-            })
-            .finally(() => {
-                this.$refs.app.setState(true);
-            })
-        },
-
-        getPropertyNotifications(){
-            this.$refs.app.setState(false, `Getting notifications in ${this.current_user.property.name}... `);
-            this.query({
-                query: GET_PROPERTY_NOTIFICATIONS,
-                variables: {
-                    id: this.current_user.property.id
-                }
-            })
-            .then(response => {
-                this.notifications = response.data.getPropertyNotifications;
-            })
-            .catch(e => {
-                this.$refs.app.toastError({
-                    message: `Could not get notifications.`,
-                    retry: () => {
-                        this.getPropertyNotifications()
-                    },
-                    exception: e
-                });
-            })
-            .finally(() => {
-                this.$refs.app.setState(true);
-            })
-        },
 
     },
-    mounted(){
-        this.getUserNotifications();
-    },
 
+    methods: {
+        ready(){
+            this.$refs.app.setState(true);
+        },
 
+        tabChanged(tab){
+            this.$router.push(this.tabs[tab].route)
+        }
+    }
+
+   
 }
 </script>

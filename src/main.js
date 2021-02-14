@@ -16,6 +16,9 @@ Vue.use(VueMeta, {
 });
 
 Vue.prototype.$eventHub = new Vue(); // Global event bus
+Vue.mixin({ methods: { 
+  url: (path) => `${process.env.VUE_APP_URL}${path}`
+ }});
 
 new Vue({
   router,

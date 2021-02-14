@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    query getReservationCheckin($id: String!){
+    query getReservationCheckin($id: ID!){
         getReservationCheckin(id: $id){
             reservation{
                 id
@@ -40,17 +40,10 @@ export default gql`
                     country_code
                     phone_number
                 }
-            }
-            identity{
-                id
-                user_id
-                country
-                document_type
-                document_url
-                title
-                verified
-                verified_at
-                ref
+                verification{
+                    document
+                    selfie
+                }
             }
         }
     }`;

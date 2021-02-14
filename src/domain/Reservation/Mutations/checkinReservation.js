@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    mutation checkinReservation($reservation_id: String!, $identity_ref: String! ) {
+    mutation checkinReservation($reservation_id: ID!, $identity_ref: String ) {
         checkinReservation(reservation_id: $reservation_id, identity_ref: $identity_ref) {
             id
             user_id

@@ -174,6 +174,7 @@
                     this.signout().then(() => {
                         this.SET_APP_STATE(true);
                     })
+                    this.$emit('ready');
                     return;
                 }
                 
@@ -184,8 +185,8 @@
                     return this.query({
                             query: GET_USER_BY_ID,
                             variables: {
-                            id: user.uid
-                        }
+                                id: user.uid
+                            }
                     }); 
                     }else{
                         return new Promise((r,e) => {
