@@ -16,5 +16,8 @@ export default [
         path: '/r/:id',
         name: 'reservation.show',
         component: ReservationShow,
+        meta: {
+            requiresAuth: false
+        }
     },
 ]

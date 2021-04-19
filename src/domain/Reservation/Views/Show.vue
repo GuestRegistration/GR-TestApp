@@ -210,18 +210,10 @@ export default {
           'ADD_USER_RESERVATION'
         ]),
 
-      getStarted(){
-          if(!this.authenticated){
-                this.$router.push({
-                    name: 'signin',
-                    query: {
-                        redirect: this.$router.currentRoute.path
-                    },
-                })
-          }
-        else if(!this.profile_loaded){
-           this.$router.push({
-                name: 'account',
+    getStarted(){
+        if(!this.authenticated){
+            this.$router.push({
+                name: 'signin',
                 query: {
                     redirect: this.$router.currentRoute.path
                 },
@@ -230,12 +222,12 @@ export default {
         else{
             this.start = true;
         }
-      },
+    },
 
 
     reservationCheckin(accepted_tnc){
         if(accepted_tnc){
-            this.$refs.app.setState(false, `Checkin you into ${this.property.name} `);
+            this.loading = true;
             this.mutate({
                 mutation: CHECKIN_RESERVATION,
                 variables: {
@@ -270,7 +262,7 @@ export default {
                 });
             })
             .finally(() => {
-                this.$refs.app.setState(true)
+                this.loading = false;
             })
         }else{
            this.$refs.app.alert(`You need to agree to the terms`, `red`);
@@ -287,17 +279,20 @@ export default {
             }
         })
         .then(response => {
-            this.reservation = response.data.getReservation;
-            this.$refs.app.alert(`Welcome to ${this.reservation.property.name}`);
-            return this.query({
-                query: GET_PROPERTY,
-                variables: {
-                    id: this.reservation.property.id
-                }
-            })
+            if(response && response.data.getReservation){
+                this.reservation = response.data.getReservation;
+                this.$refs.app.alert(`Welcome to ${this.reservation.property.name}`);
+                return this.query({
+                    query: GET_PROPERTY,
+                    variables: {
+                        id: this.reservation.property_id
+                    }
+                })
+            }
+            return Promise.resolve(null)
         })
         .then(response => {
-            this.property = response.data.getProperty;
+            this.property = response && response.data.getProperty ? response.data.getProperty : null;
         })
         .catch(e => {
             this.$refs.app.toastError({

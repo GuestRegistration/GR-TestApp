@@ -56,7 +56,7 @@ import NavDrawer from '@/components/NavDrawer.vue';
 import firebase from '@/firebase';
 import helper from '@/helper';
 import update from './mixins/update';
-
+import config from './config'
 import GET_USER_BY_ID from './domain/User/Queries/getUserByID';
 import UPDATE_USER_DEVICE from './domain/User/Mutations/updateUserDevice';
 
@@ -110,8 +110,10 @@ export default {
               return;
           }
           else if(!firebase.auth.currentUser){
-              this.signUserOut();
-              return;
+            this.signout().then(() => {
+              this.SET_APP_STATE(true);
+            })
+            return;
           }
           
           this.getIdToken()
@@ -137,18 +139,21 @@ export default {
                 }else{
                     Notification.requestPermission().then(permission => {
                         if (permission === "granted") {
-                        new Notification("Holla! We can now send you notification here");
-                        this.getNotificationToken();
+                          new Notification("Hello! We can now send you notification here");
+                          this.getNotificationToken();
                         }
                     });
                 }
                 this.SET_APP_STATE(true);
               }
               else if(firebase.auth.currentUser){
-                  this.$router.push({
-                      name: 'account'
-                  })
-                  this.SET_APP_STATE(true);
+                this.$router.push({
+                    name: 'account',
+                    query: {
+                      redirect: this.$router.currentRoute.path
+                    }
+                })
+                this.SET_APP_STATE(true);
               }else{
                 this.signUserOut()
               }
@@ -214,6 +219,5 @@ export default {
         this.setUser();
       });
     },
-
 }
 </script>

@@ -155,7 +155,7 @@
 
                     if(this.$route.query.redirect){
                         this.$router.push({
-                            path: this.redirect
+                            path: this.$route.query.redirect
                         })
                     }
                 })
