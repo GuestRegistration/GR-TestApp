@@ -21,7 +21,7 @@
                 <v-alert v-if="initError" color="error">Unable to initialize your payment right now</v-alert>
             </data-container>
 
-            <form @submit.prevent="submit" :class="{'hidden': initializing || initError != null }">
+            <form @submit.prevent="createToken" :class="{'d-none': initializing || initError != null }">
                 <div class="my-3">
                     <div  class="my-3" :id="`card-element-${_uid}`">
                     <!-- A Stripe Element will be inserted here. -->
@@ -40,14 +40,12 @@
                         {{process}}
                     </v-alert>
                 </div>
-                <div class="d-flex justify-space-between">
-                </div>
             </form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
             <v-btn  text color="red" @click="cancel" invert>Cancel</v-btn>
-            <v-btn @click="submit" color="primary" :loading="processing" :disabled="initError != null" >Pay {{ currency }}{{ amount }}</v-btn>
+            <v-btn @click="createToken" color="primary" :loading="processing" :disabled="initError != null" >Pay {{ currency }}{{ amount }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -83,7 +81,8 @@
                 type: Number,
                 required: true,
             },
-            currency: {},
+            chargeCallback: Function,
+            currency: String,
 
         },
 
@@ -97,9 +96,9 @@
             open(intent){
                 if(intent){
                     this.intent = intent;
-                    this.dialog = true;
-                    this.initialize();
                 }
+                this.dialog = true;
+                this.initialize();
             },
 
             close(){
@@ -166,7 +165,7 @@
                 })
             },
 
-            submit()
+            confimPayment()
             {
                const vm = this
                this.process = "Processing your payment...";
@@ -193,8 +192,31 @@
                 })
             },
 
+            createToken(){
+               const vm = this
+               this.process = "Processing your payment...";
+                // Create a token or display an error when the form is submitted.
+                vm.stripe.createToken(this.card).then((response) => {
+                    if (response.error) {
+                        vm.$emit('error', response.error)
+                        vm.process = '';
+                    } else {
+                        vm.chargeCallback(response.token.id)
+                        .then(response => {
+                            this.$emit('success', response);
+                        })
+                        .catch(e => {
+                            this.$emit('error', e);
+                        })
+                        .finally(() => {
+                            vm.process = '';
+                        })
+                    }
+                });
+            },
+
             cancel(){
-                this.$emit('aborted');
+                this.$emit('abort');
                 this.close();
             }
         },

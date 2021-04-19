@@ -4,6 +4,7 @@
         v-model="dialog"
         width="500"
         scrollable
+        persistent
         >
         <v-card outlined :loading="loading"> 
             <v-card-title
@@ -19,20 +20,18 @@
                         <v-list>
                             <v-subheader>Document: {{ document.document_type }}</v-subheader>
                             
-                            <div class="text-center d-flex justify-content-center">
-                                <div class="text-center px-2">
-                                    <p>Document Front</p>
-                                    <img v-if="files.document_front" :src="`${files.document_front.img_src}`" width="200px">
-                                    <div v-else>
-                                        Image not available
-                                    </div>
+                            <div class="text-center px-2 my-2">
+                                <p>Document Front</p>
+                                <img v-if="files.document_front" :src="`${files.document_front.img_src}`" width="100%">
+                                <div v-else>
+                                    Image not available
                                 </div>
-                                <div class="text-center px-2">
-                                    <p>Document back</p>
-                                    <img v-if="files.document_back" :src="`${files.document_back.img_src}`" width="200px">
-                                    <div v-else>
-                                        Image not available
-                                    </div>
+                            </div>
+                            <div class="text-center px-2 my-2">
+                                <p>Document back</p>
+                                <img v-if="files.document_back" :src="`${files.document_back.img_src}`" width="100%">
+                                <div v-else>
+                                    Image not available
                                 </div>
                             </div>
 
@@ -107,7 +106,7 @@
 
                         <v-list>
                             <v-subheader>Selfie</v-subheader>
-                            <img v-if="selfie.selfie" :src="`${files.selfie.img_src}`" width="200px">
+                            <img v-if="selfie.selfie" :src="`${files.selfie.img_src}`" width="100%">
                             <div v-else>
                                 Image not available
                             </div>
@@ -118,17 +117,21 @@
                             </v-list-item>
                         </v-list>
                     </div>
-                    <div v-else class="mt-5" >
+                    <div v-else class="mt-5 px-5" >
                         <v-alert 
                         border="left"
                         colored-border
                         elevation="2"
-                        type="warning">
+                        type="error">
                             No verification report
                         </v-alert>
                     </div>
                 </data-container>
             </v-card-text>
+            <v-card-actions v-if="!loading">
+                <v-spacer></v-spacer>
+                <v-btn text @click.prevent="close" color="red">Close</v-btn>
+            </v-card-actions>
         </v-card>
     </v-dialog>
 </div>

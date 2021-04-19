@@ -1,25 +1,30 @@
 <template>
-    <div>
-        <v-list-item class="py-2">
+    <div class="py-2">
+        <v-list-item>
             <v-list-item-content>
                 <v-list-item-title> {{ charge.title  }} </v-list-item-title>
                 <v-list-item-subtitle>{{ charge.description }}</v-list-item-subtitle>
             </v-list-item-content>
-            <div>
-                <h4 class="mt-2">{{ [currency, charge.amount].join('') }}</h4>
-                <v-chip v-if="paid" pill color="green" text-color="white">
-                    Paid
-                </v-chip>
-                <v-btn v-else-if="isMyReservation" btn color="primary" :loading="loading" @click="payCharge()">Pay</v-btn>
-            </div>
+            <h4 class="mt-2">{{ [currency, charge.amount].join('') }}</h4>
         </v-list-item>
+        <div class="text-right">
+            <div v-if="payment">
+                <v-chip pill color="green" text-color="white">
+                Paid
+                </v-chip>
+                <p>Payment Status: {{ payment.status }}</p>
+            </div>
+            <v-btn v-else-if="isMyReservation" btn color="primary" :loading="loading" @click="payCharge()">Pay</v-btn>
+        </div>
         <stripe-payment
                 ref="stripePayment" 
                 :publishable-key="stripePublishableKey" 
                 :amount="charge.amount"
                 :currency="currency"
+                :charge-callback="stripeChargeCallBack"
                 @success="paymentSuccessful"
                 @error="paymentError"
+                @abort="paymentAborted"
             />
     </div>
 </template>
@@ -27,7 +32,7 @@
 <script>
 
 import StripePayment from '../../../components/Utilities/StripePayment.vue';
-import CREATE_PAYMENT_INTENT from '../../Services/Payment/Mutations/createStripePaymentIntent';
+import CREATE_STRIPE_CHARGE from '../../Services/Payment/Mutations/createStripeCharge';
 
 export default {
     name: "ReservationCharge",
@@ -38,7 +43,7 @@ export default {
         return {
             loading: false,
             currency: 'USD',
-            paid: false,
+            payment: null,
         }
     },
 
@@ -68,20 +73,24 @@ export default {
                 this.$store.commit('SNACKBAR', {
                     status: true,
                     color: 'error',
-                    text: 'Payment cannot be processed at the moment'
+                    text: `${this.property.name} can not process your payment at the moment`,
                 })
                 return;
             }
+            this.$refs.stripePayment.open();
 
             this.loading = true;
-            
-            this.$store.dispatch('mutate', {
-                mutation: CREATE_PAYMENT_INTENT,
-                variables: {
-                    stripe_account: '',
-                    amount: this.charge.amount,
+        },
+
+        stripeChargeCallBack(token){
+
+            return new Promise((resolve, reject) => {
+                const variables = {
+                    stripe_account: this.stripeAuth.stripe_user_id,
+                    amount: this.charge.amount * 100,
                     currency: 'USD',
-                    payment_method_types: ['card'],
+                    source: token,
+                    description: `Payment for ${this.charge.title} at ${this.property.name} by ${[this.$store.getters.current_user.profile.name.first_name, this.$store.getters.current_user.profile.name.last_name].join(' ')}`,
                     metadata: {
                         user_id: this.$store.getters.current_user.profile.id,
                         property_id: this.property.id,
@@ -89,36 +98,37 @@ export default {
                         charge_id: this.charge.id
                     }
                 }
-            }).then(response => {
-                this.$refs.stripePayment.open(response.data.createStripePaymentIntent);
+
+                if(this.$store.getters.current_user.profile.email){
+                    variables.receipt_email = this.$store.getters.current_user.profile.email
+                }else if(this.$store.getters.current_user.auth.email){
+                    variables.receipt_email = this.$store.getters.current_user.auth.email
+                }
+
+                this.$store.dispatch('mutate', {
+                    mutation: CREATE_STRIPE_CHARGE,
+                    variables
+                })
+                .then(response => {
+                    resolve(response.data.createStripeCharge)
+                })
+                .catch(e => {
+                    reject(e)
+                })
             })
-            .catch(e => {
-                this.$store.commit('TOAST_ERROR', {
-                    show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.payCharge();
-                        })
-                    },
-                    message: 'Payment failed ',
-                    exception: e
-                });
-                this.$emit('error', e);
-            })
-            .finally(() => {
-                this.loading = false;
-            })
+
         },
 
-        paymentSuccessful(){
+        paymentSuccessful(stripeCharge){
             this.$store.commit('SNACKBAR', {
                 status: true,
                 color: 'success',
-                text: `Payment for ${this.charge.title} successful`
+                text: `Payment of ${stripeCharge.currency} ${stripeCharge.amount/100} for ${this.charge.title} successful`
             })
 
             this.$refs.stripePayment.close();
-            this.paid = true;
+            this.payment = stripeCharge;
+            this.loading = false;
         },
 
         paymentError(e){
@@ -127,6 +137,16 @@ export default {
                 color: 'error',
                 text: `Payment for ${this.charge.title} failed. ${e.message}`
             })
+            this.loading = false;
+        },
+
+        paymentAborted(){
+            this.$store.commit('SNACKBAR', {
+                status: true,
+                color: 'info',
+                text: `Payment for ${this.charge.title} aborted`
+            })
+            this.loading = false;
         }
     },
 
@@ -135,7 +155,7 @@ export default {
             immediate: true,
             handler(charge){
                 if(charge){
-                    this.paid = this.payments.find(p => p.metadata.charge_id == charge.id) ? true : false
+                    this.payment = this.payments.find(p => p.metadata.charge_id == charge.id);
                 }
             }
         }

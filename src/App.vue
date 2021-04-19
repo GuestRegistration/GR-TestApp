@@ -185,12 +185,6 @@ export default {
                       notification_token: currentToken
                   }
               })
-              .then(response => {
-                  console.log('Device updated');
-              })
-              .catch(e => {
-                  console.log('Could not update user device information')
-              })
               } 
           });
           messaging.onMessage((payload) => {

@@ -37,13 +37,7 @@
                         </div>
                         <small class="text--gray">{{ reservation.checkin_url }}</small>
                         <ReservationDetails :_reservation="reservation" />
-                        <v-card class="my-5" outlined>
-                            <v-card-text>
-                                <h2>Charges</h2>
-                                <reservation-charges :reservation="reservation" />
-                            </v-card-text>
-                        </v-card>
-     
+                        
                         <template v-if="reservation.already_checkedin">
                             <v-alert 
                                 border="top"
@@ -91,6 +85,13 @@
                                 Waiting for checkin...
                             </v-alert>
                         </template>
+
+                        <v-card class="my-5" outlined>
+                            <v-card-text>
+                                <h2>Charges</h2>
+                                <reservation-charges :reservation="reservation" />
+                            </v-card-text>
+                        </v-card>
                     </v-col>
                 </v-row>
 

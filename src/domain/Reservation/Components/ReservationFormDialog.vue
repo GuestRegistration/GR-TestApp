@@ -117,7 +117,6 @@ export default {
         },
         close(){
             this.dialog = false;
-            this.$refs.form.reset();
         },
 
         submit(){

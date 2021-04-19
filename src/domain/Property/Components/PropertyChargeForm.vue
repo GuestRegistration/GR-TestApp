@@ -7,10 +7,13 @@
                 <v-switch v-model="form.enable" label="Enable" color="primary"></v-switch>
                 <v-radio-group v-model="form.type" label="Charge Type" :readonly="readOnly.includes('type')">
                     <v-radio
-                        v-for="type in chargeTypes"
-                        :key="type"
-                        :label="type"
-                        :value="type"
+                        label="Instant"
+                        value="instant"
+                    ></v-radio>
+                    <v-radio
+                        label="Pre-authorize"
+                        value="pre-authorize"
+                        disabled
                     ></v-radio>
                 </v-radio-group>
                 <v-text-field
@@ -73,12 +76,8 @@ export default {
                 description: null,
                 enable: false,
                 amount: null,
-                type: 'Instant',
+                type: 'instant',
             },
-            chargeTypes: [
-                'Instant',
-                'Pre-authorize'
-            ],
         }
     },
     methods: {
@@ -97,8 +96,12 @@ export default {
                     data: this.form
                 }
             }).then(response => {
-                console.log(response);
                 this.$emit('created',  response.data.createPropertyCharge)
+                this.$store.commit('SNACKBAR', {
+                    status: true,
+                    text: `${response.data.createPropertyCharge.title} charge created`,
+                    color: 'success'
+                })
             })
             .finally(() => {
                 this.loading = false;
@@ -115,8 +118,12 @@ export default {
                     data: this.form
                 }
             }).then(response => {
-                console.log(response);
                 this.$emit('updated',  response.data.updatePropertyCharge)
+                this.$store.commit('SNACKBAR', {
+                    status: true,
+                    text: `${response.data.updatePropertyCharge.title} charge updated`,
+                    color: 'success'
+                })
             })
             .finally(() => {
                 this.loading = false;
