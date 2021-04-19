@@ -2,14 +2,13 @@
     <app-layer ref="app">
       <v-row justify="center">
         <v-col cols="12" md="4" class="mt-2">
-            <firebase-auth :redirect="redirect" />
+            <firebase-auth @authenticated="authenticated" />
         </v-col>
       </v-row>
     </app-layer>
 </template>
 
 <script>
-    import {mapActions, mapMutations} from 'vuex'
     import AppLayer from '@/AppLayer';
     import FirebaseAuth from '../Components/FirebaseAuth.vue';
 
@@ -19,12 +18,26 @@
            AppLayer, FirebaseAuth
         },
         data(){
-            return {
-                redirect: '',
+            return {}
+        },
+
+        computed: {
+            redirect(){
+                return this.$route.query.redirect ? this.$route.query.redirect : ''
+            },
+
+            redirectUrl(){
+                return  this.url(this.$router.resolve({path: this.redirect}).route.fullPath)
             }
         },
+
+        methods: {
+            authenticated(){
+                window.location.replace(this.redirectUrl)
+            }
+        },
+
         mounted(){
-            this.redirect = this.$route.query.redirect ? this.$route.query.redirect : '/'
             this.$refs.app.setState(true);
         }
     }

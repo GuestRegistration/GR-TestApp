@@ -22,5 +22,6 @@ export default gql`
                 country
                 postal_code
             }
+            stripe_connected
         }
     }`;

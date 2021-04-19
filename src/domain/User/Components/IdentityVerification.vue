@@ -9,41 +9,49 @@
                 type="warning">
                     You need to restart your verification
                 </v-alert>
-                 <run-identity-verification class="ma-1" @created="verificationSessionCreated">Restart verification</run-identity-verification>
+                 <run-identity-verification v-if="isMine" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
             </div>
             <div v-else-if="verification">
                 <v-list>
                     <v-list-item>
-                        Status: {{ verification.session.status }} 
-                        <a v-if="verification.session.status == 'requires_input' " class="ml-5" :href="verification.session.url" target="_blank">Continue Verification</a>
+                        <v-list-item-content>
+                            <v-list-item-title class="text-uppercase"> {{ verification.type  }} </v-list-item-title>
+                            <v-list-item-subtitle v-if="verification.status == 'requires_input'">
+                                <a :href="verification.url" target="_blank">Continue Verification</a>
+                            </v-list-item-subtitle>
+                        </v-list-item-content>                  
                     </v-list-item>
-                    <v-list-item>Type: {{ verification.session.type }}</v-list-item>
                 </v-list>
-                 <run-identity-verification class="ma-1" @created="verificationSessionCreated">Restart verification</run-identity-verification>
-                <template v-if="verification.last_report">
+                <v-chip
+                    class="ma-2"
+                    :color="`${verification.status === 'verified' ? 'green' : 'orange'}`"
+                    text-color="white"
+                    >
+                    {{ verification.status }}
+                </v-chip>      
+                 <run-identity-verification v-if="isMine" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+                <template v-if="verification.report">
                     <v-btn class="ma-1" color="primary" @click="$refs.report.open()">View Verification</v-btn>
-                    <verification-report ref="report" />
+                    <verification-report :verification="verification" ref="report" />
                 </template>
             </div>
             <div v-else>
                 <v-alert 
+                class="ma-2"
                 border="left"
                 colored-border
                 elevation="2"
                 type="warning">
-                    You need to run an Identity verification
+                    {{ property.name }} needs to verify your identity
                 </v-alert>
-                <run-identity-verification @created="verificationSessionCreated" />
+                <run-identity-verification :property="property" @created="verificationCreated" />
             </div>
-            
-
         </data-container>
-       
     </div>
 </template>
 
 <script>
-import GET_USER_VERIFICATION_SESSION from '../Queries/getUserVerificationSession';
+import GET_USER_STRIPE_VERIFICATIONS from '../Queries/getUserStripeVerifications';
 
 import { mapActions } from 'vuex';
 import DataContainer from '../../../components/DataContainer.vue';
@@ -58,12 +66,27 @@ export default {
     data(){
         return {
             loading: false,
-            verification: null
+            verifications: []
         }
     },
+
+    props: {
+        property: Object
+    },
+
     computed: {
         refresh(){
             return this.$route.query.vs_refresh
+        },
+        verification(){
+            return this.verifications.length ? this.verifications[0] : null;
+        },
+
+        isMine(){
+            if(this.verification && this.verification.metadata) {
+                return this.verification.metadata.user_id === this.$store.getters.current_user.profile.id
+            } 
+            return false;
         }
     },  
     methods: {
@@ -71,22 +94,24 @@ export default {
             'query',
         ]),
 
-        getUserVerificationSession(){
+        getUserStripeVerifications(){
             this.loading = true;
             this.query({
-                query: GET_USER_VERIFICATION_SESSION,
+                query: GET_USER_STRIPE_VERIFICATIONS,
+                variables: {
+                    property_id: this.property.id
+                }
             })
             .then(response => {
-                console.log(response)
-                this.verification = response.data.getUserVerificationSession
+                this.verifications = response.data.getUserStripeVerifications
             })
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
                      show: true,
-                    message: `Could not get your verification session.`,
+                    message: `Could not get your verifications.`,
                     retry: () => {
                         return new Promise((resolve, reject) => {
-                            this.getUserVerificationSession();
+                            this.getUserStripeVerifications();
                             
                             resolve();
                         })
@@ -98,12 +123,20 @@ export default {
                 this.loading = false
             })
         },
-        verificationSessionCreated(session){
-            this.verification = {session}
+        
+        verificationCreated(verification){
+            this.verifications.unshift({
+                property_id: this.property.id,
+                session: verification.id,
+                report: verification.last_verification_report ? verification.last_verification_report.id : null,
+                url: verification.url,
+                type: verification.type,
+                status: verification.status
+            })
         }
     },
     mounted(){
-        this.getUserVerificationSession();
+        this.getUserStripeVerifications();
     }
 }
 </script>

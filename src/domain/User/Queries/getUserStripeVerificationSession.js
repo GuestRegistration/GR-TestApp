@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    query getUserVerificationSession{
-        getUserVerificationSession {
+    query getUserStripeVerificationSession{
+        getUserStripeVerificationSession {
             session {
                 id
                 object

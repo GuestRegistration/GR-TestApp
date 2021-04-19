@@ -1,5 +1,5 @@
 <template>
-    <app-layer ref="app" @ready="ready">
+    <app-layer ref="app" >
         <template >
             <v-container>
                 <v-row justify="center">
@@ -53,17 +53,7 @@
                         </v-card>
                     </v-col>
 
-                    <v-col cols="12" md="6" id="id-verification">
-                        <v-card outlined class="mt-2 mt-md-0">
-                            <v-card-title>
-                                Identity verification
-                            </v-card-title>
-                            <v-card-text>
-                                <!-- <identities /> -->
-                                <identity-verification />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
+                    
                 </v-row>
                 
             </v-container>
@@ -78,7 +68,6 @@
     import AppLayer from '@/AppLayer';
     import AccountConnects from '../../Auth/Components/AccountConnects';
     // import Identities from '../Components/Identities';
-    import IdentityVerification from '../Components/IdentityVerification';
     import UPDATE_USER from '../Mutations/updateUser';
     import CREATE_USER from '../Mutations/createUser';
     
@@ -87,11 +76,10 @@
     export default {
         name: "UserAccount",
         components: {
-            AppLayer, AccountConnects, IdentityVerification,
+            AppLayer, AccountConnects,
             //Identities,
         },
         data(){
-        
             return {
                 loading: false,
                 rules: formvalidation.rules,
@@ -108,6 +96,7 @@
         },
         computed: {
             ...mapGetters([
+                'app_ready',
                 'current_user',
                 'authenticated',
                 'profile_loaded',
@@ -115,10 +104,6 @@
             update(){
                 return Object.keys(this.current_user.profile).length  ? true : false
             },
-        },
-
-        mounted(){
-            this.$refs.app.setState(false);
         },
 
         methods: {
@@ -129,12 +114,7 @@
                 'query',
                 'mutate',
             ]),
-            
-            ready(){
-               this.setProfile();
-                this.$refs.app.setState(true);
-            },
-
+        
             setProfile(){
                 if(this.update){
                     this.profile = {
@@ -239,6 +219,11 @@
                 })
             }
         },
+
+        mounted(){
+            this.setProfile()
+        }
+
     }
 </script>
 

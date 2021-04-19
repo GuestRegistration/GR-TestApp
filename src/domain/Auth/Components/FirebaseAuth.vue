@@ -22,11 +22,8 @@ export default {
       let uiConfig = {
         callbacks: {
           signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-            if(!this.redirect){
-              this.$emit('authenticated', authResult, redirectUrl)
-              return false;
-            }
-            return true;
+            this.$emit('authenticated', authResult, redirectUrl)
+            return false;
           },
           signInFailure: function(error) {
             console.log(error);
@@ -49,27 +46,26 @@ export default {
         signInFlow: 'popup',
         signInSuccessUrl: this.redirect,
         signInOptions: [
-            {
-                provider: firebase.firebase.auth.EmailAuthProvider.PROVIDER_ID,
-                signInMethod: firebase.firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD
-            },
-            {
-                provider: firebase.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
-                recaptchaParameters: {
-                    type: 'image', // 'audio'
-                    size: 'invisible', // 'invisible' or 'compact'
-                    badge: 'bottomleft' //' bottomright' or 'inline' applies to invisible.
-                },
-            },
-            {
-              provider: firebase.firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-              customParameters: {
-                // Forces account selection even when one account
-                // is available.
-                prompt: 'select_account'
-              }
+          {
+              provider: firebase.firebase.auth.EmailAuthProvider.PROVIDER_ID,
+              signInMethod: firebase.firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD
+          },
+          {
+              provider: firebase.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+              recaptchaParameters: {
+                  type: 'image', // 'audio'
+                  size: 'invisible', // 'invisible' or 'compact'
+                  badge: 'bottomleft' //' bottomright' or 'inline' applies to invisible.
+              },
+          },
+          {
+            provider: firebase.firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+            customParameters: {
+              // Forces account selection even when one account
+              // is available.
+              prompt: 'select_account'
             }
-            
+          }
         ],
       }
 

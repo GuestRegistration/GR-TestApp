@@ -13,6 +13,7 @@ export default gql`
             booking_channel
             checkin_date
             checkout_date
+            property_id
             property{
                 id
                 name
@@ -23,6 +24,14 @@ export default gql`
                 name
                 gender
                 type
+            }
+            charges{
+                id
+                title
+                amount
+                description
+                type
+                enable 
             }
         
         }

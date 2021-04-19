@@ -10,11 +10,12 @@ export default [
         name: 'signin',
         component: Signin,
         beforeEnter: multiguard([middleware.guest])
-      },
+    },
 
     {
         path: '/email-connect',
         name: 'email.verification',
         component: EmailVerification,
+        beforeEnter: multiguard([middleware.guest])
     },
 ];

@@ -6,6 +6,7 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify';
 import _apollo from './apollo'
+import config from './config';
 
 Vue.config.productionTip = false
 
@@ -17,7 +18,7 @@ Vue.use(VueMeta, {
 
 Vue.prototype.$eventHub = new Vue(); // Global event bus
 Vue.mixin({ methods: { 
-  url: (path) => `${process.env.VUE_APP_URL}${path}`
+  url: (path) => `${config.app.url}${path}`
  }});
 
 new Vue({

@@ -1,10 +1,20 @@
 <template>
     <div>
         <v-card outline>
-            <v-card-title>{{reservation.property.name}}</v-card-title>
-            <v-card-subtitle>{{reservation.property.address}}</v-card-subtitle>
-            <v-card-text v-if="reservation.already_checkedin">
-                <p>checked in {{checkin_time}}</p>
+            <v-card-text class="text-center" >
+                <v-avatar color="primary" size="100">
+                    <v-img
+                    v-if="reservation.property.image"
+                    :src="reservation.property.image"
+                    ></v-img>
+                    <v-img v-else
+                        src="@/assets/img/default-property.jpg"
+                    ></v-img>
+                </v-avatar>
+                <h3>{{reservation.property.name}}</h3>
+                <p>{{reservation.property.address}}</p>
+                <p v-if="reservation.already_checkedin" class="success--text">checked in {{checkin_time}}</p>
+                <p v-else class="gray--text">waiting for checkin</p>
             </v-card-text>
             <v-card-actions>
                 <v-chip

@@ -1,9 +1,21 @@
 <template>
     <div>
         <v-card outline>
-            <v-card-title>{{reservation.name}}</v-card-title>
-            <v-card-text v-if="reservation.already_checkedin">
-                <p>checked in {{checkin_time}}</p>
+            <v-card-text>
+                <div class="text-center">
+                    <v-avatar color="primary" size="100">
+                        <v-img
+                        v-if="reservation.property.image"
+                        :src="reservation.property.image"
+                        ></v-img>
+                        <v-img v-else
+                            src="@/assets/img/default-property.jpg"
+                        ></v-img>
+                    </v-avatar>
+                </div>
+                <h4>Guest: {{reservation.name}}</h4>
+                <p  v-if="reservation.already_checkedin" class="success--text">checked in {{checkin_time}}</p>
+                <p v-else class="gray--text">waiting for checkin</p>
             </v-card-text>
             <v-card-actions>
                 <v-chip
@@ -14,7 +26,7 @@
                     <v-avatar left>
                         <v-icon>mdi-checkbox-marked-circle</v-icon>
                     </v-avatar>
-                    {{reservation.approved ? `Approved`: `Pending approval`}}
+                    {{reservation.approved ? `Approved`: `Pending`}}
                 </v-chip>
                 <v-spacer></v-spacer>
                 <router-link :to="{name: 'property.reservation.show', params: {id: reservation.id, _reservation: reservation}}" >

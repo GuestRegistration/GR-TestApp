@@ -1,0 +1,129 @@
+<template>
+    <div>
+        <data-container :loading="loading">
+            
+            <div class="d-flex justify-space-between">
+                <h2>Charges</h2>
+                <v-btn color="primary"  icon title="New charge" @click="createNewCharge = true"><v-icon dark> mdi-plus</v-icon> </v-btn>
+            </div>
+
+            <v-card v-if="createNewCharge" class="my-1">
+                <v-card-title>
+                    <h2 class="headline">New charge</h2>
+                    <v-spacer></v-spacer>
+                    <v-btn icon @click="createNewCharge = false"><v-icon>mdi-close</v-icon> </v-btn>
+                </v-card-title>
+                <v-card-text>
+                    <property-charge-form class="my-2" :disabled="!stripeConnected" :property="property"  @created="chargeCreated"  />
+                </v-card-text>
+            </v-card>
+
+            <property-charge v-for="charge in charges" :key="charge.id" :property="property" :charge="charge" :disabled="!stripeConnected" class="my-1" />
+            <template v-if="!charges.length && !createNewCharge">
+                <v-btn color="primary" @click="createSecurityDeposit = !createSecurityDeposit" class="my-1">Set security deposit</v-btn>
+                <v-card v-if="createSecurityDeposit"  class="my-1">
+                    <v-card-text>
+                        <p>Set security deposit charge</p>
+                        <h1 class="headline">Create Security deposit</h1>
+                        <property-charge-form class="mt-2" :property="property" :prefill="security_deposit.form" :read-only="security_deposit.read_only" :title="security_deposit.form.title" @created="chargeCreated"  />
+                    </v-card-text>
+                </v-card>
+            </template>
+
+        </data-container>
+    </div>
+
+</template>
+<script>
+import DataContainer from '../../../components/DataContainer.vue';
+import PropertyChargeForm from './PropertyChargeForm.vue';
+import PropertyCharge from './PropertyCharge.vue';
+import GET_PROPERTY_CHARGES from '../Queries/getPropertyCharges';
+
+export default {
+    name: "PropertyCharges",
+    components: {
+        DataContainer,
+        PropertyChargeForm,
+        PropertyCharge
+    },
+
+    props: {
+        property: Object
+    },
+
+    data(){
+        return {
+            loading: false,
+            stripe_authorization: null,
+            createSecurityDeposit: false,
+            createNewCharge: false,
+            security_deposit: {
+                form: {
+                    title: 'Security Deposit',
+                    description: 'Initial security deposit to be paid at checkin in',
+                    enable: false,
+                    amount: 100,
+                    type: 'Instant',
+                },
+                read_only: [
+                    'title'
+                ]
+            },
+            charges: [],
+        }
+    },  
+
+    computed: {
+        stripeConnected(){
+            return this.property.stripe_connected
+        }
+    },
+
+    methods: {
+        getPropertyCharges(){
+            this.loading = true;
+           
+             this.$store.dispatch('query', {
+                query: GET_PROPERTY_CHARGES,
+                variables: {
+                    property_id: this.property.id
+                }
+            })
+            .then(response => {
+                this.charges = response.data.getPropertyCharges
+            })
+            .catch(e => {
+                this.$store.commit('TOAST_ERROR', {
+                    show: true,
+                    retry: () => {
+                        return new Promise((resolve, reject) => {
+                            this.getPropertyCharges();
+                        })
+                    },
+                    message: 'Could not get property charges ',
+                    exception: e
+                })
+            })
+            .finally(() => {
+                this.loading = false;
+            })
+        },
+
+        chargeCreated(charge){
+            this.charges.unshift(charge);
+            this.createNewCharge = false;
+        }
+
+    },
+
+    watch: {
+        property: {
+            immediate: true,
+            handler(property){
+                if(property) this.getPropertyCharges()
+            }
+        }
+    }
+}
+</script>

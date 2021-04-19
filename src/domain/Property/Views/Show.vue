@@ -1,57 +1,64 @@
 <template>
-    <app-layer ref="app" @ready="getProperty">
+    <app-layer ref="app">
+        <data-container :loading="loading">
+            <v-container v-if="!property">
+                <div class="text-center">
+                    <h1>We could not find that property</h1>
+                </div>
+            </v-container>
 
-        <v-container v-if="!property">
-            <div class="text-center">
-                <h1>We could not find that property</h1>
-            </div>
-        </v-container>
-
-        <template v-else>
-            <v-parallax
-                dark
-                src="https://cdn.vuetifyjs.com/images/backgrounds/vbanner.jpg"
-                height="300"
-                >
+            <template v-else>
                 <v-row
                 align="center"
                 justify="center"
-               
+                
                 >
-                <v-col class="text-center" cols="12">
-                    <h1>{{ property.name }}</h1>
-                    <p v-if="property.full_address">{{ property.full_address }}</p>
-                    <v-icon color="white" v-if="property.phone">mdi-phone</v-icon> {{ property.phone }}
-                    <br>
-                    <v-icon color="white" v-if="property.email">mdi-email</v-icon>  {{ property.email }}
-                    <br>
-                    <v-btn v-if="property.user_id == current_user.auth.uid" color="primary" @click="$refs.propertyFormDialog.open()" class="mt-5"> Edit property</v-btn>
-                </v-col>
+                    <v-col class="text-center" cols="12">
+                        
+
+                        <v-avatar color="primary" size="150">
+                            <v-img
+                            v-if="property.image"
+                            :src="property.image"
+                            ></v-img>
+                            <v-img v-else
+                                src="@/assets/img/default-property.jpg"
+                            ></v-img>
+                        </v-avatar>
+                        <h1>{{ property.name }}</h1>
+                        <p v-if="property.full_address">{{ property.full_address }}</p>
+                        <v-icon color="white" v-if="property.phone">mdi-phone</v-icon> {{ property.phone }}
+                        <br>
+                        <v-icon color="white" v-if="property.email">mdi-email</v-icon>  {{ property.email }}
+                        <br>
+                        <router-link  v-if="property.user_id == current_user.auth.uid"  :to="{name: 'property.edit', params: {id: property.id}}">
+                            <v-btn color="primary" class="mt-5"> Edit property</v-btn>
+                        </router-link>
+                    </v-col>
                 </v-row>
-            </v-parallax>
-                <slot v-bind="property">
-            </slot>
-        </template>
-        <PropertyFormDialog ref="propertyFormDialog" :property="property" @success="propertyFormSuccess" />
+
+                <slot v-bind="property" />
+            </template>
+        </data-container>
     </app-layer>
 </template>
 
 <script>
-import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
+import { mapActions, mapMutations, mapGetters } from 'vuex';
 
-import helper from '@/helper';
 import AppLayer from '@/AppLayer';
-import PropertyFormDialog from '../Components/PropertyFormDialog';
+import DataContainer from '../../../components/DataContainer.vue';
 
 import GET_PROPERTY from '../Queries/getProperty';
 
 export default {
     name: 'Property',
     components: {
-        AppLayer, PropertyFormDialog
+        AppLayer, DataContainer
     }, 
     data(){
         return {
+            loading: false,
             property: null,
         }
     },
@@ -66,14 +73,7 @@ export default {
     },
 
     mounted(){
-        //this.getProperty();
-        
-        // if(this.$route.params._property){
-        //     this.property = this.$route.params._property;
-        //     this.$refs.app.setState(true);
-        // }else{
-        //     this.getProperty()
-        // }
+        this.getProperty();
     },
     
     methods:{
@@ -86,7 +86,7 @@ export default {
         ]),
 
         getProperty(){
-            this.$refs.app.setState(false, "Getting the property...");
+            this.loading = true;
             this.query({
                 query: GET_PROPERTY,
                 variables: {
@@ -106,7 +106,7 @@ export default {
                 });
             })
             .finally(() => {
-                this.$refs.app.setState(true);
+                this.loading = false;
             })
         },
         propertyFormSuccess(property){

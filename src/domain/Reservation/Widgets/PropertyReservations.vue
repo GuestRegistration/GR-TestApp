@@ -1,20 +1,27 @@
 <template>
     <div>
-        <div class="my-5">
-            <property-switch @change="getPropertyReservations" />
-        </div>
+        <v-row>
+            <v-col cols="12" sm="6" md="3">
+                <property-switch @change="getPropertyReservations" />
+            </v-col>
+        </v-row>
         <data-container :loading="loading">
              <template v-if="reservations.length">
-                <property-reservation  v-for="reservation in reservations" :_reservation="reservation" :key="reservation.id" class="my-2" />
+                <v-row>
+                    <v-col v-for="reservation in reservations"  :key="reservation.id"
+                    cols="12" sm="6" md="4">
+                        <property-reservation  :_reservation="reservation" class="my-2" />
+                    </v-col>
+                </v-row>
             </template>
             <template v-else>
-                <div class="text-center py-5">
+                <div class="py-5">
                     <p class="grey--text">No reservation created in {{ $store.getters.current_user.property.name }} yet</p>
                 </div>
             </template>
         </data-container>
 
-        <reservation-form-dialog ref="reservationFormDialog" @success="reservationFormSuccess" :property="$store.getters.current_user.property" />
+        <reservation-form-dialog ref="reservationFormDialog" @created="reservationCreated" :property="$store.getters.current_user.property" />
         <v-btn
             class="mx-2"
             fab dark bottom right fixed
@@ -80,12 +87,7 @@ export default {
             })
         },
 
-        reservationFormSuccess(reservation){
-            this.$refs.app.alert(`New reservation created for ${reservation.name}`, 'success');
-
-            this.reservations.push(reservation);
-
-            this.$refs.reservationFormDialog.close();
+        reservationCreated(reservation){
             this.$router.push({
                 name: 'property.reservation.show',
                 params: {

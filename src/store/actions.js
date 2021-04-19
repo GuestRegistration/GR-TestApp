@@ -93,6 +93,7 @@ const actions = {
             })
         })
     },
+    
     mutate({commit}, {mutation, variables}){
         return new Promise((resolve, reject) => {
             _apollo().then(apollo => {

@@ -1,6 +1,6 @@
 <template>
-    <app-layer ref="app" @ready="getReservation">
-        <div>
+    <app-layer ref="app">
+        <data-container :loading="loading">
 
             <!-- resource no longer loading but it not found -->
             <template v-if="reservation == null">
@@ -14,9 +14,36 @@
             <template v-else-if="reservation">
                 <v-row justify="center">
                     <v-col cols="12" md="6">
-                        <h2>{{ reservation.name }}</h2>
+                        <div class="d-flex justify-space-between">
+                            <h2>{{ reservation.name }}</h2>
+                            <v-menu origin="center center"  transition="scale-transition">
+                                <template v-slot:activator="{ on }">
+                                    <v-btn icon v-on="on">
+                                        <v-icon>mdi-dots-vertical</v-icon>
+                                    </v-btn>
+                                </template>
+                                <v-list>
+                                    <v-list-item @click="$refs.reservationForm.open()">
+                                        <v-list-item-icon>
+                                            <v-icon>mdi-pen</v-icon>
+                                        </v-list-item-icon>
+                                        <v-list-item-content>
+                                            <v-list-item-title>Edit Reservation</v-list-item-title>
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
+
+                        </div>
                         <small class="text--gray">{{ reservation.checkin_url }}</small>
                         <ReservationDetails :_reservation="reservation" />
+                        <v-card class="my-5" outlined>
+                            <v-card-text>
+                                <h2>Charges</h2>
+                                <reservation-charges :reservation="reservation" />
+                            </v-card-text>
+                        </v-card>
+     
                         <template v-if="reservation.already_checkedin">
                             <v-alert 
                                 border="top"
@@ -41,7 +68,7 @@
                                 Approval pending 
                             </v-alert>
                             
-                            <ReservationCheckin ref="reservationCheckin" :_reservation="reservation" @approved="reservationApproved" />
+                            <reservation-checkin ref="reservationCheckin" :_reservation="reservation" @approved="reservationApproved" />
                             <confirmation-dialog ref="reservationCheckinConfirmation" @confirmed="$refs.reservationCheckin.open()">
                                 <div class="text-center mt-5">
                                     <p>
@@ -66,33 +93,40 @@
                         </template>
                     </v-col>
                 </v-row>
-                
+
+                <reservation-form-dialog ref="reservationForm" :property="reservation.property" :reservation="reservation" @updated="reservationUpdated" />
+
             </template>
             
-        </div>
+        </data-container>
     </app-layer>
 </template>
 
 <script>
-import { mapActions, mapState, mapMutations, mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 
 import helper from '@/helper'
 
 import AppLayer from '@/AppLayer';
+import DataContainer from '../../../components/DataContainer.vue';
 import ConfirmationDialog from '@/components/Utilities/ConfirmationDialog'
 import ReservationDetails from '../../Reservation/Components/ReservationDetails';
 import ReservationCheckin from '../../Reservation/Components/ReservationCheckin';
+import ReservationCharges from '../../Reservation/Components/ReservationCharges';
+import ReservationFormDialog from '../../Reservation/Components/ReservationFormDialog.vue';
 
 import GET_RESERVATION from '../../Reservation/Queries/getReservation';
 
 export default {
   name: 'reservation',
   components: {
-    AppLayer, ConfirmationDialog,
-    ReservationDetails, ReservationCheckin
+    AppLayer, DataContainer, ConfirmationDialog,
+    ReservationDetails, ReservationCheckin,
+    ReservationFormDialog, ReservationCharges
   }, 
   data(){
       return {
+        loading: false,
         reservation: null,
         checkin: null,
       }
@@ -118,7 +152,7 @@ export default {
         }
     },
   mounted(){
-        
+        this.getReservation();
     },
   methods:{
       ...mapActions([
@@ -128,7 +162,7 @@ export default {
 
 
     getReservation(){
-        this.$refs.app.setState(false, "Getting the reservation...");
+        this.loading = true;
         this.query({
             query: GET_RESERVATION,
             variables: {
@@ -148,12 +182,17 @@ export default {
             });
         })
         .finally(() => {
-            this.$refs.app.setState(true);
+            this.loading = false;
         })
     },
 
     reservationApproved(reservation){
         this.reservation = reservation;
+    },
+
+    reservationUpdated(reservation){
+        this.reservation = reservation;
+        this.$refs.reservationForm.close()
     }
 
   },

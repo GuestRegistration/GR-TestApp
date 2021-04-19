@@ -1,10 +1,15 @@
 <template>
     <data-container :loading="loading">
         <template v-if="reservations.length">
-            <user-reservation  v-for="reservation in reservations" :_reservation="reservation" :key="reservation.id" class="my-2" />
+            <v-row>
+                <v-col v-for="reservation in reservations"  :key="reservation.id"
+                cols="12" sm="6" md="4">
+                    <user-reservation :_reservation="reservation" class="my-2" />
+                </v-col>
+            </v-row>
         </template>
         <template v-else>
-            <div class="text-center py-5">
+            <div class="py-5">
                 <p class="grey--text">No reservation yet</p>
             </div>
         </template>

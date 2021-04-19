@@ -1,21 +1,21 @@
 <template>
   <v-card
-    max-width="344"
   >
-    <v-img
-      :src="reservation.property.image"
-      height="200px"
-    ></v-img>
-
-    <v-card-title>
-      <router-link :to="{name: 'property.show', params: {id: reservation.property.id, _property: reservation.property}}">
-        {{ reservation.property.name }}
-      </router-link>
-    </v-card-title>
-
-    <v-card-subtitle>
-      {{ reservation.property.address }}
-    </v-card-subtitle>
+    <v-card-text class="text-center">
+      <v-avatar color="primary" size="100">
+            <v-img
+            v-if="reservation.property.image"
+            :src="reservation.property.image"
+            ></v-img>
+            <v-img v-else
+                src="@/assets/img/default-property.jpg"
+            ></v-img>
+        </v-avatar>
+        <router-link :to="{name: 'property.show', params: {id: reservation.property.id, _property: reservation.property}}" class="text-decoration-none">
+          <h3>{{ reservation.property.name }}</h3> 
+        </router-link>
+          <p>{{reservation.property.address}}</p>
+    </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
       <router-link :to="{name: 'reservation.show', params:  {id: reservation.id, _reservation: reservation}}" >

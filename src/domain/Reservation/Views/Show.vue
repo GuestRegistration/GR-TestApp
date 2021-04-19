@@ -1,6 +1,6 @@
 <template>
-    <app-layer ref="app" @ready="getReservation">
-        <div>
+    <app-layer ref="app">
+        <data-container :loading="loading">
             <!-- resource no longer loading but it not found -->
             <template v-if="reservation == null">
                 <div class="text-center">
@@ -44,7 +44,16 @@
                     <v-container>
                         <v-row justify="center">
                             <v-col cols="12" md="4" >
-                                <div>
+                                <div class="text-center">
+                                    <v-avatar v-if="property" color="primary" size="150">
+                                        <v-img
+                                        v-if="property.image"
+                                        :src="property.image"
+                                        ></v-img>
+                                        <v-img v-else
+                                            src="@/assets/img/default-property.jpg"
+                                        ></v-img>
+                                    </v-avatar>
                                     <h4 class="grey--text">{{reservation.property.name}}</h4>
                                     <p>{{property ? property.full_address : reservation.property.address}}</p>
                                     <div class="my-3">
@@ -89,16 +98,17 @@
                             <v-col cols="12" md="6">
                                 <div>
                                     <template  v-if="reservation">
+
                                         <template v-if="reservation.already_checkedin">
-                                            <CheckedIn :_reservation="reservation" />
+                                            <CheckedIn :_reservation="reservation" :property="property" />
                                         </template>
+
                                         <template v-else>
                                             <template v-if="!start">
                                                 <h2>It's time to check in.</h2>
                                                 <v-card outlined>
                                                     <v-card-text>
                                                     <h4>Hey, <strong>{{reservation.name}}</strong></h4>
-                                                    <br>
                                                     <p>Looking forward to hosting you at <strong>{{reservation.property.name}}</strong>. Below are the details of your bookings</p>
                                                     <ReservationDetails :_reservation="reservation" />
                                                     </v-card-text>
@@ -116,37 +126,8 @@
                                                 </v-card>
                                             </template>
                                             <template v-else>
-
-                                                <template v-if="stage == 'identity'">
-                                                    <v-btn class="my-5" color="primary" @click="start = false">Back</v-btn>
-                                                    <template  v-if="current_user.profile.verification && current_user.profile.verification.document === 'verified'">
-                                                        <v-alert 
-                                                            border="left"
-                                                            colored-border
-                                                            elevation="2"
-                                                            type="success">
-                                                                <strong>{{ property.name }}</strong> would be able to view your verified ID to approve your checkin.
-                                                        </v-alert>
-
-                                                    </template>
-                                                    <template v-else>
-                                                        <v-alert 
-                                                            border="left"
-                                                            colored-border
-                                                            elevation="2"
-                                                            type="warning">
-                                                                <strong>{{ property.name }}</strong> would need a valid identity to approve your checkin, but you currently do not have a verified ID
-                                                            </v-alert>
-                                                            <v-btn class="ma-1" @click="$router.push({name: 'account'})" color="primary">Verify Your ID</v-btn>
-                                                    </template>
-                                                    <v-btn color="primary" class="ma-1" @click="stage = 'tnc'">Continue</v-btn>
-
-                                                    <!-- <SelectIdentity  @done="getUserIdentity" @alert="({message, type}) => $refs.app.alert(message, type)" @back="start = false" :_reservation="reservation" /> -->
-                                                </template>
-                                                <template v-if="stage == 'tnc'">
-                                                    <TermsAndCondition :property="property" @done="reservationCheckin" @back="stage = 'identity'" />
-                                                </template>
-                                                
+                                                <v-btn class="my-5" color="primary" @click="start = false">Back</v-btn>
+                                                <TermsAndCondition :property="property" @done="reservationCheckin" />
                                             </template>
                                             
                                         </template>
@@ -157,7 +138,7 @@
                     </v-container>
                 </template>
             </template>
-        </div>
+        </data-container>
     </app-layer>
 </template>
 
@@ -167,6 +148,7 @@ import { mapActions, mapMutations, mapGetters } from 'vuex';
 import helper from '@/helper'
 
 import AppLayer from '@/AppLayer';
+import DataContainer from '../../../components/DataContainer.vue';
 
 // import SelectIdentity from '../../User/Components/SelectIdentity';
 import CheckedIn from '../Components/CheckedIn';
@@ -181,13 +163,15 @@ export default {
   name: 'reservation',
   components: {
       AppLayer,
+      DataContainer,
     //   SelectIdentity,
       TermsAndCondition,
       ReservationDetails,
-      CheckedIn,
+      CheckedIn
   }, 
   data(){
       return {
+        loading: false,
         start: false,
         reservation: null,
         property: null,
@@ -208,22 +192,21 @@ export default {
             return this.$route.params.id
         },
 
-         checkin_time(){
+        checkin_time(){
             return this.reservation ? helper.resolveTimestamp(this.reservation.checkedin_at) : '';
         },
         approved_time(){
             return this.reservation ? helper.resolveTimestamp(this.reservation.approved_at) : '';
         }
     },
-  mounted(){
-        
-    },
+  
   methods:{
       ...mapActions([
           'query',
           'mutate',
       ]),
       ...mapMutations([
+          'SET_APP_STATE',
           'ADD_USER_RESERVATION'
         ]),
 
@@ -246,23 +229,13 @@ export default {
         }
         else{
             this.start = true;
-            this.stage = 'identity';
         }
       },
 
-    getUserIdentity(identity){
-        if(identity === null){
-             this.$refs.app.alert(`No Id selected`, `red`);
-        }else{
-            this.identity = identity;
-            
-            this.stage = 'tnc';
-        }
-    },
 
     reservationCheckin(accepted_tnc){
         if(accepted_tnc){
-            this.$refs.app.setState(false, `Checking you in to ${this.reservation.property.name}`)
+            this.$refs.app.setState(false, `Checkin you into ${this.property.name} `);
             this.mutate({
                 mutation: CHECKIN_RESERVATION,
                 variables: {
@@ -305,7 +278,8 @@ export default {
     },
 
     getReservation(){
-        this.$refs.app.setState(false, "Getting the reservation...");
+        this.loading = true;
+
         this.query({
             query: GET_RESERVATION,
             variables: {
@@ -335,11 +309,14 @@ export default {
             });
         })
         .finally(() => {
-            this.$refs.app.setState(true);
+            this.loading = false;
         })
     },
 
   },
+  mounted(){
+        this.getReservation();
+    },
 
 }
 </script>

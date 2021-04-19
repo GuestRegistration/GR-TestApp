@@ -5,8 +5,7 @@ import ApolloClient from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
 import { InMemoryCache } from "apollo-cache-inmemory";
-// import firebase from './firebase'
-import gr_tokens from './tokens'
+import gr_tokens from './graphql-tokens'
 import config from './config';
 
 Vue.use(VueApollo);
@@ -38,7 +37,7 @@ export default async () => {
   const client = new ApolloClient({
       link: errorLink.concat(httpLink),
       cache: new InMemoryCache({
-        addTypename: true
+        addTypename: false
       })
     });
   

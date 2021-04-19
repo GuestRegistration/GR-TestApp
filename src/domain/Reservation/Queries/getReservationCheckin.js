@@ -40,10 +40,11 @@ export default gql`
                     country_code
                     phone_number
                 }
-                verification{
-                    document
-                    selfie
-                }
+            }
+            verifications{
+                type
+                status
+                report
             }
         }
     }`;

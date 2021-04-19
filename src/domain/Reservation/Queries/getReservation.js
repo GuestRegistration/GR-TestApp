@@ -15,6 +15,7 @@ export default gql`
             checkout_date
             instruction
             checkin_url
+            property_id
             property{
                 id
                 name
@@ -26,6 +27,13 @@ export default gql`
                 gender
                 type
             }
-        
+            charges{
+                id
+                title
+                amount
+                description
+                type
+                enable 
+            }
         }
     }`;

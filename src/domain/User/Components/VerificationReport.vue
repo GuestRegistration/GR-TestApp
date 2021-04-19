@@ -137,14 +137,14 @@
 
 <script>
 import DataContainer from '../../../components/DataContainer.vue';
-import GET_USER_VERIFICATION_REPORT from '../Queries/getUserVerificationReport';
+import GET_STRIPE_VERIFICATION_REPORT from '../Queries/getStripeVerificationReport';
 
 export default
     {
-    name: "UserVerificationReport",
+    name: "VerificationReport",
     components: { DataContainer },
     props: {
-        userId: String
+        verification: Object,
     },
     data(){
         return {
@@ -183,22 +183,25 @@ export default
     methods: {
         open(){
             this.dialog = true;
-            this.getVerificationReport()
+            this.getUserStripeVerificationReport()
         },
         close(){
             this.dialog = false;
         },
 
-        getVerificationReport(){
+        getUserStripeVerificationReport(){
+
+            if(!this.verification.report) return;
+
             this.loading = true;
             this.$store.dispatch('query', {
-                query: GET_USER_VERIFICATION_REPORT,
+                query: GET_STRIPE_VERIFICATION_REPORT,
                 variables: {
-                    id: this.userId
+                    id: this.verification.report
                 }
             })
             .then(response => {
-                this.report = response.data.getUserVerificationReport
+                this.report = response.data.getStripeVerificationReport
             })
             .finally(() => {
                 this.loading = false;

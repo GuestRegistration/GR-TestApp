@@ -13,6 +13,7 @@
                 <template v-else>
                     <div>
                         <p>We sent a one time validation code to {{ phone.international }}. Enter the 6 digit code below before it expires</p>
+                        <a href="#" @click.prevent="verificationSent = false">Use another phone number</a>
                     </div>
                     <div class="my-5">
                         <v-form ref="confirmVerification" >

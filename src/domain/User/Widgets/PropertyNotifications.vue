@@ -1,12 +1,16 @@
 <template>
     <div>
-        <div class="my-5">
-            <property-switch @change="getPropertyNotifications" />
-        </div>
+        <v-row>
+            <v-col cols="12" sm="6" md="3">
+                <property-switch @change="getPropertyNotifications" />
+            </v-col>
+        </v-row>
         <data-container :loading="loading">
-            <template v-if="notifications.length">
-                <property-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
-            </template>
+            <v-row v-if="notifications.length" justify="center">
+                <v-col cols="12" md="6">
+                    <property-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
+                </v-col>
+            </v-row>
             <div v-else class="text-center py-5">
                 <p class="grey--text">No notification</p>
             </div>

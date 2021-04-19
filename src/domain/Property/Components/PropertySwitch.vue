@@ -21,7 +21,7 @@ export default {
         ]),
         
         propertiesSwitch(){
-        return this.profile_loaded && this.current_user.profile.properties ? 
+          return this.profile_loaded && this.current_user.profile.properties ? 
                 this.current_user.profile.properties : []
         }
     },

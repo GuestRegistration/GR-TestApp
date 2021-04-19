@@ -2,8 +2,6 @@
 node_modules
 /dist
 /.firebase
-/src/config.js
-/src/firebase-config.js
 /public/firebase-messaging-sw.js
 .jshintrc
 
@@ -25,7 +23,10 @@ yarn-error.log*
 *.sln
 *.sw?
 
-src/tokens.js
-
 # environment variables
 .env
+.env.development
+.env.production
+
+.firebaserc
+firebase.json

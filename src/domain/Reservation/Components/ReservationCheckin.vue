@@ -61,13 +61,13 @@
                         <v-list-item>
                             <v-list-item-content>
                                 <v-list-item-title>
-                                    Document: {{ userVerification.document ? userVerification.document : 'unverified'  }}
+                                    Document: {{ userVerification.status ? userVerification.status : 'unverified'  }}
                                 </v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
                     </v-list>
                     <v-btn class="ma-1" color="primary" @click="$refs.userVerificationReport.open()">View Verification Report</v-btn>
-                    <verification-report ref="userVerificationReport" :user-id="user.id" />
+                    <verification-report ref="userVerificationReport" :verification="userVerification" />
                 </template>
                 <template v-else>
                     <div class="py-5 text-center">
@@ -137,7 +137,10 @@ export default {
             return this.checkin ? this.checkin.user : {}
         },
         userVerification(){
-            return this.user.verification ? this.user.verification : {}
+            if(this.checkin && this.checkin.verifications && this.checkin.verifications.length){
+                return  this.checkin.verifications[0];
+            }
+            return {}
         }
     },
 

@@ -1,8 +1,10 @@
 <template>
     <data-container :loading="loading">
-        <div v-if="notifications.length">
-            <user-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
-        </div>
+        <v-row v-if="notifications.length" justify="center">
+            <v-col cols="12" md="6">
+                <user-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
+            </v-col>
+        </v-row>
         <div v-else class="text-center py-5">
             <p class="grey--text">No notification yet</p>
         </div>

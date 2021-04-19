@@ -1,22 +1,14 @@
 <template>
-    <app-layer ref="app" @ready="ready">
-        <div class="notifications">    
-          <v-container>
-              <v-row justify="center">
-                  <v-col cols="12" sm="8" md="6">
+    <app-layer ref="app">
+        <template #header>
+            <h3>Reservations</h3>
+        </template>
+            <v-tabs v-if="hasAnyProperty" v-model="currentTab" @change="tabChanged" align-with-title>
+                <v-tabs-slider color="primary"></v-tabs-slider>
+                <v-tab v-for="tab in tabs" :key="tab.name">{{ tab.name }}</v-tab>
+            </v-tabs>
 
-                    <v-tabs v-if="hasAnyProperty" v-model="currentTab" @change="tabChanged" align-with-title>
-                        <v-tabs-slider color="primary"></v-tabs-slider>
-                        <v-tab v-for="tab in tabs" :key="tab.name">{{ tab.name }}</v-tab>
-                    </v-tabs>
-
-                    <component :is="`${reservation}-reservations`"></component>
-                      
-                  </v-col>
-              </v-row>
-              
-          </v-container>
-        </div>
+            <component :is="`${reservation}-reservations`"></component>
     </app-layer>
 </template>
 
@@ -65,10 +57,6 @@ export default {
     },
 
     methods:{
-
-        ready(){
-            this.$refs.app.setState(true);
-        },
 
         tabChanged(tab){
             this.$router.push(this.tabs[tab].route)

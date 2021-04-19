@@ -1,10 +1,8 @@
 <template>
     <div>
-        <v-btn @click="$emit('back')" class="primary">Back</v-btn>
         <div class="my-5">
             <h2 class="text-center">Terms and Condition</h2>
         </div>
-
         <div class="my-5 text-center">
             <div v-if="property.terms">
                 <p>Please read carefully the terms and condition for {{ property.name }} <a :href="property.terms" target="_blank">here</a></p>

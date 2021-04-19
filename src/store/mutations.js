@@ -3,9 +3,10 @@ const mutations = {
     SET_APP_STATE: (state, ready) => {
         state.app_ready = ready
     },
-    // SET_VERIFICATION_CONFIRMATION_RESULT: (state, confirmationResult) => {
-    //     state.auth.confirmationResult = confirmationResult
-    // },
+
+    SET_APP_PROCESS(state, process){
+        state.app_process = process
+    },
 
     SET_USER_AUTH: (state, auth) => {
         state.current_user.auth = auth
@@ -77,9 +78,10 @@ const mutations = {
             property: {}
         }
     },
-    PROCESSING(state, status){
-        state.processing = status
-    } 
+
+    SNACKBAR(state, settings){
+        state.snackbar = settings
+    }
 }
 
 export default mutations

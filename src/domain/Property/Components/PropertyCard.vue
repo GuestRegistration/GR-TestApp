@@ -1,17 +1,20 @@
 <template>
   <v-card
-    max-width="344"
   >
     <v-img
+      v-if="property.image"
       :src="property.image"
+      height="200px"
+    ></v-img>
+    <v-img v-else
+      src="@/assets/img/default-property.jpg"
       height="200px"
     ></v-img>
 
     <v-card-title>
-      <router-link :to="{name: 'property.show', params: {id: property.id, _property: property}}">
+      <router-link :to="{name: 'property.show', params: {id: property.id, _property: property}}" class="text-decoration-none">
         {{ property.name }}
       </router-link>
-      
     </v-card-title>
 
     <v-card-subtitle>
