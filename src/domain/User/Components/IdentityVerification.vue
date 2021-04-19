@@ -9,7 +9,7 @@
                 type="warning">
                     You need to restart your verification
                 </v-alert>
-                 <run-identity-verification v-if="isMine" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+                 <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
             </div>
             <div v-else-if="verification">
                 <v-list>
@@ -29,7 +29,7 @@
                     >
                     {{ verification.status }}
                 </v-chip>      
-                 <run-identity-verification v-if="isMine" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+                 <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
                 <template v-if="verification.report">
                     <v-btn class="ma-1" color="primary" @click="$refs.report.open()">View Verification</v-btn>
                     <verification-report :verification="verification" ref="report" />
@@ -79,7 +79,7 @@ export default {
             return this.$route.query.vs_refresh
         },
         verification(){
-            return this.verifications.length ? this.verifications[0] : null;
+            return this.verifications.length ? this.verifications[this.verifications.length-1] : null;
         },
 
         isMine(){

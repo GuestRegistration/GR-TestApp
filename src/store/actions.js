@@ -14,7 +14,6 @@ const actions = {
                     window.localStorage.setItem('gr-user', idToken);
                     window.localStorage.setItem('token-expires', helper.nowTimestamp()+3500);
                     commit('SET_USER_AUTH', auth_user)
-                    console.log('logged in and token saved')
                     resolve(auth_user)
                 })
                 .catch(e => {
