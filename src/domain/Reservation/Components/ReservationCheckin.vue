@@ -138,7 +138,7 @@ export default {
         },
         userVerification(){
             if(this.checkin && this.checkin.verifications && this.checkin.verifications.length){
-                return  this.checkin.verifications[0];
+                return  this.checkin.verifications[this.checkin.verifications.length - 1];
             }
             return {}
         }

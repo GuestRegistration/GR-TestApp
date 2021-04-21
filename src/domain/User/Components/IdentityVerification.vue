@@ -1,27 +1,27 @@
 <template>
-    <div>
-        <data-container :loading="loading">
-            <div v-if="refresh">
-                <v-alert 
-                border="left"
-                colored-border
-                elevation="2"
-                type="warning">
-                    You need to restart your verification
-                </v-alert>
-                 <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
-            </div>
-            <div v-else-if="verification">
-                <v-list>
-                    <v-list-item>
-                        <v-list-item-content>
-                            <v-list-item-title class="text-uppercase"> {{ verification.type  }} </v-list-item-title>
-                            <v-list-item-subtitle v-if="verification.status == 'requires_input'">
-                                <a :href="verification.url" target="_blank">Continue Verification</a>
-                            </v-list-item-subtitle>
-                        </v-list-item-content>                  
-                    </v-list-item>
-                </v-list>
+    <data-container :loading="loading">
+        <div v-if="refresh">
+            <v-alert 
+            border="left"
+            colored-border
+            elevation="2"
+            type="warning">
+                You need to restart your verification
+            </v-alert>
+                <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+        </div>
+        <div v-else-if="verification">
+            <v-list>
+                <v-list-item>
+                    <v-list-item-content>
+                        <v-list-item-title class="text-uppercase"> {{ verification.type  }} </v-list-item-title>
+                        <v-list-item-subtitle v-if="verification.status == 'requires_input'">
+                            <a :href="verification.url" target="_blank">Continue Verification</a>
+                        </v-list-item-subtitle>
+                    </v-list-item-content>                  
+                </v-list-item>
+            </v-list>
+            <div>
                 <v-chip
                     class="ma-2"
                     :color="`${verification.status === 'verified' ? 'green' : 'orange'}`"
@@ -29,25 +29,25 @@
                     >
                     {{ verification.status }}
                 </v-chip>      
-                 <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
-                <template v-if="verification.report">
-                    <v-btn class="ma-1" color="primary" @click="$refs.report.open()">View Verification</v-btn>
-                    <verification-report :verification="verification" ref="report" />
-                </template>
             </div>
-            <div v-else>
-                <v-alert 
-                class="ma-2"
-                border="left"
-                colored-border
-                elevation="2"
-                type="warning">
-                    {{ property.name }} needs to verify your identity
-                </v-alert>
-                <run-identity-verification :property="property" @created="verificationCreated" />
-            </div>
-        </data-container>
-    </div>
+                <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+            <template v-if="verification.report">
+                <v-btn class="ma-1" color="primary" @click="$refs.report.open()">View Verification</v-btn>
+                <verification-report :verification="verification" ref="report" />
+            </template>
+        </div>
+        <div v-else>
+            <v-alert 
+            class="ma-2"
+            border="left"
+            colored-border
+            elevation="2"
+            type="warning">
+                {{ property.name }} needs to verify your identity
+            </v-alert>
+            <run-identity-verification :property="property" @created="verificationCreated" />
+        </div>
+    </data-container>
 </template>
 
 <script>
@@ -103,7 +103,7 @@ export default {
                 }
             })
             .then(response => {
-                this.verifications = response.data.getUserStripeVerifications
+                this.verifications = response.data.getUserStripeVerifications;
             })
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
@@ -135,8 +135,32 @@ export default {
             })
         }
     },
-    mounted(){
-        this.getUserStripeVerifications();
+
+    watch: {
+        property:{
+            immediate: true,
+            handler(){
+                this.getUserStripeVerifications();
+            }
+        },
+
+        verification: {
+            immediate: true,
+            handler(v){
+                if(v){
+                    this.$emit('verification', v)
+                }
+            }
+        },
+
+        $route: {
+            immediate: true,
+            handler(route){
+                if(route.query.vs_refresh){
+                    this.$emit('restart-verification')
+                }
+            }
+        }
     }
 }
 </script>

@@ -6,10 +6,11 @@
                 :charge="charge"  
                 :payments="payments" 
                 :reservation="reservation"
-                :stripe-auth="stripe_auth" />
+                :stripe-auth="stripe_auth"
+                @payment="paymentMade"
+                 />
                 <v-divider></v-divider>
             </div>
-            
         </div>
         <div v-else>
             <p class="text--gray">No charge for the reservation</p>
@@ -90,6 +91,21 @@ export default {
                 this.loading = false;
             })
         },
+
+        paymentMade(payment){
+            this.payments.push(payment)
+        },
+
+        getPaidCharges(){
+            const paidCharges = this.charges.map(charge => {
+                return {
+                    ...charge,
+                    payment: this.payments.find(p => p.metadata.charge_id == charge.id)
+                }
+            })
+
+            this.$emit('charges-payment', paidCharges)
+        }
     },
 
     watch: {
@@ -97,6 +113,12 @@ export default {
             immediate: true,
             handler(){
                 this.getCharges()
+            }
+        },
+        payments: {
+            immediate: true,
+            handler(){
+                this.getPaidCharges();
             }
         }
     }

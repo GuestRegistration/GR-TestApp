@@ -56,7 +56,7 @@ import NavDrawer from '@/components/NavDrawer.vue';
 import firebase from '@/firebase';
 import helper from '@/helper';
 import update from './mixins/update';
-import config from './config'
+// import config from './config'
 import GET_USER_BY_ID from './domain/User/Queries/getUserByID';
 import UPDATE_USER_DEVICE from './domain/User/Mutations/updateUserDevice';
 
@@ -209,6 +209,7 @@ export default {
     },
 
     mounted(){
+      // console.log(config);
       firebase.auth.onAuthStateChanged((user) => {
         this.setUser();
       });

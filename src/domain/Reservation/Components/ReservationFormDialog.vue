@@ -40,6 +40,7 @@
                     outlined
                     label="Reservation instructions"
                     v-model="form.instruction"
+                    :rules="[rules.required]"
                     ></v-textarea>
                     
                     <property-charges-select 
@@ -211,8 +212,8 @@ export default {
                 }else{
                     this.form = {
                         name: null,
-                        checkin_date: null,
-                        checkout_date: null,
+                        checkin_date: this.today,
+                        checkout_date: this.today,
                         instruction: null,
                         charges: [] 
                     }

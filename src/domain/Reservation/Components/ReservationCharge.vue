@@ -128,6 +128,7 @@ export default {
 
             this.$refs.stripePayment.close();
             this.payment = stripeCharge;
+            this.$emit('payment', stripeCharge)
             this.loading = false;
         },
 
