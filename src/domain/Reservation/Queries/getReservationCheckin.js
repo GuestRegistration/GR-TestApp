@@ -44,7 +44,12 @@ export default gql`
             verifications{
                 type
                 status
+                session
                 report
+                metadata {
+                    user_id
+                    property_id
+                }
             }
         }
     }`;

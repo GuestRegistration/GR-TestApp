@@ -17,7 +17,7 @@
                         <div> 
                             <v-btn
                                 text
-                                @click="loading = false"
+                                @click="close"
                             >
                                 cancel
                             </v-btn>
@@ -47,9 +47,9 @@
             </v-card-title>
             <v-card-text>
                 <template v-if="checkin">
-                    <v-list>
+                    <v-list >
                         <v-subheader>User</v-subheader>
-                        <v-list-item>
+                        <v-list-item v-if="checkin.user">
                             <v-list-item-content>
                                 <v-list-item-title v-text="`${checkin.user.name.first_name} ${checkin.user.name.last_name}`"></v-list-item-title>
                             </v-list-item-content>
@@ -58,7 +58,7 @@
 
                     <v-list>
                         <v-subheader>Identity</v-subheader>
-                        <v-list-item>
+                        <v-list-item v-if="userVerification">
                             <v-list-item-content>
                                 <v-list-item-title>
                                     Document: {{ userVerification.status ? userVerification.status : 'unverified'  }}
@@ -67,7 +67,9 @@
                         </v-list-item>
                     </v-list>
                     <v-btn class="ma-1" color="primary" @click="$refs.userVerificationReport.open()">View Verification Report</v-btn>
+                    
                     <verification-report ref="userVerificationReport" :verification="userVerification" />
+                
                 </template>
                 <template v-else>
                     <div class="py-5 text-center">
@@ -158,14 +160,15 @@ export default {
         ]),
 
         open(){
-            this.loading = true;
             this.getReservationCheckin();
         },
         close(){
+            this.loading = false;
             this.dialog = false;
         },
 
         getReservationCheckin(){
+            this.loading = true;
             this.query({
                 query: GET_RESERVATION_CHECKIN,
                 variables: {
@@ -174,6 +177,14 @@ export default {
             })
             .then(response => {
                 this.checkin = response.data.getReservationCheckin;
+                if(!this.checkin.user){
+                    this.$store.commit('SNACKBAR', {
+                        status: true,
+                        text: "The user account that checked in no longer exist",
+                        color: "error"
+                    })
+                    return;
+                }
                 this.dialog = true;
             })
             .catch(e => {

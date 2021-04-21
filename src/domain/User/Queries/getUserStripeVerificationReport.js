@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    query getStripeVerificationReport($id: ID!){
-        getStripeVerificationReport(id: $id){
+    query getUserStripeVerificationReport($user_id: ID, $verification_id: ID!){
+        getUserStripeVerificationReport(user_id: $user_id, verification_id: $verification_id ){
             id
             object
             created

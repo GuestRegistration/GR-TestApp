@@ -1,8 +1,18 @@
 <template>
 <div>
+    <confirmation-dialog ref="confirmation" @confirmed="dialog = true">
+        <div class="text-center mt-5">
+            <p>
+                You are accessing another user identity verification. The user will be notified about this.
+            </p>
+            <h4>
+                Do you want to continue ?
+            </h4>
+        </div>
+    </confirmation-dialog>
     <v-dialog
         v-model="dialog"
-        width="500"
+        width="400"
         scrollable
         persistent
         >
@@ -117,7 +127,7 @@
                             </v-list-item>
                         </v-list>
                     </div>
-                    <div v-else class="mt-5 px-5" >
+                    <div v-else class="mt-5" >
                         <v-alert 
                         border="left"
                         colored-border
@@ -140,12 +150,13 @@
 
 <script>
 import DataContainer from '../../../components/DataContainer.vue';
-import GET_STRIPE_VERIFICATION_REPORT from '../Queries/getStripeVerificationReport';
+import ConfirmationDialog from '@/components/Utilities/ConfirmationDialog'
+import GET_STRIPE_VERIFICATION_REPORT from '../Queries/getUserStripeVerificationReport';
 
 export default
     {
     name: "VerificationReport",
-    components: { DataContainer },
+    components: { DataContainer, ConfirmationDialog },
     props: {
         verification: Object,
     },
@@ -185,8 +196,11 @@ export default
     },
     methods: {
         open(){
-            this.dialog = true;
-            this.getUserStripeVerificationReport()
+            if(this.verification.metadata.user_id === this.$store.getters.current_user.auth.uid){
+                this.dialog = true;
+                return;
+            }
+            this.$refs.confirmation.open();
         },
         close(){
             this.dialog = false;
@@ -200,15 +214,26 @@ export default
             this.$store.dispatch('query', {
                 query: GET_STRIPE_VERIFICATION_REPORT,
                 variables: {
-                    id: this.verification.report
+                    user_id: this.verification.metadata.user_id,
+                    verification_id: this.verification.session
                 }
             })
             .then(response => {
-                this.report = response.data.getStripeVerificationReport
+                this.report = response.data.getUserStripeVerificationReport
             })
             .finally(() => {
                 this.loading = false;
             })
+        },
+        
+    },
+
+    watch: {
+        dialog: {
+            immediate: true,
+            handler(open){
+                if(open) this.getUserStripeVerificationReport()
+            }
         }
     }
 }

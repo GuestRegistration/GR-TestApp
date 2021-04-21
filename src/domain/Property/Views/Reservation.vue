@@ -63,17 +63,8 @@
                             </v-alert>
                             
                             <reservation-checkin ref="reservationCheckin" :_reservation="reservation" @approved="reservationApproved" />
-                            <confirmation-dialog ref="reservationCheckinConfirmation" @confirmed="$refs.reservationCheckin.open()">
-                                <div class="text-center mt-5">
-                                    <p>
-                                        You will be accessing the guest identity. Guest will be notified about this.
-                                    </p>
-                                    <h4>
-                                        Do you want to continue ?
-                                    </h4>
-                                </div>
-                            </confirmation-dialog>
-                            <v-btn color="primary" @click="$refs.reservationCheckinConfirmation.open()" >View checkin info</v-btn>
+                            
+                            <v-btn color="primary" @click="$refs.reservationCheckin.open()" >View checkin info</v-btn>
 
                         </template>
                         <template v-else>
@@ -110,7 +101,6 @@ import helper from '@/helper'
 
 import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
-import ConfirmationDialog from '@/components/Utilities/ConfirmationDialog'
 import ReservationDetails from '../../Reservation/Components/ReservationDetails';
 import ReservationCheckin from '../../Reservation/Components/ReservationCheckin';
 import ReservationCharges from '../../Reservation/Components/ReservationCharges';
@@ -121,7 +111,7 @@ import GET_RESERVATION from '../../Reservation/Queries/getReservation';
 export default {
   name: 'reservation',
   components: {
-    AppLayer, DataContainer, ConfirmationDialog,
+    AppLayer, DataContainer,
     ReservationDetails, ReservationCheckin,
     ReservationFormDialog, ReservationCharges
   }, 
