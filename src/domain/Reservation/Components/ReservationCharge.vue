@@ -2,26 +2,30 @@
     <div class="py-2">
         <v-list-item>
             <v-list-item-content>
-                <v-list-item-title> {{ charge.title  }} </v-list-item-title>
+                <v-list-item-title> {{ charge.title  }} <span v-show="charge.optional"> (optional) </span> </v-list-item-title>
                 <v-list-item-subtitle>{{ charge.description }}</v-list-item-subtitle>
+                
             </v-list-item-content>
             <h4 class="mt-2">{{ [currency, charge.amount].join('') }}</h4>
         </v-list-item>
-        <div class="text-right">
+        <div class="text-right my-2">
             <div v-if="payment">
                 <v-chip pill color="green" text-color="white">
-                Paid
+                    {{ !isPreAuthorized ? 'Paid' : 'Authorized' }}
                 </v-chip>
                 <p>Payment Status: {{ payment.status }}</p>
+                <p>Captured: {{ payment.captured ? `YES, ${payment.currency.toUpperCase()} ${payment.amount_captured/100}` : 'NO' }}</p>
             </div>
-            <v-btn v-else-if="isMyReservation" btn color="primary" :loading="loading" @click="payCharge()">Pay</v-btn>
-        </div>
+            <v-btn v-else-if="isMyReservation" btn color="primary" :loading="loading" @click="payCharge()">{{ !isPreAuthorized ? 'Pay Now' : 'Authorize charge' }}</v-btn>
+        </div> 
+        <slot v-bind="{ stripeAuth, reservation, charge, payment: payments.find(p => p.metadata.charge_id === charge.id) }" />
         <stripe-payment
                 ref="stripePayment" 
                 :publishable-key="stripePublishableKey" 
                 :amount="charge.amount"
                 :currency="currency"
                 :charge-callback="stripeChargeCallBack"
+                :pre-authorize="isPreAuthorized"
                 @success="paymentSuccessful"
                 @error="paymentError"
                 @abort="paymentAborted"
@@ -58,14 +62,19 @@ export default {
 
         property(){
             return this.reservation.property
+        },
+        
+        isPreAuthorized(){
+            return this.charge.type === 'pre-authorize'
         }
+
     },
 
     props: {
         stripeAuth: Object,
         reservation: Object,
         charge:Object,
-        payments: Array,
+        payments: Array
     },
     methods: {
         payCharge(){
@@ -90,7 +99,8 @@ export default {
                     amount: this.charge.amount * 100,
                     currency: 'USD',
                     source: token,
-                    description: `Payment for ${this.charge.title} at ${this.property.name} by ${[this.$store.getters.current_user.profile.name.first_name, this.$store.getters.current_user.profile.name.last_name].join(' ')}`,
+                    description: `${this.isPreAuthorized ? 'Authorization' : 'Payment'} for ${this.charge.title} at ${this.property.name} by ${[this.$store.getters.current_user.profile.name.first_name, this.$store.getters.current_user.profile.name.last_name].join(' ')}`,
+                    capture: !this.isPreAuthorized,
                     metadata: {
                         user_id: this.$store.getters.current_user.profile.id,
                         property_id: this.property.id,
@@ -123,7 +133,7 @@ export default {
             this.$store.commit('SNACKBAR', {
                 status: true,
                 color: 'success',
-                text: `Payment of ${stripeCharge.currency} ${stripeCharge.amount/100} for ${this.charge.title} successful`
+                text: `${this.isPreAuthorized ? 'Authorization' : 'Payment'} of ${stripeCharge.currency.toUpperCase()} ${stripeCharge.amount/100} for ${this.charge.title} successful`
             })
 
             this.$refs.stripePayment.close();

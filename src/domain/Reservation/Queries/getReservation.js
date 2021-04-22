@@ -33,7 +33,8 @@ export default gql`
                 amount
                 description
                 type
-                enable 
+                enable
+                optional 
             }
         }
     }`;

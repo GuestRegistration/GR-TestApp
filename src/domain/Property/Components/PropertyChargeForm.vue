@@ -13,7 +13,6 @@
                     <v-radio
                         label="Pre-authorize"
                         value="pre-authorize"
-                        disabled
                     ></v-radio>
                 </v-radio-group>
                 <v-text-field
@@ -40,6 +39,7 @@
                 v-model="form.description"
                 :readonly="readOnly.includes('description')"
                 ></v-textarea>
+                <v-switch v-model="form.optional" label="Make payment optional" color="primary"></v-switch>
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -77,6 +77,7 @@ export default {
                 enable: false,
                 amount: null,
                 type: 'instant',
+                optional: false,
             },
         }
     },
@@ -135,7 +136,7 @@ export default {
         charge: {
             immediate: true,
             handler(charge){
-                this.form = new PropertyCharge(charge)
+                this.form = new PropertyCharge({...charge, optional: charge.optional || false})
             }
         },
         

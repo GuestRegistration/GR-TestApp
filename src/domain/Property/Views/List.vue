@@ -5,6 +5,13 @@
         </template>
         <v-container>
             <data-container :loading="loading">
+                <template v-slot:loading>
+                    <v-row>
+                        <v-col cols="12" sm="6" md="4" v-for="i in 6" :key="i">
+                            <property-card-skeleton class="ma-2" />
+                        </v-col>
+                    </v-row>
+                </template>
                  <v-row v-if="properties.data.length">
                     <v-col  v-for="property in properties.data" :key="property.id" 
                     cols="12" sm="6" md="4" >
@@ -42,13 +49,15 @@ import { mapActions, mapMutations } from 'vuex'
 import AppLayer from '@/AppLayer.vue';
 import PropertyCard from '../Components/PropertyCard.vue';
 import DataContainer from '../../../components/DataContainer.vue';
+import PropertyCardSkeleton from '../Components/PropertyCardSkeleton.vue';
+
 // graphql
 import GET_USER_PROPERTIES from '../Queries/getUserProperties';
 
 export default {
   name: 'PropertyList',
   components: {
-    AppLayer, PropertyCard, DataContainer
+    AppLayer, PropertyCard, DataContainer, PropertyCardSkeleton
   },
   data(){
      return {

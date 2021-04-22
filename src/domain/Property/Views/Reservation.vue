@@ -1,7 +1,10 @@
 <template>
     <app-layer ref="app">
         <data-container :loading="loading">
-
+            
+            <template v-slot:loading>
+                <reservation-skeleton />
+            </template>
             <!-- resource no longer loading but it not found -->
             <template v-if="reservation == null">
                 <div class="text-center">
@@ -13,6 +16,23 @@
             <!-- the resource is found -->
             <template v-else-if="reservation">
                 <v-row justify="center">
+                    <v-col cols="12" md="4">
+                        <div class="text-center">
+                            <router-link :to="{name: 'property.show', params: { id: property.id} }" class="text-decoration-none">
+                                <v-avatar v-if="property" color="primary" size="150">
+                                    <v-img
+                                    v-if="property.image"
+                                    :src="property.image"
+                                    ></v-img>
+                                    <v-img v-else
+                                        src="@/assets/img/default-property.jpg"
+                                    ></v-img>
+                                </v-avatar>
+                                <h2>{{property.name}}</h2>
+                                <p class="grey--text">{{property.address}}</p>
+                            </router-link>
+                        </div>
+                    </v-col>
                     <v-col cols="12" md="6">
                         <div class="d-flex justify-space-between">
                             <h2>{{ reservation.name }}</h2>
@@ -80,7 +100,18 @@
                         <v-card class="my-5" outlined>
                             <v-card-text>
                                 <h2>Charges</h2>
-                                <reservation-charges :reservation="reservation" />
+                                <reservation-charges :reservation="reservation" :refresh="refreshCharges">
+                                    <template v-slot:default="prop">
+                                        <template v-if="prop.payment">
+                                            <template v-if="prop.charge.type == 'pre-authorize'">
+                                                <reservation-charge-capture v-bind="prop" @captured="refreshCharges = true" />
+                                            </template>
+                                            <template v-else>
+                                                <v-btn v-if="prop.payment.captured" color="primary">Refund</v-btn>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </reservation-charges>
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -101,25 +132,29 @@ import helper from '@/helper'
 
 import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
+import ReservationSkeleton from '../../Reservation/Components/ReservationSkeleton';
 import ReservationDetails from '../../Reservation/Components/ReservationDetails';
 import ReservationCheckin from '../../Reservation/Components/ReservationCheckin';
 import ReservationCharges from '../../Reservation/Components/ReservationCharges';
 import ReservationFormDialog from '../../Reservation/Components/ReservationFormDialog.vue';
+import ReservationChargeCapture from '../../Reservation/Components/ReservationChargeCapture';
 
 import GET_RESERVATION from '../../Reservation/Queries/getReservation';
 
 export default {
   name: 'reservation',
   components: {
-    AppLayer, DataContainer,
+    AppLayer, DataContainer, ReservationSkeleton,
     ReservationDetails, ReservationCheckin,
-    ReservationFormDialog, ReservationCharges
+    ReservationFormDialog, ReservationCharges,
+    ReservationChargeCapture
   }, 
   data(){
       return {
         loading: false,
         reservation: null,
         checkin: null,
+        refreshCharges: false,
       }
   },
 
@@ -135,7 +170,11 @@ export default {
             return this.$route.params.id
         },
 
-         checkin_time(){
+        property(){
+            return this.reservation.property;
+        },
+
+        checkin_time(){
             return helper.resolveTimestamp(this.reservation.checkedin_at)
         },
         approved_time(){

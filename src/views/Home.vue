@@ -1,25 +1,35 @@
 <template>
   <app-layer ref="app">
-    <h4>My Trips</h4>
+    <h3>Recent Checkins</h3>
      <div v-if="!reservations.length" class="pa-5">
-       <p class="grey--text">No reservation</p>
+       <p class="grey--text text-center">No reservation</p>
     </div>
-    <v-row v-else>
-      <v-col v-for="reservation in reservations" :key="reservation.id"
-       cols="12" sm="6" md="4">
-        <ReservationCard  :_reservation="reservation"  />
-      </v-col>
-    </v-row>
-    <h4>Properties</h4>
+    <div v-else>
+      <v-row >
+        <v-col v-for="reservation in reservations" :key="reservation.id"
+        cols="12" sm="6" md="4">
+          <ReservationCard  :_reservation="reservation"  />
+        </v-col>
+      </v-row>
+      <div class="text-right my-3">
+        <router-link :to="{name: 'reservation.list'}" class="text-decoration-none"> All reservations</router-link>
+      </div>
+    </div>
+    <h3>Properties</h3>
     <div v-if="!properties.length" class="pa-5">
-      <p class="grey--text">No property</p>
+      <p class="grey--text text-center">No property</p>
     </div>
-    <v-row v-else>
-      <v-col v-for="property in properties" :key="property.id"
-       cols="12" sm="6" md="4">
-        <PropertyCard  :_property="property"  />
-      </v-col>
-    </v-row>
+    <div v-else>
+        <v-row >
+          <v-col v-for="property in properties" :key="property.id"
+          cols="12" sm="6" md="4">
+            <PropertyCard  :_property="property"  />
+          </v-col>
+        </v-row>
+        <div class="text-right my-3">
+          <router-link :to="{name: 'property.list'}" class="text-decoration-none">All properties</router-link>
+        </div>
+    </div>
   </app-layer>
 </template>
 

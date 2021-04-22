@@ -42,7 +42,7 @@
             persistent
         >
         <v-card>
-            <v-card-title class="headline grey lighten-3">
+            <v-card-title class="headline">
                 <span>Checkin Information</span>
             </v-card-title>
             <v-card-text>

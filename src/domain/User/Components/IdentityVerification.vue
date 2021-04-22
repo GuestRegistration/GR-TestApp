@@ -8,7 +8,7 @@
             type="warning">
                 You need to restart your verification
             </v-alert>
-                <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+            <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
         </div>
         <div v-else-if="verification">
             <v-list>
@@ -30,7 +30,7 @@
                     {{ verification.status }}
                 </v-chip>      
             </div>
-                <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+            <run-identity-verification v-if="isMine && canRestart" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
             <template v-if="verification.report">
                 <v-btn class="ma-1" color="primary" @click="$refs.report.open()">View Verification</v-btn>
                 <verification-report :verification="verification" ref="report" />
@@ -71,7 +71,8 @@ export default {
     },
 
     props: {
-        property: Object
+        property: Object,
+        canRestart: Boolean
     },
 
     computed: {

@@ -9,5 +9,6 @@ export default gql`
             amount
             description
             enable
+            optional
         }
     }`;

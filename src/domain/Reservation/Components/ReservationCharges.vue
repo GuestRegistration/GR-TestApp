@@ -8,7 +8,11 @@
                 :reservation="reservation"
                 :stripe-auth="stripe_auth"
                 @payment="paymentMade"
-                 />
+                 >
+                 <template v-slot:default="attrs">
+                    <slot v-bind="attrs" />
+                 </template>
+                </reservation-charge>
                 <v-divider></v-divider>
             </div>
         </div>
@@ -49,7 +53,8 @@ export default {
     },
 
     props: {
-        reservation: Object
+        reservation: Object,
+        refresh: Boolean
     },
     methods: {
         getCharges(){
@@ -119,6 +124,11 @@ export default {
             immediate: true,
             handler(){
                 this.getPaidCharges();
+            }
+        },
+        refresh: {
+            handler(refresh){
+                if(refresh) this.getCharges()
             }
         }
     }

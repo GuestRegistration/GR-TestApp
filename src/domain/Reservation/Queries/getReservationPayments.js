@@ -13,5 +13,10 @@ export default gql`
                charge_id
                property_id
            }
+            captured
+            refunded
+            amount_captured
+            amount_refunded
+            receipt_url
         }
     }`;

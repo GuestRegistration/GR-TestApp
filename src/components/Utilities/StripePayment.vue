@@ -45,7 +45,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
             <v-btn  text color="red" @click="cancel" invert>Cancel</v-btn>
-            <v-btn @click="createToken" color="primary" :loading="processing" :disabled="initError != null" >Pay {{ currency }}{{ amount }}</v-btn>
+            <v-btn @click="createToken" color="primary" :loading="processing" :disabled="initError != null" >{{ preAuthorize ? 'Authorize' : 'Pay' }} {{ currency }}{{ amount }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -83,6 +83,7 @@
             },
             chargeCallback: Function,
             currency: String,
+            preAuthorize: Boolean
 
         },
 
@@ -194,7 +195,7 @@
 
             createToken(){
                const vm = this
-               this.process = "Processing your payment...";
+               this.process = this.preAuthorize ? "Authorizing your card..." : "Processing your payment...";
                 // Create a token or display an error when the form is submitted.
                 vm.stripe.createToken(this.card).then((response) => {
                     if (response.error) {

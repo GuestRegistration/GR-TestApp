@@ -1,5 +1,5 @@
 <template>
-    <v-btn v-if="!session" @click="createStripeVerificationSession" color="primary" :loading="loading"><slot>Verify Me</slot></v-btn>
+    <v-btn v-if="!session" @click="createStripeVerificationSession" color="primary" :loading="loading"><slot>Verify ID</slot></v-btn>
 </template>
 
 <script>

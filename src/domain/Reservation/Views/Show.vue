@@ -1,6 +1,9 @@
 <template>
     <app-layer ref="app">
         <data-container :loading="loading">
+            <template v-slot:loading>
+                <reservation-skeleton />
+            </template>
             <!-- resource no longer loading but it not found -->
             <template v-if="reservation == null">
                 <div class="text-center">
@@ -148,9 +151,9 @@ import helper from '@/helper'
 import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
 
-import CheckedIn from '../Components/CheckedIn';
 import ReservationDetails from '../Components/ReservationDetails';
 import ReservationCheckin from '../Widgets/Checkin/Index';
+import ReservationSkeleton from '../Components/ReservationSkeleton';
 
 import GET_RESERVATION from '../Queries/getReservation';
 import GET_PROPERTY from '../../Property/Queries/getProperty';
@@ -161,7 +164,8 @@ export default {
       AppLayer,
       DataContainer,
       ReservationDetails,
-      ReservationCheckin
+      ReservationCheckin,
+      ReservationSkeleton
   }, 
   data(){
       return {
@@ -235,7 +239,7 @@ export default {
         .then(response => {
             if(response && response.data.getReservation){
                 this.reservation = response.data.getReservation;
-                this.$refs.app.alert(`Welcome to ${this.reservation.property.name}`);
+                // this.$refs.app.alert(`Welcome to ${this.reservation.property.name}`);
 
                 if(this.reservation.already_checkedin){
                     this.start = true

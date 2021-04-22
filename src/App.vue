@@ -20,8 +20,8 @@
     </v-main>
     <v-main v-else>
       <div  class="d-flex justify-center align-center">
-          <div class="py-5">
-            <v-img src="@/assets/img/spinner.gif" height="200" ></v-img>
+          <div class="text-center" style="margin-top: 200px">
+            <img src="@/assets/img/spinner2.gif" width="100px" />
           </div>
       </div>
       <div class="text-center">

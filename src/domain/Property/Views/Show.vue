@@ -1,6 +1,9 @@
 <template>
     <app-layer ref="app">
         <data-container :loading="loading">
+            <template v-slot:loading>
+                <property-skeleton />
+            </template>
             <v-container v-if="!property">
                 <div class="text-center">
                     <h1>We could not find that property</h1>
@@ -48,13 +51,14 @@ import { mapActions, mapMutations, mapGetters } from 'vuex';
 
 import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
+import PropertySkeleton from '../Components/PropertySkeleton.vue';
 
 import GET_PROPERTY from '../Queries/getProperty';
 
 export default {
     name: 'Property',
     components: {
-        AppLayer, DataContainer
+        AppLayer, DataContainer, PropertySkeleton
     }, 
     data(){
         return {

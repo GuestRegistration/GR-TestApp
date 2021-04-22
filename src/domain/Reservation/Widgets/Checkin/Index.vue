@@ -32,7 +32,7 @@
                 <v-stepper-content step="2">
                     <v-card v-if="started" class="my-2" outlined>
                         <v-card-text>
-                            <identity-verification :property="property" @verification="verificationDone" />  
+                            <identity-verification :property="property" @verification="verificationDone" :can-restart="!approved" />  
                         </v-card-text>
                     </v-card>
 
@@ -50,7 +50,19 @@
                 <v-stepper-content step="3">
                     <v-card v-if="started" class="my-2" outlined>
                         <v-card-text>
-                            <reservation-charges :reservation="reservation" @charges-payment="chargesPayment" />
+                            <reservation-charges :reservation="reservation" @charges-payment="chargesPayment">
+                                <template v-slot:default="props">
+                                    <v-alert v-if="props.charge.type == 'pre-authorize' && !props.payment.captured"
+                                        border="left"
+                                        colored-border
+                                        elevation="2"
+                                        type="info"
+                                    >
+                                        This is a pre authorized charge. {{ property.name }} will capture the charge within 7 days of authorization
+                                    </v-alert>
+                                    
+                                </template>
+                            </reservation-charges>
                         </v-card-text>
                     </v-card>
 
@@ -167,7 +179,8 @@ export default {
     computed: {
 
         allPaymentMade(){
-            return this.charges && this.charges.every(charge => charge.payment !== null && charge.payment !== undefined );
+            if(!this.charges) return true;
+            return this.charges.filter(charge => !charge.optional).every(charge => charge.payment !== null && charge.payment !== undefined );
         },
 
         IDVerified(){

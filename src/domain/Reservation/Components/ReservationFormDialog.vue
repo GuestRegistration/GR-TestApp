@@ -6,8 +6,8 @@
     >
         <v-form ref="form" @submit.prevent>
             <v-card>
-                <v-card-title>
-                    <span class="headline">{{ mode == 'edit' ? 'Update Reservation' : 'Create Reservation' }}</span>
+                <v-card-title class="headline">
+                    <span>{{ mode == 'edit' ? 'Update Reservation' : 'Create Reservation' }}</span>
                 </v-card-title>
                 <v-card-subtitle v-if="property">{{ property.name }}</v-card-subtitle>
                 <v-divider></v-divider>

@@ -18,7 +18,7 @@
             </v-list-item-action>
 
             <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-title>{{ item.title }} - {{ item.type }} <span v-show="item.optional"> (optional) </span></v-list-item-title>
               <v-list-item-subtitle>{{ item.description }}</v-list-item-subtitle>
             </v-list-item-content>
         </v-list-item>

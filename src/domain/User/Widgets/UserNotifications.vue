@@ -1,12 +1,24 @@
 <template>
     <data-container :loading="loading">
+        <template v-slot:loading>
+            <v-row justify="center">
+                <v-col cols="12" md="6">
+                    <v-skeleton-loader
+                        v-for="i in 6" :key=i
+                        type="card"
+                        height="100"
+                        class="my-2"
+                    ></v-skeleton-loader>
+                </v-col>
+            </v-row>
+        </template>
         <v-row v-if="notifications.length" justify="center">
             <v-col cols="12" md="6">
                 <user-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
             </v-col>
         </v-row>
         <div v-else class="text-center py-5">
-            <p class="grey--text">No notification yet</p>
+            <p class="grey--text text-center">No notification yet</p>
         </div>
     </data-container>
 </template>

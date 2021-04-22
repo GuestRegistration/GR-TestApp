@@ -10,6 +10,7 @@ export default gql`
             description
             type   
             enable
+            optional
         }
     }
 `

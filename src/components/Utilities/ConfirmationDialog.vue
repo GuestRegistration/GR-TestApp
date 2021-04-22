@@ -7,7 +7,7 @@
       max-width="290"
     >
       <v-card>
-        <v-card-title class="headline grey lighten-3">
+        <v-card-title class="headline lighten-3">
           Confirm
         </v-card-title>
         <v-card-text>
