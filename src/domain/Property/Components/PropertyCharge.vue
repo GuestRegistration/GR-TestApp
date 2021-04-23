@@ -6,7 +6,7 @@
             <v-icon @click="edit = !edit">mdi-pen</v-icon>
         </v-card-title>
         <v-card-text v-if="edit">
-            <property-charge-form  :charge="data_charge" :disabled="$attrs.disabled" :property="property" :title="charge.title" @updated="chargeUpdated"  />
+            <property-charge-form  :charge="data_charge" :disabled="$attrs.disabled" :property="property" @updated="chargeUpdated"  />
         </v-card-text>
     </v-card>
 </template>

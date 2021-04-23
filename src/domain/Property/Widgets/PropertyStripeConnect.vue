@@ -1,40 +1,49 @@
 <template>
-   <data-container :loading="loading">
-        <v-alert 
-            v-if="disconnected"
-            border="top"
-            colored-border
-            elevation="2"
-            type="success">
-            Stripe account disconnected
-        </v-alert>
-        <v-alert 
-            v-else-if="connected"
-            border="top"
-            colored-border
-            elevation="2"
-            type="success">
-            Stripe account connected
-        </v-alert>
-        <div class="text-center">
-            <v-btn v-if="connected"
-                dark
-                color="primary"
-                :loading="disconnecting"
-                @click="disconnect"
-                >
-                Disconnect Stripe
-            </v-btn>
-            <v-btn v-else
-                dark
-                color="primary"
-                :loading="connecting"
-                @click="connect"
-                >
-                Connect Stripe
-            </v-btn>
-        </div>
-   </data-container>
+    <div>
+    <slot name="heading" />
+    <data-container :loading="loading">
+            <template v-slot:loading>
+                <v-skeleton-loader
+                    type="card"
+                    height="40"
+                ></v-skeleton-loader>
+            </template>
+            <v-alert 
+                v-if="disconnected"
+                border="top"
+                colored-border
+                elevation="2"
+                type="success">
+                Stripe account disconnected
+            </v-alert>
+            <v-alert 
+                v-else-if="connected"
+                border="top"
+                colored-border
+                elevation="2"
+                type="success">
+                Stripe account connected
+            </v-alert>
+            <div class="text-center mt-5">
+                <v-btn v-if="connected"
+                    dark
+                    color="error"
+                    :loading="disconnecting"
+                    @click="disconnect"
+                    >
+                    Disconnect Stripe
+                </v-btn>
+                <v-btn v-else
+                    dark
+                    color="primary"
+                    :loading="connecting"
+                    @click="connect"
+                    >
+                    Connect Stripe
+                </v-btn>
+            </div>
+    </data-container>
+    </div>
 </template>
 
 <script>

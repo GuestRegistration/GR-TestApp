@@ -1,66 +1,71 @@
 <template>
-    <v-form ref="form" @submit.prevent>
-        <v-card flat>
-            <v-card-text>
-                <v-text-field
-                    outlined
-                    label="Name"
-                    :rules="[rules.required]"
-                    type="text"
-                    name="name"
-                    v-model="form.name"
-                ></v-text-field>
+    <div>
+        <slot name="heading" />
+        <v-form ref="form" @submit.prevent>
+            <v-card flat>
+                <v-card-text>
+                    <v-text-field
+                        outlined
+                        label="Name"
+                        :rules="[rules.required]"
+                        type="text"
+                        name="name"
+                        v-model="form.name"
+                    ></v-text-field>
 
-                <v-text-field
-                    outlined
-                    label="Email"
-                    :rules="[rules.required, rules.email]"
-                    type="email"
-                    name="email"
-                    v-model="form.email"
-                ></v-text-field>
+                    <v-text-field
+                        outlined
+                        label="Email"
+                        :rules="[rules.required, rules.email]"
+                        type="email"
+                        name="email"
+                        v-model="form.email"
+                    ></v-text-field>
 
-                <phone-number v-model="phone" />
+                    <phone-number v-model="phone" />
 
-                <v-row>
-                    <v-col cols="12">
-                        <p v-if="mode == 'edit'" class="text--gray mt-2">{{ form.full_address }}</p>
-                        <location 
-                            flat
-                            hide-no-data
-                            hide-details
-                            :label="`${mode == 'edit' ? 'Update location' : 'Location'}`"
-                            outlined
-                            clearable
-                            cache-items
-                            class="mb-5"
-                            v-model="form.full_address"
-                            />
+                    <v-row>
+                        <v-col cols="12">
+                            <p v-if="mode == 'edit'" class="text--gray mt-2">{{ form.full_address }}</p>
+                            <component 
+                                :is="`${useGoogleLocation ? 'location' : 'v-text-field'}`"
+                                flat
+                                hide-no-data
+                                hide-details
+                                :label="`${mode == 'edit' ? 'Update location' : 'Location'}`"
+                                outlined
+                                clearable
+                                cache-items
+                                class="mb-5"
+                                v-model="form.full_address"
+                                ></component>
                         
-                    </v-col>
-                </v-row>
+                            
+                        </v-col>
+                    </v-row>
 
-                <v-textarea
-                outlined
-                label="Property rules"
-                :rules="[rules.required]"
-                v-model="form.rules"
-                ></v-textarea>
-
-                <v-text-field
+                    <v-textarea
                     outlined
-                    label="Terms"
-                    :rules="[rules.required, rules.url]"
-                    type="text"
-                    v-model="form.terms"
-                ></v-text-field>
-            </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn type="button" @click.prevent="submit" color="primary" :loading="loading">Save</v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-form>
+                    label="Property rules"
+                    :rules="[rules.required]"
+                    v-model="form.rules"
+                    ></v-textarea>
+
+                    <v-text-field
+                        outlined
+                        label="Terms"
+                        :rules="[rules.required, rules.url]"
+                        type="text"
+                        v-model="form.terms"
+                    ></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn type="button" @click.prevent="submit" color="primary" :loading="loading">Save</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-form>
+    </div>
 </template>
 
 <script>
@@ -88,7 +93,8 @@ export default {
                 country_code: '',
                 international: '',
                 significant: '',
-            }
+            },
+            useGoogleLocation: false,
         }
     },
     props: {

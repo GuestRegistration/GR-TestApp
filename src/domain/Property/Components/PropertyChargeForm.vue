@@ -1,7 +1,5 @@
 <template>
     <v-form v-bind="$attrs" ref="form" @submit.prevent="submit">
-        <div class="d-flex justify-space-between align-center">
-        </div>
         <v-card flat>
             <v-card-text>
                 <v-switch v-model="form.enable" label="Enable" color="primary"></v-switch>
@@ -65,7 +63,6 @@ export default {
             type: Array,
             default: () => []
         },
-        title: String,
     },
     data(){
         return {
