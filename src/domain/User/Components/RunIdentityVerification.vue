@@ -4,7 +4,7 @@
 
 <script>
 import GET_PROPERTY_STRIPE_AUTH from '../../Property/Queries/getPropertyStripeAuthorization';
-import CREATE_STRIPE_VERIFICATION_SESSION from '../Mutations/createStripeVerificationSession';
+import CREATE_STRIPE_VERIFICATION_SESSION from '../Mutations/createUserStripeVerificationSession';
 import { mapActions } from 'vuex';
 
 export default {
@@ -57,8 +57,8 @@ export default {
                 })
             })
             .then(response => {
-                this.session = response.data.createStripeVerificationSession;
-                this.$emit('created', response.data.createStripeVerificationSession);
+                this.session = response.data.createUserStripeVerificationSession;
+                this.$emit('created', response.data.createUserStripeVerificationSession);
                 window.location.href = this.session.url;
             })
             .catch(e => {
