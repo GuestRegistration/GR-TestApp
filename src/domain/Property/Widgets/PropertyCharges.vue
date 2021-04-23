@@ -1,12 +1,19 @@
 <template>
     <div>
+        <slot name="heading" />
         <data-container :loading="loading">
-            
-            <div class="d-flex justify-space-between">
-                <h2>Charges</h2>
+            <template v-slot:loading>
+                <div  v-for="i in 4" :key="i">
+                    <v-skeleton-loader
+                        type="card"
+                        height="50"
+                        class="my-2"
+                    ></v-skeleton-loader>
+                </div>
+            </template>
+            <div class="d-flex justify-end">
                 <v-btn color="primary"  icon title="New charge" @click="createNewCharge = true"><v-icon dark> mdi-plus</v-icon> </v-btn>
             </div>
-
             <v-card v-if="createNewCharge" class="my-1">
                 <v-card-title>
                     <h2 class="headline">New charge</h2>
@@ -17,18 +24,25 @@
                     <property-charge-form class="my-2" :disabled="!stripeConnected" :property="property"  @created="chargeCreated"  />
                 </v-card-text>
             </v-card>
-
-            <property-charge v-for="charge in charges" :key="charge.id" :property="property" :charge="charge" :disabled="!stripeConnected" class="my-1" />
-            <template v-if="!charges.length && !createNewCharge">
-                <v-btn color="primary" @click="createSecurityDeposit = !createSecurityDeposit" class="my-1">Set security deposit</v-btn>
-                <v-card v-if="createSecurityDeposit"  class="my-1">
-                    <v-card-text>
-                        <p>Set security deposit charge</p>
-                        <h1 class="headline">Create Security deposit</h1>
-                        <property-charge-form class="mt-2" :property="property" :prefill="security_deposit.form" :read-only="security_deposit.read_only" :title="security_deposit.form.title" @created="chargeCreated"  />
-                    </v-card-text>
-                </v-card>
+            <template v-if="charges.length">
+                <property-charge v-for="charge in charges" :key="charge.id" :property="property" :charge="charge" :disabled="!stripeConnected" class="my-1" />
             </template>
+            <template v-else>
+                <div class="py-5 text-center">
+                    <p class="grey--text">No charge yet</p>
+                </div>
+                 <template v-if="!createNewCharge">
+                    <v-btn color="primary" @click="createSecurityDeposit = !createSecurityDeposit" class="my-1">Set security deposit</v-btn>
+                    <v-card v-if="createSecurityDeposit"  class="my-1">
+                        <v-card-text>
+                            <p>Set security deposit charge</p>
+                            <h1 class="headline">Create Security deposit</h1>
+                            <property-charge-form class="mt-2" :property="property" :prefill="security_deposit.form" :read-only="security_deposit.read_only" :title="security_deposit.form.title" @created="chargeCreated"  />
+                        </v-card-text>
+                    </v-card>
+                </template>
+            </template>
+           
 
         </data-container>
     </div>
@@ -36,8 +50,8 @@
 </template>
 <script>
 import DataContainer from '../../../components/DataContainer.vue';
-import PropertyChargeForm from './PropertyChargeForm.vue';
-import PropertyCharge from './PropertyCharge.vue';
+import PropertyChargeForm from '../Components/PropertyChargeForm.vue';
+import PropertyCharge from '../Components/PropertyCharge.vue';
 import GET_PROPERTY_CHARGES from '../Queries/getPropertyCharges';
 
 export default {

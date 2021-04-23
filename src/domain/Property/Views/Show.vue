@@ -30,7 +30,7 @@
                         </v-avatar>
                         <div class="d-flex justify-center align-center">
                             <h1>{{ property.name }}</h1>
-                            <v-btn icon title="Edit property" color="primary" class="ml-3" @click="$router.push({name: 'property.edit', params: {id: property.id}})">
+                            <v-btn v-if="property.user_id == current_user.auth.uid" icon title="Edit property" color="primary" class="ml-3" @click="$router.push({name: 'property.edit', params: {id: property.id}})">
                                 <v-icon>mdi-pen</v-icon>
                             </v-btn>
                         </div>

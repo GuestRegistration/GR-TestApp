@@ -35,7 +35,17 @@
                             <v-date-picker full-width id="checkout-date" v-model="form.checkout_date" :min="form.checkin_date ? form.checkin_date : today"></v-date-picker>
                         </v-col>
                     </v-row>
-                  
+                    <div class="text-right  my-2">
+                        <v-btn color="primary" small @click="selectInstructionTemplate = !selectInstructionTemplate"><v-icon>mdi-content-copy</v-icon> Copy instruction from template</v-btn>
+                    </div>
+                    <property-checkin-instruction-template-select :class="{'d-none' : !selectInstructionTemplate }" 
+                    :property="property"
+                    label="Select instruction to copy" 
+                    outlined return-object clearable
+                    v-model="instructionTemplate"
+                    @change="instructionTemplateSelected"
+                    />
+
                     <v-textarea
                     outlined
                     label="Reservation instructions"
@@ -70,6 +80,7 @@ import { mapActions, mapGetters, mapMutations } from 'vuex';
 import formValidation from '@/helper/formValidation';
 
 import PropertyChargesSelect from '../../Property/Components/PropertyChargesSelect';
+import PropertyCheckinInstructionTemplateSelect from '../../Property/Components/PropertyCheckinInstructionTemplateSelect';
 
 import CREATE_RESERVATION from '../Mutations/createReservation';
 import UPDATE_RESERVATION from '../Mutations/updateReservation';
@@ -77,7 +88,7 @@ import UPDATE_RESERVATION from '../Mutations/updateReservation';
 export default {
     name: "ReservationFormDialog",
     components: {
-        PropertyChargesSelect
+        PropertyChargesSelect, PropertyCheckinInstructionTemplateSelect
     },
 
     data(){
@@ -87,6 +98,8 @@ export default {
             loading: false,
             rules: formValidation.rules,
             form: {},
+            selectInstructionTemplate: false,
+            instructionTemplate: null,
         }
     },
     props: {
@@ -191,6 +204,13 @@ export default {
             .finally(() => {
                 this.loading = false;
             })
+        },
+
+        instructionTemplateSelected(template){
+            if(!template) return;
+            this.form.instruction = this.form.instruction ? `${this.form.instruction}\n${template.body}\n` : `${template.body}\n`;
+            this.selectInstructionTemplate = false;
+            this.instructionTemplate = null
         }
     },
 

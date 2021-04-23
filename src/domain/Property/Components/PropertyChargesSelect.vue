@@ -7,6 +7,7 @@
         dense
         v-on="$listeners"
         v-bind="$attrs"
+        v-model="selected"
         no-data-text="No charge yet"
     >
     
