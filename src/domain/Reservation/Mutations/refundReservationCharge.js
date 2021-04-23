@@ -1,8 +1,17 @@
 import gql from 'graphql-tag';
 
 export default gql`
-        mutation createReservationCharge($stripe_account: ID!, $source: String!, $amount: Int!, $currency: String!, $description: String, $receipt_email: String, $metadata: StripeChargeMetadataInput, $capture: Boolean){
-            createReservationCharge(stripe_account: $stripe_account, source: $source, amount: $amount, currency: $currency, description: $description, receipt_email: $receipt_email, metadata: $metadata, capture: $capture) {
+    mutation refundReservationCharge($stripe_account: ID!, $charge_id: ID!, $amount: Int, $reason: String){
+        refundReservationCharge(stripe_account: $stripe_account, charge_id: $charge_id, amount: $amount, reason: $reason) {
+            id
+            currency
+            amount
+            status
+            metadata {
+                customer_note
+            }
+            reason
+            charge {
                 id
                 currency
                 amount
@@ -19,4 +28,5 @@ export default gql`
                 amount_refunded
                 receipt_url
             }
-    }`;
+        }
+}`;

@@ -8,13 +8,13 @@
             </v-list-item-content>
             <h4 class="mt-2">{{ [currency, charge.amount].join('') }}</h4>
         </v-list-item>
-        <div class="text-right my-2">
-            <div v-if="payment">
-                <v-chip pill color="green" text-color="white">
-                    {{ !isPreAuthorized ? 'Paid' : 'Authorized' }}
+        <div class="my-2">
+            <div v-if="payment" class="d-flex">
+                <v-chip pill :color="status.color" text-color="white">
+                    {{ status.text }}
                 </v-chip>
-                <p>Payment Status: {{ payment.status }}</p>
-                <p>Captured: {{ payment.captured ? `YES, ${payment.currency.toUpperCase()} ${payment.amount_captured/100}` : 'NO' }}</p>
+                <v-spacer></v-spacer>
+                <slot name="options" v-bind="{ stripeAuth, reservation, charge, payment: payments.find(p => p.metadata.charge_id === charge.id) }" />
             </div>
             <v-btn v-else-if="isMyReservation" btn color="primary" :loading="loading" @click="payCharge()">{{ !isPreAuthorized ? 'Pay Now' : 'Authorize charge' }}</v-btn>
         </div> 
@@ -36,7 +36,7 @@
 <script>
 
 import StripePayment from '../../../components/Utilities/StripePayment.vue';
-import CREATE_STRIPE_CHARGE from '../../Services/Payment/Mutations/createStripeCharge';
+import CREATE_RESERVATION_CHARGE from '../Mutations/createReservationCharge';
 
 export default {
     name: "ReservationCharge",
@@ -66,6 +66,28 @@ export default {
         
         isPreAuthorized(){
             return this.charge.type === 'pre-authorize'
+        },
+
+        status(){
+            if(this.payment){
+                if(this.payment.refunded) {
+                    return {
+                        color: "info",
+                        text: `Refunded ${this.payment.currency.toUpperCase()}${this.payment.amount_refunded/100}`
+                    }
+                }
+
+                if(this.payment.captured) {
+                    return {
+                        color: "success",
+                        text: this.isPreAuthorized ? `Captured ${this.payment.currency.toUpperCase()}${this.payment.amount_captured/100}` : `Paid ${this.payment.currency.toUpperCase()}${this.payment.amount_captured/100}`,
+                    }
+                }
+            }
+            return {
+                color: "error",
+                text: this.isPreAuthorized ? "Not Authorized" : "Not Paid"
+            }
         }
 
     },
@@ -116,11 +138,11 @@ export default {
                 }
 
                 this.$store.dispatch('mutate', {
-                    mutation: CREATE_STRIPE_CHARGE,
+                    mutation: CREATE_RESERVATION_CHARGE,
                     variables
                 })
                 .then(response => {
-                    resolve(response.data.createStripeCharge)
+                    resolve(response.data.createReservationCharge)
                 })
                 .catch(e => {
                     reject(e)

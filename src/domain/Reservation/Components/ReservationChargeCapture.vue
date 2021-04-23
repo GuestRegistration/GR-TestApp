@@ -89,11 +89,11 @@ export default {
     computed: {
         amountAuthorized(){
             if(!this.payment) return 0;
-            return `${this.payment.currency.toUpperCase()} ${(this.payment.amount/100)}`
+            return `${this.payment.currency.toUpperCase()}${(this.payment.amount/100)}`
         },
 
         amountCapturing(){
-            return `${this.payment.currency.toUpperCase()} ${(this.amount)}`
+            return `${this.payment.currency.toUpperCase()}${(this.amount)}`
         },
 
         refund(){
@@ -134,7 +134,7 @@ export default {
                 if(payment.captured){
                     this.$store.commit('SNACKBAR', {
                         status: true,
-                        text: `Captured ${payment.currency.toUpperCase()} ${payment.amount_captured/100} for ${this.charge.title}`,
+                        text: `Captured ${payment.currency.toUpperCase()}${payment.amount_captured/100} for ${this.charge.title}`,
                         color: "success"
                     })
                     this.$emit('captured', payment)

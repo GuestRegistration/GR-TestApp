@@ -1,5 +1,19 @@
 <template>
     <data-container :loading="loading">
+        <template v-slot:loading>
+            <div  v-for="i in 4" :key="i">
+                <v-skeleton-loader
+                    type="heading"
+                    class="my-2"
+                ></v-skeleton-loader>
+                <v-skeleton-loader
+                    type="card, button"
+                    height="60"
+                    class="my-2"
+                ></v-skeleton-loader>
+                <v-divider></v-divider>
+            </div>
+        </template>
         <div v-if="charges && charges.length">
             <div v-for="charge in charges" :key="charge.id" >
                 <reservation-charge 
@@ -9,9 +23,12 @@
                 :stripe-auth="stripe_auth"
                 @payment="paymentMade"
                  >
-                 <template v-slot:default="attrs">
-                    <slot v-bind="attrs" />
-                 </template>
+                    <template v-slot:options="attrs">
+                        <slot name="options" v-bind="attrs" />
+                    </template>
+                    <template v-slot:default="attrs">
+                        <slot v-bind="attrs" />
+                    </template>
                 </reservation-charge>
                 <v-divider></v-divider>
             </div>

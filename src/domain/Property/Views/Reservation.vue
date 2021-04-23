@@ -101,15 +101,10 @@
                             <v-card-text>
                                 <h2>Charges</h2>
                                 <reservation-charges :reservation="reservation" :refresh="refreshCharges">
-                                    <template v-slot:default="prop">
-                                        <template v-if="prop.payment">
-                                            <template v-if="prop.charge.type == 'pre-authorize'">
-                                                <reservation-charge-capture v-bind="prop" @captured="refreshCharges = true" />
-                                            </template>
-                                            <template v-else>
-                                                <v-btn v-if="prop.payment.captured" color="primary">Refund</v-btn>
-                                            </template>
-                                        </template>
+
+                                    <template v-slot:options="prop">
+                                        <reservation-charge-refund v-bind="prop" @refunded="refreshCharges = true" />
+                                        <reservation-charge-capture v-bind="prop" @captured="refreshCharges = true" />
                                     </template>
                                 </reservation-charges>
                             </v-card-text>
@@ -138,6 +133,7 @@ import ReservationCheckin from '../../Reservation/Components/ReservationCheckin'
 import ReservationCharges from '../../Reservation/Components/ReservationCharges';
 import ReservationFormDialog from '../../Reservation/Components/ReservationFormDialog.vue';
 import ReservationChargeCapture from '../../Reservation/Components/ReservationChargeCapture';
+import ReservationChargeRefund from '../../Reservation/Components/ReservationChargeRefund';
 
 import GET_RESERVATION from '../../Reservation/Queries/getReservation';
 
@@ -147,7 +143,7 @@ export default {
     AppLayer, DataContainer, ReservationSkeleton,
     ReservationDetails, ReservationCheckin,
     ReservationFormDialog, ReservationCharges,
-    ReservationChargeCapture
+    ReservationChargeCapture, ReservationChargeRefund
   }, 
   data(){
       return {

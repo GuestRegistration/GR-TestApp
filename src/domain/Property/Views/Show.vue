@@ -28,15 +28,18 @@
                                 src="@/assets/img/default-property.jpg"
                             ></v-img>
                         </v-avatar>
-                        <h1>{{ property.name }}</h1>
+                        <div class="d-flex justify-center align-center">
+                            <h1>{{ property.name }}</h1>
+                            <v-btn icon title="Edit property" color="primary" class="ml-3" @click="$router.push({name: 'property.edit', params: {id: property.id}})">
+                                <v-icon>mdi-pen</v-icon>
+                            </v-btn>
+                        </div>
+                    
                         <p v-if="property.full_address">{{ property.full_address }}</p>
                         <v-icon color="white" v-if="property.phone">mdi-phone</v-icon> {{ property.phone }}
                         <br>
                         <v-icon color="white" v-if="property.email">mdi-email</v-icon>  {{ property.email }}
-                        <br>
-                        <router-link  v-if="property.user_id == current_user.auth.uid"  :to="{name: 'property.edit', params: {id: property.id}}">
-                            <v-btn color="primary" class="mt-5"> Edit property</v-btn>
-                        </router-link>
+            
                     </v-col>
                 </v-row>
 

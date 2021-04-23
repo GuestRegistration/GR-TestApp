@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export default gql`
-        mutation captureReservationCharge($stripe_account: String!, $charge_id: ID!, $amount: Int){
+        mutation captureReservationCharge($stripe_account: ID!, $charge_id: ID!, $amount: Int){
             captureReservationCharge(stripe_account: $stripe_account, charge_id: $charge_id, amount: $amount) {
                 id
                 currency

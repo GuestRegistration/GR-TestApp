@@ -52,14 +52,16 @@
                         <v-card-text>
                             <reservation-charges :reservation="reservation" @charges-payment="chargesPayment">
                                 <template v-slot:default="props">
-                                    <v-alert v-if="props.charge.type == 'pre-authorize' && !props.payment.captured"
-                                        border="left"
-                                        colored-border
-                                        elevation="2"
-                                        type="info"
-                                    >
-                                        This is a pre authorized charge. {{ property.name }} will capture the charge within 7 days of authorization
-                                    </v-alert>
+                                    <template v-if="props.charge.type == 'pre-authorize'">
+                                        <v-alert v-if="!props.payment || (props.payment && !props.payment.captured)"
+                                            border="left"
+                                            colored-border
+                                            elevation="2"
+                                            type="info"
+                                        >
+                                            This is a pre authorized charge. {{ property.name }} will capture the charge within 7 days of authorization
+                                        </v-alert>
+                                    </template>
                                     
                                 </template>
                             </reservation-charges>

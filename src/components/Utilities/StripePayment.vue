@@ -7,7 +7,7 @@
       max-width="400"
     >
       <v-card>
-        <v-card-title class="headline grey lighten-3">
+        <v-card-title class="headline">
           Credit/Debit Card
         </v-card-title>
         <v-card-text>

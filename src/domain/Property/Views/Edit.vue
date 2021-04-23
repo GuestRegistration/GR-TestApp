@@ -27,13 +27,13 @@ import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
 import InfoTab from '../Components/PropertyForm.vue';
 import ChargesTab from '../Components/PropertyCharges.vue';
-import StripeTab from '../Components/PropertyStripeConnect.vue';
+import GatewayTab from '../Components/PropertyStripeConnect.vue';
 import GET_PROPERTY from '../Queries/getProperty';
 
 export default {
     name: 'EditProperty',
     components: {
-        AppLayer, DataContainer, InfoTab, ChargesTab, StripeTab
+        AppLayer, DataContainer, InfoTab, ChargesTab, GatewayTab
     }, 
     data(){
         return {
@@ -53,9 +53,9 @@ export default {
                     disabled: false,
                 },
                 {
-                    name: 'Stripe',
-                    alias: 'stripe',
-                    route: {name: this.$route.name, params: {tab: 'stripe'}},
+                    name: 'Gateway',
+                    alias: 'gateway',
+                    route: {name: this.$route.name, params: {tab: 'gateway'}},
                     disabled: false,
                 },
                 {
