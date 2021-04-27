@@ -16,10 +16,10 @@
             <!-- the resource is found -->
             <template v-else-if="reservation">
                 <v-row justify="center">
-                    <v-col cols="12" md="4">
+                    <v-col v-if="property" cols="12" md="4">
                         <div class="text-center">
                             <router-link :to="{name: 'property.show', params: { id: property.id} }" class="text-decoration-none">
-                                <v-avatar v-if="property" color="primary" size="150">
+                                <v-avatar  color="primary" size="150">
                                     <v-img
                                     v-if="property.image"
                                     :src="property.image"
@@ -82,9 +82,8 @@
                                 Approval pending 
                             </v-alert>
                             
-                            <reservation-checkin ref="reservationCheckin" :_reservation="reservation" @approved="reservationApproved" />
-                            
-                            <v-btn color="primary" @click="$refs.reservationCheckin.open()" >View checkin info</v-btn>
+                            <h4 class="my-5">Checkin Information</h4>
+                            <property-reservation-checkin @approved="reservationApproved" :reservation="reservation" />
 
                         </template>
                         <template v-else>
@@ -97,18 +96,7 @@
                             </v-alert>
                         </template>
 
-                        <v-card class="my-5" outlined>
-                            <v-card-text>
-                                <h2>Charges</h2>
-                                <reservation-charges :reservation="reservation" :refresh="refreshCharges">
 
-                                    <template v-slot:options="prop">
-                                        <reservation-charge-refund v-bind="prop" @refunded="refreshCharges = true" />
-                                        <reservation-charge-capture v-bind="prop" @captured="refreshCharges = true" />
-                                    </template>
-                                </reservation-charges>
-                            </v-card-text>
-                        </v-card>
                     </v-col>
                 </v-row>
 
@@ -129,21 +117,16 @@ import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
 import ReservationSkeleton from '../../Reservation/Components/ReservationSkeleton';
 import ReservationDetails from '../../Reservation/Components/ReservationDetails';
-import ReservationCheckin from '../../Reservation/Components/ReservationCheckin';
-import ReservationCharges from '../../Reservation/Components/ReservationCharges';
 import ReservationFormDialog from '../../Reservation/Components/ReservationFormDialog.vue';
-import ReservationChargeCapture from '../../Reservation/Components/ReservationChargeCapture';
-import ReservationChargeRefund from '../../Reservation/Components/ReservationChargeRefund';
-
+import PropertyReservationCheckin from '../../Reservation/Widgets/PropertyReservationCheckin';
 import GET_RESERVATION from '../../Reservation/Queries/getReservation';
 
 export default {
   name: 'reservation',
   components: {
     AppLayer, DataContainer, ReservationSkeleton,
-    ReservationDetails, ReservationCheckin,
-    ReservationFormDialog, ReservationCharges,
-    ReservationChargeCapture, ReservationChargeRefund
+    ReservationDetails,  ReservationFormDialog,
+    PropertyReservationCheckin
   }, 
   data(){
       return {

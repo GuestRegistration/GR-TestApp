@@ -23,7 +23,13 @@
         <v-row >
           <v-col v-for="property in properties" :key="property.id"
           cols="12" sm="6" md="4">
-            <PropertyCard  :_property="property"  />
+          <property-card  :_property="property" >
+            <template #action>
+              <router-link :to="{name: 'property.settings', params: {id: property.id}}" class="text-decoration-none">
+                <v-btn icon><v-icon>mdi-cog</v-icon></v-btn>
+              </router-link >
+            </template>
+          </property-card>
           </v-col>
         </v-row>
         <div class="text-right my-3">

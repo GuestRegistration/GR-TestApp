@@ -1,16 +1,16 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    mutation checkinReservation($reservation_id: ID!, $identity_ref: String ) {
-        checkinReservation(reservation_id: $reservation_id, identity_ref: $identity_ref) {
+    mutation checkinReservation($reservation_id: ID!, $agreements: [ReservationCheckinAgreementInput], $questions: [ReservationCheckinQuestionInput]) {
+        checkinReservation(reservation_id: $reservation_id, agreements: $agreements, questions: $questions) {
             id
             user_id
             name
+            booking_no
             checkedin_at
             already_checkedin
             approved
             approved_at
-            booking_channel
             checkin_date
             checkout_date
             property_id
@@ -33,6 +33,14 @@ export default gql`
                 type
                 enable 
             }
-        
+            agreements {
+                agreement
+                link
+            }
+            questions {
+                question
+                options
+                required
+            }
         }
     }`;

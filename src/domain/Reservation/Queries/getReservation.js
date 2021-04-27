@@ -10,7 +10,7 @@ export default gql`
             already_checkedin
             approved
             approved_at
-            booking_channel
+            booking_no
             checkin_date
             checkout_date
             instruction
@@ -35,6 +35,15 @@ export default gql`
                 type
                 enable
                 optional 
+            }
+            agreements {
+                agreement
+                link
+            }
+            questions {
+                question
+                options
+                required
             }
         }
     }`;

@@ -8,7 +8,7 @@
         v-on="$listeners"
         v-bind="$attrs"
         v-model="selected"
-        no-data-text="No charge yet"
+        :no-data-text="`No charge created for ${property.name} yet. Create some under property settings first`"
     >
     
     <template v-slot:item="{ item, on }">

@@ -3,6 +3,22 @@ import gql from 'graphql-tag';
 export default gql`
     query getReservationCheckin($id: ID!){
         getReservationCheckin(id: $id){
+            checkin {
+                checkedin_at
+                name {
+                    first_name
+                    last_name
+                }
+                agreements {
+                    agreement
+                    link
+                }
+                questions {
+                    question
+                    response
+                }
+
+            }
             reservation{
                 id
                 user_id
@@ -11,7 +27,7 @@ export default gql`
                 already_checkedin
                 approved
                 approved_at
-                booking_channel
+                booking_no
                 checkin_date
                 checkout_date
                 instruction
@@ -51,5 +67,6 @@ export default gql`
                     property_id
                 }
             }
+
         }
     }`;

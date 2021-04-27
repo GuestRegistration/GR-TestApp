@@ -96,43 +96,52 @@
                             </v-col>
 
                             <v-col cols="12" md="6">
+                                <!-- If reservation is not checked in -->
+                                <template v-if="!reservation.already_checkedin">
+                                    <template v-if="profile_loaded">
+                                        <h1>Welcome,</h1>
+                                        <h3>{{current_user.profile.name.first_name}} {{current_user.profile.name.last_name}}</h3>
+                                        <p>{{current_user.profile.email}}</p>
+                                    </template>
 
-                                <template v-if="profile_loaded">
-                                    <h1>Welcome,</h1>
-                                    <h3>{{current_user.profile.name.first_name}} {{current_user.profile.name.last_name}}</h3>
-                                    <p>{{current_user.profile.email}}</p>
-                                </template>
+                                    <template v-if="!start">
+                                        <h2>It's time to check in.</h2>
+                                        <v-card outlined>
+                                            <v-card-text>
+                                            <h4>Hey, <strong>{{reservation.name}}</strong></h4>
+                                            <p>Looking forward to hosting you at <strong>{{reservation.property.name}}</strong>. Below are the details of your bookings</p>
+                                            <ReservationDetails :_reservation="reservation" />
+                                            </v-card-text>
+                                            <v-card-actions>
+                                                <v-btn
+                                                    text
+                                                    dark color="accent-4"
+                                                    class="primary"
+                                                    block
+                                                    @click="getStarted"
+                                                >
+                                                    Start Checkin
+                                                </v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </template>
 
-                                <template v-if="!start">
-                                    <h2>It's time to check in.</h2>
-                                    <v-card outlined>
-                                        <v-card-text>
-                                        <h4>Hey, <strong>{{reservation.name}}</strong></h4>
-                                        <p>Looking forward to hosting you at <strong>{{reservation.property.name}}</strong>. Below are the details of your bookings</p>
-                                        <ReservationDetails :_reservation="reservation" />
-                                        </v-card-text>
-                                        <v-card-actions>
-                                            <v-btn
-                                                text
-                                                dark color="accent-4"
-                                                class="primary"
-                                                block
-                                                @click="getStarted"
-                                            >
-                                                Start Checkin
-                                            </v-btn>
-                                        </v-card-actions>
-                                    </v-card>
-                                </template>
                                     <template v-else>
                                         <reservation-checkin 
                                             :property="property" 
                                             :reservation="reservation" 
-                                            @started="checkingStarted"
                                             @verification="verificationAvailable"
                                             @charges-payment="chargesPayment"
+                                            @checkedin="reservationCheckedin"
                                             />
                                     </template>
+                                </template>
+
+                                <!-- If reservation has been checkedin -->
+                                <template v-else>
+                                    <reservation-checkedin :property="property" :reservation="reservation"  />
+                                </template>
+
                             </v-col>
                         </v-row>
                     </v-container>
@@ -153,6 +162,7 @@ import DataContainer from '../../../components/DataContainer.vue';
 
 import ReservationDetails from '../Components/ReservationDetails';
 import ReservationCheckin from '../Widgets/Checkin/Index';
+import ReservationCheckedin from '../Widgets/CheckedIn';
 import ReservationSkeleton from '../Components/ReservationSkeleton';
 
 import GET_RESERVATION from '../Queries/getReservation';
@@ -165,6 +175,7 @@ export default {
       DataContainer,
       ReservationDetails,
       ReservationCheckin,
+      ReservationCheckedin,
       ReservationSkeleton
   }, 
   data(){
@@ -214,17 +225,16 @@ export default {
         }
     },
 
-    checkingStarted(reservation){
-        this.reservation = reservation;
-        this.start = true;
-    },
-
     verificationAvailable(verification){
 
     },
 
     chargesPayment(charges){
 
+    },
+
+    reservationCheckedin(reservation){
+        this.reservation = reservation;
     },
 
     getReservation(){

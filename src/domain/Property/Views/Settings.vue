@@ -16,7 +16,7 @@
                     flat
                     >
                     <v-app-bar-nav-icon class="d-sm-none" @click="expandTab = !expandTab"></v-app-bar-nav-icon>
-                    <v-toolbar-title>Update Property <span v-if="property"> - {{ property.name }}</span> </v-toolbar-title>
+                    <v-toolbar-title>Property Settings <span v-if="property"> - {{ property.name }}</span> </v-toolbar-title>
                     </v-toolbar>
                     <v-tabs vertical v-model="currentTab" @change="tabChanged" color="primary">
                         <v-tab v-for="tab in tabs" :key="tab.name" :disabled="tab.disabled" class="d-flex">
@@ -39,7 +39,7 @@
                                 </template>
                                 <info-tab :property="property" @property-updated="propertyUpdated">
                                     <template #heading>
-                                        <h2 class="ml-3">Property info</h2>
+                                        <h4 class="ml-3">Property info</h4>
                                     </template>
                                 </info-tab>
                             </data-container>
@@ -48,7 +48,7 @@
                         <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
                             <gateway-tab :property="property">
                                 <template #heading>
-                                    <h2 class="ml-3">Stripe Gateway</h2>
+                                    <h4 class="ml-3">Stripe Gateway</h4>
                                 </template>
                             </gateway-tab>
                         </v-tab-item>
@@ -56,7 +56,7 @@
                         <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
                             <charges-tab :property="property">
                                 <template #heading>
-                                    <h2 class="ml-3">Property charges</h2>
+                                    <h4 class="ml-3">Charges</h4>
                                 </template>
                             </charges-tab>
                         </v-tab-item>
@@ -64,9 +64,25 @@
                         <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
                             <checkin-instructions-tab :property="property">
                                 <template #heading>
-                                    <h2 class="ml-3">Property checkin instructions</h2>
+                                    <h4 class="ml-3">Checkin instructions</h4>
                                 </template>
                             </checkin-instructions-tab>
+                        </v-tab-item>
+
+                        <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
+                            <checkin-agreements-tab :property="property">
+                                <template #heading>
+                                    <h4 class="ml-3"> Checkin agreements</h4>
+                                </template>
+                            </checkin-agreements-tab>
+                        </v-tab-item>
+
+                        <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
+                            <checkin-questions-tab :property="property">
+                                <template #heading>
+                                    <h4 class="ml-3"> Checkin questions</h4>
+                                </template>
+                            </checkin-questions-tab>
                         </v-tab-item>
 
                     </v-tabs>
@@ -80,16 +96,19 @@
 import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
 import InfoTab from '../Components/PropertyForm.vue';
-import ChargesTab from '../Widgets/PropertyCharges.vue';
-import GatewayTab from '../Widgets/PropertyStripeConnect.vue';
-import CheckinInstructionsTab from '../Widgets/PropertyCheckinInstructionTemplates';
+import ChargesTab from '../Settings/PropertyCharges.vue';
+import GatewayTab from '../Settings/PropertyStripeConnect.vue';
+import CheckinInstructionsTab from '../Settings/PropertyCheckinInstructionTemplates';
+import CheckinAgreementsTab from '../Settings/PropertyCheckinAgreements';
+import CheckinQuestionsTab from '../Settings/PropertyCheckinQuestions';
+
 import GET_PROPERTY from '../Queries/getProperty';
 
 export default {
     name: 'EditProperty',
     components: {
         AppLayer, DataContainer, InfoTab, ChargesTab, GatewayTab,
-        CheckinInstructionsTab
+        CheckinInstructionsTab, CheckinAgreementsTab, CheckinQuestionsTab
     }, 
     data(){
         return {
@@ -134,14 +153,14 @@ export default {
                 {
                     name: 'Checkin Agreements',
                     alias: 'checkin-agreements',
-                    route: null,
+                    route: {name: this.$route.name, params: {tab: 'checkin-agreements'}},
                     disabled: this.property ? false : true,
                     icon: 'mdi-handshake'
                 },
                 {
                     name: 'Checkin Questions',
-                    alias: 'checkin-agreements',
-                    route: null,
+                    alias: 'checkin-questions',
+                    route: {name: this.$route.name, params: {tab: 'checkin-questions'}},
                     disabled: this.property ? false : true,
                     icon: 'mdi-account-question'
                 }

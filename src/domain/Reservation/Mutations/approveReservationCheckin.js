@@ -33,6 +33,14 @@ export default gql`
                 type
                 enable 
             }
-        
+            agreements {
+                agreement
+                link
+            }
+            questions {
+                question
+                options
+                required
+            }
         }
     }`;

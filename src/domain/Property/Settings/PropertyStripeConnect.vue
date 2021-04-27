@@ -151,6 +151,7 @@ export default {
             immediate: true,
             handler(property){
                 if(property) this.getPropertyStripeAuthorization()
+                else this.loading = true;
             }
         }
     }

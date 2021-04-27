@@ -15,6 +15,8 @@
       <router-link :to="{name: 'property.show', params: {id: property.id, _property: property}}" class="text-decoration-none">
         {{ property.name }}
       </router-link>
+      <v-spacer></v-spacer>
+      <slot name="action" />
     </v-card-title>
 
     <v-card-subtitle>

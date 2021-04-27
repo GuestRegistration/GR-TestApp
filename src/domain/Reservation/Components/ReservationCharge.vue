@@ -16,7 +16,7 @@
                 <v-spacer></v-spacer>
                 <slot name="options" v-bind="{ stripeAuth, reservation, charge, payment: payments.find(p => p.metadata.charge_id === charge.id) }" />
             </div>
-            <v-btn v-else-if="isMyReservation" btn color="primary" :loading="loading" @click="payCharge()">{{ !isPreAuthorized ? 'Pay Now' : 'Authorize charge' }}</v-btn>
+            <v-btn v-else-if="canPay" btn color="primary" :loading="loading" @click="payCharge()">{{ !isPreAuthorized ? 'Pay Now' : 'Authorize charge' }}</v-btn>
         </div> 
         <slot v-bind="{ stripeAuth, reservation, charge, payment: payments.find(p => p.metadata.charge_id === charge.id) }" />
         <stripe-payment
@@ -96,7 +96,8 @@ export default {
         stripeAuth: Object,
         reservation: Object,
         charge:Object,
-        payments: Array
+        payments: Array,
+        canPay: Boolean
     },
     methods: {
         payCharge(){

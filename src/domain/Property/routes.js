@@ -6,7 +6,7 @@ import PropertyShow from './Views/Show.vue';
 import PropertyRules from './Views/Rules.vue';
 import PropertyReservation from './Views/Reservation.vue';
 import PropertyCreate from './Views/Create.vue'
-import PropertyEdit from './Views/Edit.vue'
+import PropertySettings from './Views/Settings.vue'
 import PropertyStripeConnectCallback from './Views/StripeConnectCallback.vue'
 
 export default [
@@ -25,9 +25,9 @@ export default [
     },
 
     {
-        path: '/property/:id/edit/:tab?',
-        name: 'property.edit',
-        component: PropertyEdit,
+        path: '/property/:id/settings/:tab?',
+        name: 'property.settings',
+        component: PropertySettings,
         beforeEnter: multiguard([middleware.auth])
     },
 

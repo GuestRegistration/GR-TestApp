@@ -32,7 +32,9 @@
                     <p class="grey--text">No charge yet</p>
                 </div>
                  <template v-if="!createNewCharge">
-                    <v-btn color="primary" @click="createSecurityDeposit = !createSecurityDeposit" class="my-1">Set security deposit</v-btn>
+                    <div class="text-center">
+                        <v-btn color="primary" @click="createSecurityDeposit = !createSecurityDeposit" class="my-1">Set security deposit</v-btn>
+                    </div>
                     <v-card v-if="createSecurityDeposit"  class="my-1">
                         <v-card-text>
                             <p>Set security deposit charge</p>
@@ -136,6 +138,7 @@ export default {
             immediate: true,
             handler(property){
                 if(property) this.getPropertyCharges()
+                else this.loading = true;
             }
         }
     }

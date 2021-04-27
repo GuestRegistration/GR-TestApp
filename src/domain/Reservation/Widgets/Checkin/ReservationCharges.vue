@@ -22,6 +22,7 @@
                 :reservation="reservation"
                 :stripe-auth="stripe_auth"
                 @payment="paymentMade"
+                :can-pay="canPay"
                  >
                     <template v-slot:options="attrs">
                         <slot name="options" v-bind="attrs" />
@@ -33,17 +34,17 @@
                 <v-divider></v-divider>
             </div>
         </div>
-        <div v-else>
-            <p class="text--gray">No charge for the reservation</p>
+        <div v-else class="text-center text--gray py-5">
+            No charge for the reservation
         </div>
     </data-container>
 </template>
 
 <script>
-import DataContainer from '../../../components/DataContainer.vue';
-import ReservationCharge from './ReservationCharge.vue';
-import GET_PROPERTY_STRIPE_AUTH from '../../Property/Queries/getPropertyStripeAuthorization';
-import GET_RESERVATION_PAYMENTS from '../Queries/getReservationPayments';
+import DataContainer from '../../../../components/DataContainer.vue';
+import ReservationCharge from '../../Components/ReservationCharge.vue';
+import GET_PROPERTY_STRIPE_AUTH from '../../../Property/Queries/getPropertyStripeAuthorization';
+import GET_RESERVATION_PAYMENTS from '../../Queries/getReservationPayments';
 
 export default {
     name: "ReservationCharges",
@@ -71,7 +72,8 @@ export default {
 
     props: {
         reservation: Object,
-        refresh: Boolean
+        refresh: Boolean,
+        canPay: Boolean
     },
     methods: {
         getCharges(){

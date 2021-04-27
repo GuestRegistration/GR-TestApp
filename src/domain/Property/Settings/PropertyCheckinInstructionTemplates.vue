@@ -106,6 +106,7 @@ export default {
             immediate: true,
             handler(property){
                 if(property) this.getTemplates()
+                else this.loading = true;
             }
         }
     }
