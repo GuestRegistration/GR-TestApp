@@ -18,17 +18,18 @@
             <div v-for="charge in charges" :key="charge.id" >
                 <reservation-charge 
                 :charge="charge"  
-                :payments="payments" 
+                :payment="payments.find(p => p.metadata.charge_id === charge.id)" 
                 :reservation="reservation"
-                :stripe-auth="stripe_auth"
+                :property="property"
+                :credit-card="creditCard"
                 @payment="paymentMade"
                 :can-pay="canPay"
                  >
-                    <template v-slot:options="attrs">
-                        <slot name="options" v-bind="attrs" />
+                    <template v-slot:options="props">
+                        <slot name="options" v-bind="props" />
                     </template>
-                    <template v-slot:default="attrs">
-                        <slot v-bind="attrs" />
+                    <template v-slot:default="props">
+                        <slot v-bind="props" />
                     </template>
                 </reservation-charge>
                 <v-divider></v-divider>
@@ -43,7 +44,6 @@
 <script>
 import DataContainer from '../../../../components/DataContainer.vue';
 import ReservationCharge from '../../Components/ReservationCharge.vue';
-import GET_PROPERTY_STRIPE_AUTH from '../../../Property/Queries/getPropertyStripeAuthorization';
 import GET_RESERVATION_PAYMENTS from '../../Queries/getReservationPayments';
 
 export default {
@@ -55,7 +55,6 @@ export default {
     data(){
         return {
             loading: false,
-            stripe_auth: null,
             charges: [],
             charge: null,
             currency: 'USD',
@@ -64,36 +63,26 @@ export default {
     },
 
     computed: {
-        property(){
-            return this.reservation.property
-        }
 
     },
 
     props: {
         reservation: Object,
+        property: Object,
         refresh: Boolean,
+        creditCard: Object,
         canPay: Boolean
     },
     methods: {
         getCharges(){
             this.loading = true;
-             this.$store.dispatch('query', {
-                query: GET_PROPERTY_STRIPE_AUTH,
+             this.charges = this.reservation.charges
+            // Get payments for the reservation
+            return  this.$store.dispatch('query', {
+                query: GET_RESERVATION_PAYMENTS,
                 variables: {
-                    property_id: this.reservation.property_id
+                    id: this.reservation.id
                 }
-            })
-            .then(response => {
-                this.stripe_auth = response.data.getPropertyStripeAuthorization;
-                this.charges = this.reservation.charges
-                // Get payments for the reservation
-                return  this.$store.dispatch('query', {
-                    query: GET_RESERVATION_PAYMENTS,
-                    variables: {
-                        id: this.reservation.id
-                    }
-                })
             })
             .then(response => {
                 this.payments = response.data.getReservationPayments;

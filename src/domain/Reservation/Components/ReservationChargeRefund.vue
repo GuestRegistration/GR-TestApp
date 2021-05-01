@@ -7,7 +7,7 @@
     </confirmation-dialog>
 
     <v-dialog
-        v-if="payment.captured && !payment.refunded"
+        v-if="stripe_charge && stripe_charge.captured && !stripe_charge.refunded"
         v-model="dialog"
         width="400"
         scrollable
@@ -20,6 +20,7 @@
                     dark
                     v-bind="attrs"
                     v-on="on"
+                    :disabled="stripe_charge.net_captured <= 0"
                     >
                     Refund
             </v-btn>
@@ -36,9 +37,9 @@
                     <v-text-field
                         outlined
                         :label="`Amount to refund for ${charge.title}`"
-                        :rules="[(value) => value !== '' || 'Enter an amount', (value) => value <= (payment.amount_captured/100) || `You cannot refund more than ${amountCharged}`]"
+                        :rules="[(value) => value !== '' || 'Enter an amount', (value) => value <= (stripe_charge.net_captured/100) || `You cannot refund more than ${amountCharged}`]"
                         type="number"
-                        :prefix="payment.currency.toUpperCase()"
+                        :prefix="stripe_charge.currency.toUpperCase()"
                         v-model="form.amount"
                     ></v-text-field>
 
@@ -60,7 +61,7 @@
                         counter="60"
                         outlined
                         height="100"
-                        :rules="[(value) => value && value.length <= 60 || 'Not more than 60 characters allowed' ]"
+                        :rules="[(value) => (!value || value.length <= 60) || 'Not more than 60 characters allowed' ]"
                         ></v-textarea>
 
                 </v-form>
@@ -87,7 +88,7 @@ export default {
         ConfirmationDialog
     },
     props: {
-        stripeAuth: Object,
+        property: Object,
         reservation: Object,
         charge:Object,
         payment: Object
@@ -116,19 +117,21 @@ export default {
                     value: 'requested_by_customer'
                 },
 
-            ]
+            ],
+            stripe_charge: null
         }
     },
 
     computed: {
 
         amountCharged(){
-            return `${this.payment.currency.toUpperCase()}${(this.payment.amount_captured/100)}`
+            return `${this.stripe_charge.currency.toUpperCase()}${(this.stripe_charge.net_captured/100)}`
         },
 
         amountRefunding(){
-            return `${this.payment.currency.toUpperCase()}${(this.form.amount)}`
+            return `${this.stripe_charge.currency.toUpperCase()}${(this.form.amount)}`
         },
+
     },
 
     methods: {
@@ -153,8 +156,8 @@ export default {
             this.mutate({
                 mutation: REFUND_RESERVATION_CHARGE,
                 variables: {
-                    stripe_account: this.stripeAuth.stripe_user_id,
-                    charge_id: this.payment.id,
+                    property_id: this.property.id,
+                    charge_id: this.stripe_charge.id,
                     amount: this.form.amount*100,
                     reason: this.form.reason,
                     customer_note: this.form.customer_note
@@ -168,6 +171,7 @@ export default {
                         text: `${refund.currency.toUpperCase()}${refund.amount/100} for ${this.charge.title} refunded`,
                         color: "success"
                     })
+                    this.stripe_charge = refund.charge;
                     this.$emit('refunded', refund)
                     this.dialog = false;
                 }else{
@@ -194,8 +198,9 @@ export default {
         payment: {
             immediate: true,
             handler(payment){
+                this.stripe_charge = payment;
                 this.form = {
-                    amount: payment.amount_captured/100,
+                    amount: (payment.amount_captured - payment.amount_refunded)/100,
                     reason: null,
                     customer_note: null
                 }

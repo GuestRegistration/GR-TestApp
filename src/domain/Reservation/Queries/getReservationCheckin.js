@@ -17,6 +17,15 @@ export default gql`
                     question
                     response
                 }
+                credit_card {
+                    id
+                    brand
+                    customer
+                    exp_month
+                    exp_year
+                    last4
+                    name
+                }
 
             }
             reservation{

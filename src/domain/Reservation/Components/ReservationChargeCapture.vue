@@ -11,13 +11,13 @@
             elevation="2"
             type="warning"
             >
-                {{ `${payment.currency.toUpperCase()} ${(refund/100)}` }} will be refunded
+                {{ `${stripe_charge.currency.toUpperCase()} ${(refund/100)}` }} will be voided
             </v-alert>
         </div>
     </confirmation-dialog>
 
     <v-dialog
-        v-if="!payment.captured"
+        v-if="stripe_charge && !stripe_charge.captured"
         v-model="dialog"
         width="400"
         scrollable
@@ -29,6 +29,7 @@
             dark
             v-bind="attrs"
             v-on="on"
+            :disabled="captured"
             >
             Capture charge
             </v-btn>
@@ -43,9 +44,9 @@
                     <v-text-field
                         outlined
                         :label="`Amount to capture for ${charge.title}`"
-                        :rules="[(value) => value !== '' || 'Enter an amount', (value) => value <= (payment.amount/100) || `You cannot capture more than ${amountAuthorized}`]"
+                        :rules="[(value) => value !== '' || 'Enter an amount', (value) => value <= (stripe_charge.amount/100) || `You cannot capture more than ${amountAuthorized}`]"
                         type="number"
-                        :prefix="payment.currency.toUpperCase()"
+                        :prefix="stripe_charge.currency.toUpperCase()"
                         v-model="amount"
                     ></v-text-field>
                 </v-form>
@@ -72,7 +73,7 @@ export default {
         ConfirmationDialog
     },
     props: {
-        stripeAuth: Object,
+        property: Object,
         reservation: Object,
         charge:Object,
         payment: Object
@@ -82,23 +83,24 @@ export default {
         return {
             dialog: false,
             loading: false,
-            amount: 0
+            amount: 0,
+            stripe_charge: null
         }
     },
 
     computed: {
         amountAuthorized(){
-            if(!this.payment) return 0;
-            return `${this.payment.currency.toUpperCase()}${(this.payment.amount/100)}`
+            if(!this.stripe_charge) return 0;
+            return `${this.stripe_charge.currency.toUpperCase()}${(this.stripe_charge.amount/100)}`
         },
 
         amountCapturing(){
-            return `${this.payment.currency.toUpperCase()}${(this.amount)}`
+            return `${this.stripe_charge.currency.toUpperCase()}${(this.amount)}`
         },
 
         refund(){
-            if(!this.payment) return 0;
-            return this.payment.amount - this.amount*100
+            if(!this.stripe_charge) return 0;
+            return this.stripe_charge.amount - this.amount*100
         }
     },
 
@@ -124,8 +126,8 @@ export default {
             this.mutate({
                 mutation: CAPTURE_RESERVATION_CHARGE,
                 variables: {
-                    stripe_account: this.stripeAuth.stripe_user_id,
-                    charge_id: this.payment.id,
+                    property_id: this.property.id,
+                    charge_id: this.stripe_charge.id,
                     amount: this.amount*100
                 }
             })
@@ -137,6 +139,7 @@ export default {
                         text: `Captured ${payment.currency.toUpperCase()}${payment.amount_captured/100} for ${this.charge.title}`,
                         color: "success"
                     })
+                    this.stripe_charge = payment;
                     this.$emit('captured', payment)
                     this.dialog = false;
                 }else{
@@ -163,7 +166,8 @@ export default {
         payment: {
             immediate: true,
             handler(payment){
-                this.amount = payment.amount/100
+                this.stripe_charge = payment;
+                this.amount = payment.amount/100;
             }
         }
     }

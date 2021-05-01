@@ -103,8 +103,12 @@
                                     </v-list-item>
                                 </v-list>
                             </template>
+                            <template v-else>
+                                <p class="grey--text py-3">No charge</p>
+                            </template>
 
                             <property-charges-select 
+                                v-if="!reservationCheckedIn"
                                 outlined
                                 label="Charges on checkin"
                                 v-model="form.charges"

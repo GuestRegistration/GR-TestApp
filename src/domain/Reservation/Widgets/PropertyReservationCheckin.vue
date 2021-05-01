@@ -1,11 +1,17 @@
 <template>
     <data-container :loading="loading">
         <template v-if="checkin">
-            
-            <v-btn v-if="!checkin.reservation.approved_at"
+            <confirmation-dialog ref="approvalConfirmation" @confirmed="approveCheckin">
+                <div class="mt-5">
+                    <h4>Are you sure you want to approve the checkin ?</h4>
+                </div>
+            </confirmation-dialog>
+            <v-btn v-if="!checkin.reservation.approved"
                 color="primary"
-                @click="approveCheckin"
+                @click="$refs.approvalConfirmation.open()"
                 :loading="approval.loading"
+                :disabled="!canApprove"
+                class="my-2"
             >
                 Approve checkin
             </v-btn>
@@ -20,11 +26,15 @@
             >
             <v-tab>
             Guest 
-            <v-icon>mdi-user</v-icon>
+            <v-icon>mdi-account</v-icon>
             </v-tab>
             <v-tab>
             ID Verification 
             <v-icon>mdi-account-check</v-icon>
+            </v-tab>
+            <v-tab>
+                Credit Card
+                <v-icon>mdi-credit-card</v-icon>
             </v-tab>
             <v-tab>
                 Charges
@@ -48,22 +58,53 @@
                 <v-tab-item>
                     <v-card flat>
                         <v-card-text>
-                            Name: {{ [user.name.first_name, user.name.last_name].join(' ') }}
+                            <div v-if="user">
+                                <v-list>
+                                    <v-list-item>
+                                        <v-list-item-content>
+                                            Booking Name: {{ checkin.reservation.name }}
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                    <v-list-item>
+                                        <v-list-item-content>
+                                            Account name: {{ [user.name.first_name, user.name.last_name].join(' ') }}
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                </v-list>
+                            </div>
+                            <v-alert v-else
+                            border="top"
+                            colored-border
+                            elevation="2"
+                            type="error"
+                            class="mt-5">
+                                User not found
+                            </v-alert>
                         </v-card-text>
                     </v-card>
                 </v-tab-item>
                 <v-tab-item>
-                    <v-card
-                    flat
-                    >
-                    <v-card-text>
-                        <div>
-                            Document: {{ userVerification.status ? userVerification.status : 'unverified'  }}  
-                        </div>
-                        <v-btn class="ma-1" color="primary" @click="$refs.userVerificationReport.open()">View Verification Report</v-btn>
-                        <verification-report ref="userVerificationReport" :verification="userVerification" />
-                    </v-card-text>
+                    <v-card flat>
+                        <v-card-text>
+                            <div class="text-uppercase">Verification Type: {{ userVerification.type  }}</div>
+                            <div>
+                                status:  <v-chip
+                                    class="ma-2"
+                                    :color="`${userVerification.status === 'verified' ? 'green' : 'orange'}`"
+                                    text-color="white"
+                                    >
+                                    {{ userVerification.status }}
+                                </v-chip>
+                            </div>
+                            <v-btn class="ma-1" color="primary" @click="$refs.userVerificationReport.open()">View Verification Report</v-btn>
+                            <verification-report ref="userVerificationReport" :verification="userVerification" />
+                        </v-card-text>
                     </v-card>
+
+                </v-tab-item>
+
+                <v-tab-item>
+                    <stripe-credit-card :card="checkin.checkin.credit_card" />
                 </v-tab-item>
 
                 <v-tab-item>
@@ -71,10 +112,10 @@
                     flat
                     >
                         <v-card-text>
-                            <reservation-charges :reservation="reservation" :refresh="refreshCharges">
-                                <template v-slot:options="prop">
-                                    <reservation-charge-refund v-bind="prop" @refunded="refreshCharges = true" />
-                                    <reservation-charge-capture v-bind="prop" @captured="refreshCharges = true" />
+                            <reservation-charges :reservation="reservation" :property="property" :refresh="refreshCharges">
+                                <template v-slot:options="props">
+                                    <reservation-charge-refund v-bind="props" @refunded="(refund) => props.updateCharge(refund.charge)" />
+                                    <reservation-charge-capture v-bind="props" @captured="(charge) => props.updateCharge(charge)" />
                                 </template>
                             </reservation-charges>
                         </v-card-text>
@@ -167,6 +208,16 @@
                 
             </v-tabs-items>
         </template>
+        <template v-else>
+            <v-alert
+                border="top"
+                colored-border
+                elevation="2"
+                type="error"
+                class="mt-5">
+                    No checkin information
+                </v-alert>
+        </template>
     </data-container>
 </template>
 
@@ -181,6 +232,8 @@ import VerificationReport from '../../User/Components/VerificationReport.vue';
 import ReservationChargeCapture from '../Components/ReservationChargeCapture';
 import ReservationChargeRefund from '../Components/ReservationChargeRefund';
 import ReservationCharges from './Checkin/ReservationCharges';
+import StripeCreditCard from '../../../components/Utilities/StripeCreditCard'
+import ConfirmationDialog from '@/components/Utilities/ConfirmationDialog';
 
 
 export default {
@@ -190,7 +243,9 @@ export default {
         ReservationChargeCapture,
         ReservationChargeRefund,
         VerificationReport,
-        ReservationCharges
+        ReservationCharges, 
+        StripeCreditCard,
+        ConfirmationDialog,
     },
     data(){
 
@@ -207,18 +262,22 @@ export default {
 
     computed: {
         user(){
-            return this.checkin ? this.checkin.user : {}
+            return this.checkin ? this.checkin.user : null
         },
         userVerification(){
             if(this.checkin && this.checkin.verifications && this.checkin.verifications.length){
                 return  this.checkin.verifications[this.checkin.verifications.length - 1];
             }
             return {}
+        },
+        canApprove(){
+            return this.user !== null
         }
     },
 
     props: {
-        reservation: Object
+        reservation: Object,
+        property: Object,
     },
 
     methods: {
@@ -272,6 +331,11 @@ export default {
             })
             .then(response => {
                 this.checkin.reservation = response.data.approveReservationCheckin;
+                this.$store.commit('SNACKBAR', {
+                    status: true,
+                    text: "Checkin Approved",
+                    color: "success"
+                })
                 this.$emit('approved', response.data.approveReservationCheckin);
             })
             .catch(e => {

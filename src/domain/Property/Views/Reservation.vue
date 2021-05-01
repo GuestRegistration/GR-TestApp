@@ -56,7 +56,7 @@
 
                         </div>
                         <small class="text--gray">{{ reservation.checkin_url }}</small>
-                        <ReservationDetails :_reservation="reservation" />
+                        <reservation-details :reservation="reservation" />
                         
                         <template v-if="reservation.already_checkedin">
                             <v-alert 
@@ -83,7 +83,7 @@
                             </v-alert>
                             
                             <h4 class="my-5">Checkin Information</h4>
-                            <property-reservation-checkin @approved="reservationApproved" :reservation="reservation" />
+                            <property-reservation-checkin v-if="property" @approved="reservationApproved" :reservation="reservation" :property="property" />
 
                         </template>
                         <template v-else>

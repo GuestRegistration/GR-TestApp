@@ -9,45 +9,36 @@
             <h4 class="mt-2">{{ [currency, charge.amount].join('') }}</h4>
         </v-list-item>
         <div class="my-2">
-            <div v-if="payment" class="d-flex">
+            <div v-if="stripe_charge" class="d-flex">
                 <v-chip pill :color="status.color" text-color="white">
                     {{ status.text }}
                 </v-chip>
+                <v-chip v-if="amountRefunded" pill color="info" text-color="white" class="ml-2">
+                    Refunded {{ amountRefunded }}
+                </v-chip>
                 <v-spacer></v-spacer>
-                <slot name="options" v-bind="{ stripeAuth, reservation, charge, payment: payments.find(p => p.metadata.charge_id === charge.id) }" />
+                <slot name="options" v-bind="{ property, reservation, charge, payment: stripe_charge, updateCharge }" />
             </div>
             <v-btn v-else-if="canPay" btn color="primary" :loading="loading" @click="payCharge()">{{ !isPreAuthorized ? 'Pay Now' : 'Authorize charge' }}</v-btn>
         </div> 
-        <slot v-bind="{ stripeAuth, reservation, charge, payment: payments.find(p => p.metadata.charge_id === charge.id) }" />
-        <stripe-payment
-                ref="stripePayment" 
-                :publishable-key="stripePublishableKey" 
-                :amount="charge.amount"
-                :currency="currency"
-                :charge-callback="stripeChargeCallBack"
-                :pre-authorize="isPreAuthorized"
-                @success="paymentSuccessful"
-                @error="paymentError"
-                @abort="paymentAborted"
-            />
+        <slot v-bind="{ property, reservation, charge, payment: stripe_charge}" />
     </div>
 </template>
 
 <script>
 
-import StripePayment from '../../../components/Utilities/StripePayment.vue';
 import CREATE_RESERVATION_CHARGE from '../Mutations/createReservationCharge';
 
 export default {
     name: "ReservationCharge",
     components: {
-        StripePayment
+        
     },
     data(){
         return {
             loading: false,
             currency: 'USD',
-            payment: null,
+            stripe_charge: null
         }
     },
 
@@ -59,69 +50,72 @@ export default {
         stripePublishableKey(){
             return process.env.VUE_APP_STRIPE_PUBLISHABLE_KEY
         },
-
-        property(){
-            return this.reservation.property
-        },
         
         isPreAuthorized(){
             return this.charge.type === 'pre-authorize'
         },
 
+        amountRefunded(){
+            if(!this.stripe_charge) return null;
+            if(!this.stripe_charge.amount_refunded) return null;
+
+            return `${this.stripe_charge.currency.toUpperCase()}${this.stripe_charge.amount_refunded/100}`;
+        },
+
         status(){
-            if(this.payment){
-                if(this.payment.refunded) {
+            if(this.stripe_charge){
+
+                if(this.stripe_charge.captured) {
                     return {
-                        color: "info",
-                        text: `Refunded ${this.payment.currency.toUpperCase()}${this.payment.amount_refunded/100}`
+                        color: "success",
+                        text: this.isPreAuthorized ? `Captured ${this.stripe_charge.currency.toUpperCase()}${this.stripe_charge.amount_captured/100}` : `Paid ${this.stripe_charge.currency.toUpperCase()}${this.stripe_charge.amount_captured/100}`,
                     }
                 }
 
-                if(this.payment.captured) {
-                    return {
+                return {
                         color: "success",
-                        text: this.isPreAuthorized ? `Captured ${this.payment.currency.toUpperCase()}${this.payment.amount_captured/100}` : `Paid ${this.payment.currency.toUpperCase()}${this.payment.amount_captured/100}`,
+                        text: `Authorized ${this.stripe_charge.currency.toUpperCase()}${this.stripe_charge.amount/100}`,
                     }
-                }
             }
+
             return {
                 color: "error",
                 text: this.isPreAuthorized ? "Not Authorized" : "Not Paid"
             }
+        },
+
+        creditCardAvailable(){
+            return this.creditCard ? true : false
         }
 
     },
 
     props: {
-        stripeAuth: Object,
         reservation: Object,
+        property: Object,
+        payment: Object,
         charge:Object,
-        payments: Array,
-        canPay: Boolean
+        canPay: Boolean,
+        creditCard: Object
     },
     methods: {
         payCharge(){
-            if(!this.stripeAuth) {
+            if(!this.creditCardAvailable) {
                 this.$store.commit('SNACKBAR', {
                     status: true,
                     color: 'error',
-                    text: `${this.property.name} can not process your payment at the moment`,
+                    text: `No credit card to use`,
                 })
                 return;
             }
-            this.$refs.stripePayment.open();
-
             this.loading = true;
-        },
 
-        stripeChargeCallBack(token){
-
-            return new Promise((resolve, reject) => {
-                const variables = {
-                    stripe_account: this.stripeAuth.stripe_user_id,
+             const variables = {
+                    property_id: this.property.id,
                     amount: this.charge.amount * 100,
                     currency: 'USD',
-                    source: token,
+                    source: this.creditCard.id,
+                    customer: this.creditCard.customer,
                     description: `${this.isPreAuthorized ? 'Authorization' : 'Payment'} for ${this.charge.title} at ${this.property.name} by ${[this.$store.getters.current_user.profile.name.first_name, this.$store.getters.current_user.profile.name.last_name].join(' ')}`,
                     capture: !this.isPreAuthorized,
                     metadata: {
@@ -143,14 +137,16 @@ export default {
                     variables
                 })
                 .then(response => {
-                    resolve(response.data.createReservationCharge)
+                    this.paymentSuccessful(response.data.createReservationCharge)
                 })
                 .catch(e => {
-                    reject(e)
+                    this.paymentError(e)
                 })
-            })
-
+                .finally(() => {
+                    this.loading = false;
+                })
         },
+
 
         paymentSuccessful(stripeCharge){
             this.$store.commit('SNACKBAR', {
@@ -159,10 +155,8 @@ export default {
                 text: `${this.isPreAuthorized ? 'Authorization' : 'Payment'} of ${stripeCharge.currency.toUpperCase()} ${stripeCharge.amount/100} for ${this.charge.title} successful`
             })
 
-            this.$refs.stripePayment.close();
-            this.payment = stripeCharge;
+            this.stripe_charge = stripeCharge;
             this.$emit('payment', stripeCharge)
-            this.loading = false;
         },
 
         paymentError(e){
@@ -171,26 +165,18 @@ export default {
                 color: 'error',
                 text: `Payment for ${this.charge.title} failed. ${e.message}`
             })
-            this.loading = false;
         },
 
-        paymentAborted(){
-            this.$store.commit('SNACKBAR', {
-                status: true,
-                color: 'info',
-                text: `Payment for ${this.charge.title} aborted`
-            })
-            this.loading = false;
-        }
+        updateCharge(charge){
+            this.stripe_charge = charge;
+        },
     },
 
     watch: {
-        charge: {
+        payment: {
             immediate: true,
-            handler(charge){
-                if(charge){
-                    this.payment = this.payments.find(p => p.metadata.charge_id == charge.id);
-                }
+            handler(payment){
+                this.stripe_charge = payment;
             }
         }
     }

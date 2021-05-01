@@ -10,7 +10,7 @@ export default gql`
             already_checkedin
             approved
             approved_at
-            booking_channel
+            booking_no
             checkin_date
             checkout_date
             property_id

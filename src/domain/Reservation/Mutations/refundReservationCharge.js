@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    mutation refundReservationCharge($stripe_account: ID!, $charge_id: ID!, $amount: Int, $reason: String){
-        refundReservationCharge(stripe_account: $stripe_account, charge_id: $charge_id, amount: $amount, reason: $reason) {
+    mutation refundReservationCharge($property_id: ID!, $charge_id: ID!, $amount: Int, $reason: String){
+        refundReservationCharge(property_id: $property_id, charge_id: $charge_id, amount: $amount, reason: $reason) {
             id
             currency
             amount
@@ -27,6 +27,7 @@ export default gql`
                 amount_captured
                 amount_refunded
                 receipt_url
+                net_captured
             }
         }
 }`;

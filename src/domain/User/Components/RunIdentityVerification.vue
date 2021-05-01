@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import GET_PROPERTY_STRIPE_AUTH from '../../Property/Queries/getPropertyStripeAuthorization';
 import CREATE_STRIPE_VERIFICATION_SESSION from '../Mutations/createUserStripeVerificationSession';
 import { mapActions } from 'vuex';
 
@@ -36,25 +35,17 @@ export default {
                 return;
             }
             this.loading = true;
-            this.query({
-                query: GET_PROPERTY_STRIPE_AUTH,
+            this.mutate({
+                mutation: CREATE_STRIPE_VERIFICATION_SESSION,
                 variables: {
-                    property_id: this.property.id
+                    property_id: this.property.id,
+                    metadata: {
+                        user_id: this.$store.getters.current_user.profile.id,
+                        property_id: this.property.id
+                    },
+                    return_url: this.url(this.$router.resolve({name: this.$router.currentRoute.name}).route.fullPath),
+                    refresh_url: this.url(this.$router.resolve({name:  this.$router.currentRoute.name, query: {vs_refresh: 1}}).route.fullPath)
                 }
-            }).then(response => {
-                if(!response.data.getPropertyStripeAuthorization || !response.data.getPropertyStripeAuthorization.stripe_user_id) return Promise.reject()
-                return  this.mutate({
-                    mutation: CREATE_STRIPE_VERIFICATION_SESSION,
-                    variables: {
-                        stripe_account: response.data.getPropertyStripeAuthorization.stripe_user_id,
-                        metadata: {
-                            user_id: this.$store.getters.current_user.profile.id,
-                            property_id: this.property.id
-                        },
-                        return_url: this.url(this.$router.resolve({name: this.$router.currentRoute.name}).route.fullPath),
-                        refresh_url: this.url(this.$router.resolve({name:  this.$router.currentRoute.name, query: {vs_refresh: 1}}).route.fullPath)
-                    }
-                })
             })
             .then(response => {
                 this.session = response.data.createUserStripeVerificationSession;

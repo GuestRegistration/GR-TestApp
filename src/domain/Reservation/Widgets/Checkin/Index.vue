@@ -39,10 +39,8 @@
                 </v-stepper-step>
 
                 <v-stepper-content step="2">
-                    <v-card class="my-2" flat >
-                        <v-card-text>
-                            <h4>Credit card collection here</h4>
-                        </v-card-text>
+                    <reservation-credit-card :property="property" :reservation="reservation" @credit-card="creditCardSelected" />
+                    <v-card >
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn color="primary" @click="step++" :disabled="!creditCardCollected">Continue</v-btn>
@@ -112,7 +110,7 @@
                 <v-stepper-content step="5">
                     <v-card class="my-2" flat>
                         <v-card-text>
-                            <reservation-charges :reservation="reservation" @charges-payment="chargesPayment" :can-pay="true" >
+                            <reservation-charges :reservation="reservation" :property="property" :credit-card="creditCard" @charges-payment="chargesPayment" :can-pay="true" >
                                 <template v-slot:default="props">
                                     <template v-if="props.charge.type == 'pre-authorize'">
                                         <v-alert v-if="!props.payment || (props.payment && !props.payment.captured)"
@@ -135,94 +133,6 @@
                     </v-card>
 
                 </v-stepper-content>
-
-                <!-- Step 6 -->
-
-                <!-- <v-stepper-step 
-                    step="5"
-                    :editable="step >= 5"
-                    edit-icon="mdi-account-check"
-                    :complete="approved"
-                >
-                    Approval
-                </v-stepper-step>
-
-                <v-stepper-content step="5">
-                    <v-card class="my-2" >
-                        <v-card-text>
-                            <div class="py-5 text-center">
-                                <template v-if="reservation.approved">
-                                    <v-icon color="success" size="80">mdi-check-circle</v-icon>
-                                    <h2 class="grey--text mt-5">Approved</h2>
-                                </template>
-                                <template v-else>
-                                    <v-icon color="warning" size="80">mdi-alert-circle-outline</v-icon>
-                                    <h2 class="grey--text mt-5">Pending approval</h2>
-                                </template>
-                            </div>
-                        </v-card-text>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="primary" @click="step++" :disabled="!approved">Continue</v-btn>
-                        </v-card-actions>
-                    </v-card>                
-                </v-stepper-content> -->
-
-                <!-- Step 6 -->
-
-                <!-- <v-stepper-step 
-                    step="6"
-                    :editable="step >= 6"
-                    edit-icon="mdi-information"
-                    :complete="approved"
-                >
-                    Instructions
-                </v-stepper-step>
-
-                <v-stepper-content step="6">
-                    <v-card class="my-2" >
-                        <v-card-text>
-                            <v-dialog v-if="reservation.approved" v-model="instruction" scrollable max-width="500px">
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-btn
-                                    color="primary"
-                                    dark
-                                    v-bind="attrs"
-                                    v-on="on"
-                                    block
-                                    >
-                                    See checkin instruction
-                                    </v-btn>
-                                </template>
-                                <v-card>
-                                    <v-card-title>Checkin Instructions</v-card-title>
-                                    <v-divider></v-divider>
-                                    <v-card-text>
-                                        <div class="text-center mt-5" v-if="reservation.instruction">
-                                            {{reservation.instruction}}
-                                        </div>
-                                        <div class="text-center mt-5" v-else>
-                                            No checkin instruction
-                                        </div>
-                                    </v-card-text>
-                                    <v-divider></v-divider>
-                                    <v-card-actions>
-                                        <v-spacer></v-spacer>
-                                        <v-btn color="red darken-1" text @click="instruction = false">Close</v-btn>
-                                    </v-card-actions>
-                                </v-card>
-                            </v-dialog>
-                            <v-alert v-else 
-                                border="top"
-                                colored-border
-                                elevation="2"
-                                type="warning"
-                            >
-                                Your checkin needs to be approved before you can see instructions
-                            </v-alert>
-                        </v-card-text>
-                    </v-card>
-                </v-stepper-content> -->
         </v-stepper>
     </div>
 
@@ -235,6 +145,7 @@ import IdentityVerification from '../../../User/Components/IdentityVerification'
 import ReservationCharges from './ReservationCharges';
 import ReservationAgreements from './ReservationAgreements';
 import ReservationQuestions from './ReservationQuestions';
+import ReservationCreditCard from './ReservationCreditCard'
 
 import CHECKIN_RESERVATION from '../../Mutations/checkinReservation';
 export default {
@@ -242,7 +153,7 @@ export default {
     components: {
        ReservationDetails, IdentityVerification, 
        ReservationCharges, ReservationAgreements,
-       ReservationQuestions
+       ReservationQuestions, ReservationCreditCard
     },
     props: {
         property: Object,
@@ -257,6 +168,7 @@ export default {
             agreements: null,
             instruction: false,
             questions: null,
+            creditCard: null,
         }
     },
 
@@ -285,7 +197,7 @@ export default {
         },
 
         creditCardCollected(){
-            return true;
+            return this.creditCard !== null;
         },
 
         allReservationAgreements(){
@@ -334,6 +246,11 @@ export default {
             this.$emit('charges-payment', charges);
         },
 
+        creditCardSelected(card){
+            this.creditCard = card;
+            this.$emit('credit-card', card)
+        },
+
         checkin(){
             this.checkingin = true;
             this.mutate({
@@ -341,7 +258,8 @@ export default {
                 variables: {
                     reservation_id: this.reservation.id,
                     agreements: this.agreements,
-                    questions: this.questions
+                    questions: this.questions,
+                    credit_card: this.creditCard
                 }
             })
             .then(response => {

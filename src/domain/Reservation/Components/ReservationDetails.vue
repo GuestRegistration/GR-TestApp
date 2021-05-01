@@ -1,14 +1,43 @@
 <template>
     <div>
-        <v-list>
+        <v-list dense>
+
             <v-list-item >
                 <v-list-item-icon>
-                    <v-icon>mdi-clock</v-icon>
+                    <v-icon color="primary">mdi-information</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                    <v-list-item-title>Stay from {{reservation.checkin_date}} to {{reservation.checkout_date}}</v-list-item-title>
+                    <v-list-item-title>Booking No: {{reservation.booking_no}}</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
+
+            <v-list-item >
+                <v-list-item-icon>
+                    <v-icon color="primary">mdi-information</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                    <v-list-item-title>Booking Name: {{reservation.name}}</v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item >
+                <v-list-item-icon>
+                    <v-icon color="primary">mdi-information</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                    <v-list-item-title>Checkin Date: {{reservation.checkin_date}}</v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item >
+                <v-list-item-icon>
+                    <v-icon color="primary">mdi-information</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                    <v-list-item-title>Checkout Date: {{reservation.checkout_date}}</v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
             <!-- <v-list-item >
                 <v-list-item-icon>
                     <v-icon>mdi-flag</v-icon>
@@ -33,21 +62,18 @@
     export default {
         data(){
             return {
-                reservation: this._reservation
             }
         },
-        props: ['_reservation'],
+        props: {
+            reservation: Object
+        },
         methods:{
             
         },
         watch: {
-            _reservation: function (r){
-                this.reservation = r
-            }
+           
         }
     }
 </script>
 
-<style scoped>
 
-</style>

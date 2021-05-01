@@ -201,6 +201,19 @@ export default
             .then(response => {
                 this.report = response.data.getUserStripeVerificationReport
             })
+            .catch(e => {
+                this.$store.commit('TOAST_ERROR', {
+                    show: true,
+                    message: `Could not get verification report.`,
+                    retry: () => {
+                        return new Promise((resolve, reject) => {
+                            this.getUserStripeVerificationReport();
+                            resolve();
+                        })
+                    },
+                    exception: e
+                });
+            })
             .finally(() => {
                 this.loading = false;
             })

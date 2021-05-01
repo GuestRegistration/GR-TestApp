@@ -110,7 +110,7 @@
                                             <v-card-text>
                                             <h4>Hey, <strong>{{reservation.name}}</strong></h4>
                                             <p>Looking forward to hosting you at <strong>{{reservation.property.name}}</strong>. Below are the details of your bookings</p>
-                                            <ReservationDetails :_reservation="reservation" />
+                                            <reservation-details :reservation="reservation" />
                                             </v-card-text>
                                             <v-card-actions>
                                                 <v-btn
