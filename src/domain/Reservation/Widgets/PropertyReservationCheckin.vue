@@ -6,15 +6,6 @@
                     <h4>Are you sure you want to approve the checkin ?</h4>
                 </div>
             </confirmation-dialog>
-            <v-btn v-if="!checkin.reservation.approved"
-                color="primary"
-                @click="$refs.approvalConfirmation.open()"
-                :loading="approval.loading"
-                :disabled="!canApprove"
-                class="my-2"
-            >
-                Approve checkin
-            </v-btn>
             
             <v-tabs
             v-model="tab"
@@ -54,7 +45,7 @@
             </v-tab>
             </v-tabs>
 
-            <v-tabs-items v-model="tab">
+            <v-tabs-items v-model="tab" class="pb-15">
                 <v-tab-item>
                     <v-card flat>
                         <v-card-text>
@@ -83,6 +74,7 @@
                         </v-card-text>
                     </v-card>
                 </v-tab-item>
+
                 <v-tab-item>
                     <v-card flat>
                         <v-card-text>
@@ -104,7 +96,27 @@
                 </v-tab-item>
 
                 <v-tab-item>
-                    <stripe-credit-card :card="checkin.checkin.credit_card" />
+                    <v-row justify="center"> 
+                        <v-col cols="12" md="8">
+                            <stripe-credit-card :card="checkin.checkin.credit_card" />
+                            <div class="d-flex my-5">
+                                <reservation-payments 
+                                :property="property"
+                                :reservation="checkin.reservation" 
+                                :credit-card="checkin.checkin.credit_card" 
+                                :can-refund="true"
+                                />
+                                <v-spacer></v-spacer>
+                                <reservation-extra-charge 
+                                    :reservation="checkin.reservation" 
+                                    :credit-card="checkin.checkin.credit_card"
+                                    :user="user"
+                                    :property="property"
+                                />
+                            </div>
+                        </v-col>
+                    </v-row>
+                    
                 </v-tab-item>
 
                 <v-tab-item>
@@ -207,6 +219,18 @@
                 </v-tab-item>
                 
             </v-tabs-items>
+
+            <div class="text-center text-md-right">
+                <v-btn fixed bottom v-if="!checkin.reservation.approved" 
+                    color="success"
+                    @click="$refs.approvalConfirmation.open()"
+                    :loading="approval.loading"
+                    :disabled="!canApprove"
+                    class="my-7"
+                >
+                  <v-icon class="mr-2">mdi-check-circle</v-icon>  Approve checkin
+                </v-btn>
+            </div>
         </template>
         <template v-else>
             <v-alert
@@ -234,7 +258,8 @@ import ReservationChargeRefund from '../Components/ReservationChargeRefund';
 import ReservationCharges from './Checkin/ReservationCharges';
 import StripeCreditCard from '../../../components/Utilities/StripeCreditCard'
 import ConfirmationDialog from '@/components/Utilities/ConfirmationDialog';
-
+import ReservationExtraCharge from '../Components/ReservationExtraCharge'
+import ReservationPayments from '../Components/ReservationPayments'
 
 export default {
     name: "PropertyReservationCheckin",
@@ -246,6 +271,8 @@ export default {
         ReservationCharges, 
         StripeCreditCard,
         ConfirmationDialog,
+        ReservationExtraCharge,
+        ReservationPayments
     },
     data(){
 

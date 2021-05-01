@@ -19,5 +19,6 @@ export default gql`
             amount_refunded
             receipt_url
             net_captured
+            description
         }
     }`;

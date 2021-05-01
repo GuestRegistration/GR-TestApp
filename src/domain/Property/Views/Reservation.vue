@@ -15,7 +15,7 @@
 
             <!-- the resource is found -->
             <template v-else-if="reservation">
-                <v-row justify="center">
+                <v-row justify="center" align="center">
                     <v-col v-if="property" cols="12" md="4">
                         <div class="text-center">
                             <router-link :to="{name: 'property.show', params: { id: property.id} }" class="text-decoration-none">
@@ -81,9 +81,6 @@
                                 type="warning" v-else>
                                 Approval pending 
                             </v-alert>
-                            
-                            <h4 class="my-5">Checkin Information</h4>
-                            <property-reservation-checkin v-if="property" @approved="reservationApproved" :reservation="reservation" :property="property" />
 
                         </template>
                         <template v-else>
@@ -95,8 +92,11 @@
                                 Waiting for checkin...
                             </v-alert>
                         </template>
+                    </v-col>
 
-
+                    <v-col v-if="reservation.already_checkedin" cols="12" md="8">
+                        <h4 class="headline my-5">Checkin Information</h4>
+                        <property-reservation-checkin v-if="property" @approved="reservationApproved" :reservation="reservation" :property="property" />
                     </v-col>
                 </v-row>
 

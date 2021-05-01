@@ -124,14 +124,14 @@
                                          <v-list-item-icon>
                                             <v-icon>mdi-handshake</v-icon>
                                         </v-list-item-icon>
-                                        <v-list-content>
+                                        <v-list-item-content>
                                             <v-list-item-title>
                                                 {{ agreement.agreement }}
                                             </v-list-item-title>
                                             <v-list-item-subtitle v-if="agreement.link && agreement.link !== ''">
                                                  <a :href="agreement.link" target="_blank">Read agreement</a>
                                             </v-list-item-subtitle>
-                                        </v-list-content>
+                                        </v-list-item-content>
                                     </v-list-item>
                                 </v-list>
                             </template>

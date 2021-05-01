@@ -55,8 +55,14 @@
 
                     <v-tab-item>
                         <stripe-credit-card :card="checkin.checkin.credit_card" />
+                        <div class="my-5">
+                            <reservation-payments 
+                            :property="property"
+                            :reservation="checkin.reservation" 
+                            :credit-card="checkin.checkin.credit_card" 
+                            />
+                        </div>
                     </v-tab-item>
-
 
                     <v-tab-item>
                         <v-card
@@ -152,6 +158,7 @@
     import ReservationCharges from './Checkin/ReservationCharges';
     import StripeCreditCard from '../../../components/Utilities/StripeCreditCard'
     import IdentityVerification from '../../User/Components/IdentityVerification.vue';
+    import ReservationPayments from '../Components/ReservationPayments'
 
     import GET_RESERVATION_CHECKIN from '../Queries/getReservationCheckin';
     export default {
@@ -163,6 +170,7 @@
             IdentityVerification,
             ReservationCharges,
             StripeCreditCard,
+            ReservationPayments
          },
 
         data(){

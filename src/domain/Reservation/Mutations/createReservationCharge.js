@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export default gql`
-        mutation createReservationCharge($property_id: ID!, $source: String!, $customer: ID, $amount: Int!, $currency: String!, $description: String, $receipt_email: String, $metadata: StripeChargeMetadataInput, $capture: Boolean){
+        mutation createReservationCharge($property_id: ID!, $source: String!, $customer: ID, $amount: Int!, $currency: String!, $description: String, $receipt_email: String, $metadata: StripeReservationChargeMetadataInput, $capture: Boolean){
             createReservationCharge(property_id: $property_id, source: $source, customer: $customer, amount: $amount, currency: $currency, description: $description, receipt_email: $receipt_email, metadata: $metadata, capture: $capture) {
                 id
                 currency

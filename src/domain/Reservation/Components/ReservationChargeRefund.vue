@@ -2,7 +2,7 @@
 <div>
     <confirmation-dialog ref="confirmation" @confirmed="refund">
         <div class="mt-5">
-            <h4>Are you sure you want to refund {{ amountRefunding }} to guest ?</h4>
+            <h4>Are you sure you want to refund {{ amountRefunding }} ?</h4>
         </div>
     </confirmation-dialog>
 
@@ -36,7 +36,7 @@
                 <v-form ref="form" class="pt-5" @submit.prevent>
                     <v-text-field
                         outlined
-                        :label="`Amount to refund for ${charge.title}`"
+                        :label="`Amount to refund${this.charge ? ` for ${this.charge.title}`: ''}`"
                         :rules="[(value) => value !== '' || 'Enter an amount', (value) => value <= (stripe_charge.net_captured/100) || `You cannot refund more than ${amountCharged}`]"
                         type="number"
                         :prefix="stripe_charge.currency.toUpperCase()"
@@ -168,7 +168,7 @@ export default {
                 if(refund){
                     this.$store.commit('SNACKBAR', {
                         status: true,
-                        text: `${refund.currency.toUpperCase()}${refund.amount/100} for ${this.charge.title} refunded`,
+                        text: `${refund.currency.toUpperCase()}${refund.amount/100}${this.charge ? ` for ${this.charge.title}`: ''} refunded`,
                         color: "success"
                     })
                     this.stripe_charge = refund.charge;
@@ -185,7 +185,7 @@ export default {
             .catch(e => {
                 this.$store.commit('SNACKBAR', {
                     status: true,
-                    text: `Refund of ${this.amountRefunding} for ${this.charge.title} failed. ${e.message}`,
+                    text: `Refund of ${this.amountRefunding} ${this.charge ? ` for ${this.charge.title}`: ''} failed. ${e.message}`,
                     color: "error"
                 })
             })
@@ -200,7 +200,7 @@ export default {
             handler(payment){
                 this.stripe_charge = payment;
                 this.form = {
-                    amount: (payment.amount_captured - payment.amount_refunded)/100,
+                    amount: payment.net_captured/100,
                     reason: null,
                     customer_note: null
                 }
