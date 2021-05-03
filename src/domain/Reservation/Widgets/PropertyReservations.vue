@@ -5,7 +5,7 @@
                 <property-switch @change="getPropertyReservations" />
             </v-col>
         </v-row>
-        <data-container :loading="loading" type="card">
+        <data-container :loading="loading" >
             <template v-slot:loading>
                 <v-row>
                     <v-col cols="12" sm="6" md="4" v-for="i in 6" :key="i">
