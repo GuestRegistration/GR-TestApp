@@ -1,28 +1,22 @@
 <template>
     <div>
-        <v-row>
-            <v-col cols="12" sm="6" md="3">
+        <v-row justify="end">
+            <v-col cols="12" sm="6">
                 <property-switch @change="getPropertyNotifications" />
             </v-col>
         </v-row>
         <data-container :loading="loading">
             <template v-slot:loading>
-                <v-row justify="center">
-                    <v-col cols="12" md="6" >
-                        <v-skeleton-loader
-                            v-for="i in 6" :key=i
-                            type="card"
-                            height="100"
-                            class="my-2"
-                        ></v-skeleton-loader>
-                    </v-col>
-                </v-row>
+                <v-skeleton-loader
+                    v-for="i in 6" :key=i
+                    type="card"
+                    height="100"
+                    class="my-2"
+                ></v-skeleton-loader>
             </template>
-            <v-row v-if="notifications.length" justify="center">
-                <v-col cols="12" md="6">
-                    <property-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
-                </v-col>
-            </v-row>
+            <template v-if="notifications.length">
+                <property-notification  v-for="notification in notifications" :notification="notification" :key="notification.id" class="my-2" />
+            </template>
             <div v-else class="text-center py-5">
                 <p class="grey--text text-center">No notification yet</p>
             </div>

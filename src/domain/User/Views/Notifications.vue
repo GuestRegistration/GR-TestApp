@@ -1,16 +1,21 @@
 <template>
     <app-layer ref="app">
-         <template #header>
-            <h3>Notifications</h3>
+        <template #header>
+            <h3 class="text-center">Notifications</h3>
         </template>
-         <v-tabs v-if="hasAnyProperty" v-model="currentTab" @change="tabChanged" align-with-title>
-            <v-tabs-slider color="primary"></v-tabs-slider>
-            <v-tab v-for="tab in tabs" :key="tab.name">
-                {{ tab.name }}
-            </v-tab>
-        </v-tabs>
-
-        <component :is="`${notification}-notifications`"></component>
+        <v-row justify="center">
+            <v-col cols="12" md="6">
+                <v-tabs v-if="hasAnyProperty" v-model="currentTab" @change="tabChanged" align-with-title icons-and-text grow show-arrows="">
+                    <v-tabs-slider color="primary"></v-tabs-slider>
+                    <v-tab v-for="tab in tabs" :key="tab.name">
+                        {{ tab.name }}
+                        <v-icon>{{tab.icon}}</v-icon>
+                    </v-tab>
+                </v-tabs>
+                <component :is="`${notification}-notifications`"></component>
+            </v-col>
+        </v-row>
+         
     </app-layer>
 </template>
 
@@ -29,14 +34,16 @@ export default {
       return {
           tabs: [
               {
-                  name: 'Personal',
-                  alias: 'personal',
-                  route: {name: 'notification.list', params: {notification: 'personal'}}
+                name: 'Personal',
+                alias: 'personal',
+                route: {name: 'notification.list', params: {notification: 'personal'}},
+                icon: 'mdi-account'
               },
               {
-                  name: 'Property',
-                  alias: 'property',
-                  route: {name: 'notification.list', params: {notification: 'property'}}
+                name: 'Property',
+                alias: 'property',
+                route: {name: 'notification.list', params: {notification: 'property'}},
+                icon: 'mdi-domain'
               }
           ],
       }
