@@ -10,20 +10,23 @@
                         v-for="(card, c) in cards" :key="c"
                         :value="card"
                     >
-                    <template #label>
-                        <stripe-credit-card class="my-1" :card="card" />
-                    </template>
+                        <template #label>
+                            <div class="pr-2" style="width: 100%">
+                                <stripe-credit-card class="my-1" :card="card" />
+                            </div>
+                        </template>
                     </v-radio>
                 </v-radio-group>
+                <a href="#" @click.prevent="addCard = !addCard">Use another card </a>
         </div>
-        <div v-else>
+        <div v-if="addCard">
             <stripe-credit-card-form
                 ref="stripeCreditCard" 
                 :publishable-key="stripePublishableKey" 
                 :token-callback="stripeTokenCallback"
-                @success="customerCreateSuccessfull"
-                @error="customerCreateError"
-                @abort="customerCreateAborted"
+                @success="tokenCallbackSuccessfull"
+                @error="tokenCallbackError"
+                @abort="tokenCallbackAborted"
             >
             <template #submit-btn-text> Add card </template>
             </stripe-credit-card-form>
@@ -40,6 +43,7 @@ import StripeCreditCardForm from '../../../../components/Utilities/StripeCreditC
 
 import CREATE_PROPERTY_CUSTOMER from '../../../Property/Mutations/createPropertyCustomer';
 import GET_PROPERTY_CUSTOMER from '../../../Property/Queries/getPropertyCustomer';
+import ADD_PROPERTY_CUSTOMER_CREDIT_CARD from '../../../Property/Mutations/addPropertyCustomerCreditCard';
 
 export default {
     name: "ReservationCreditCard",
@@ -47,6 +51,7 @@ export default {
         return {
             loading: false,
             customer: null,
+            addCard: false,
             creditCard: null
         }
     },
@@ -84,7 +89,9 @@ export default {
             })
             .then(response => {
                 this.customer = response.data.getPropertyCustomer;
-                this.creditCard = this.cards.length ? this.cards[0] : null
+
+                if(!this.cards.length) this.addCard = true;
+
             })
             .finally(() => {
                 this.loading = false
@@ -92,6 +99,26 @@ export default {
         },
 
         stripeTokenCallback(token){
+
+            if(this.customer){
+                return new Promise((resolve, reject) => {
+                    this.mutate({
+                        mutation: ADD_PROPERTY_CUSTOMER_CREDIT_CARD,
+                        variables: {
+                            property_id: this.property.id,
+                            customer_id: this.customer.customer.id,
+                            source: token
+                        }
+                    })
+                    .then(response => {
+                        resolve(response.data.addPropertyCustomerCreditCard)
+                    })
+                    .catch(e => {
+                        reject(e)
+                    })
+                })
+            }
+
             return new Promise((resolve, reject) => {
                 const variables = {
                     property_id: this.reservation.property_id,
@@ -125,12 +152,25 @@ export default {
 
         },
 
-        customerCreateSuccessfull(customer){
-            this.customer = customer;
-            this.creditCard = this.cards.length ? this.cards[0] : null
+        
+        tokenCallbackSuccessfull(data){
+            if(!data) return;
+            if(data.object == 'card' && this.customer){
+                this.customer.sources.data.push(data);
+                this.creditCard = data;
+            }
+            else if(data.object == 'customer'){
+                this.customer = data;
+            }
+            this.$store.commit("SNACKBAR", {
+                status: true,
+                text: "Credit card added",
+                color: "success"
+            })
+            this.addCard = false;
         },
 
-        customerCreateError(e){
+        tokenCallbackError(e){
             this.$store.commit('SNACKBAR', {
                 status: true,
                 color: 'error',
@@ -138,7 +178,7 @@ export default {
             })
         },
 
-        customerCreateAborted(){
+        tokenCallbackAborted(){
             
         }
     },

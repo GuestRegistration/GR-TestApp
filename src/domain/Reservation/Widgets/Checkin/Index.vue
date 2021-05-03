@@ -40,12 +40,9 @@
 
                 <v-stepper-content step="2">
                     <reservation-credit-card :property="property" :reservation="reservation" @credit-card="creditCardSelected" />
-                    <v-card >
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="primary" @click="step++" :disabled="!creditCardCollected">Continue</v-btn>
-                        </v-card-actions>
-                    </v-card>
+                    <div class="d-flex justify-end">
+                        <v-btn color="primary" @click="step++" :disabled="!creditCardCollected">Continue</v-btn>
+                    </div>
                 </v-stepper-content>            
 
                 <!-- Step 3 -->
