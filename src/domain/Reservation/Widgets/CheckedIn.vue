@@ -54,14 +54,16 @@
                     </v-tab-item>
 
                     <v-tab-item>
-                        <stripe-credit-card :card="checkin.checkin.credit_card" />
-                        <div class="my-5">
-                            <reservation-payments 
-                            :property="property"
-                            :reservation="checkin.reservation" 
-                            :credit-card="checkin.checkin.credit_card" 
-                            />
-                        </div>
+                        <stripe-credit-card :card="checkin.checkin.credit_card">
+                            <template #actions="attrs">
+                                    <reservation-payments 
+                                    :property="property"
+                                    :reservation="checkin.reservation" 
+                                    :credit-card="attrs.card" 
+                                    />
+                            </template>
+                        </stripe-credit-card>
+                        
                     </v-tab-item>
 
                     <v-tab-item>

@@ -6,6 +6,7 @@ export default gql`
             id
             user_id
             name
+            booking_no
             checkedin_at
             already_checkedin
             approved

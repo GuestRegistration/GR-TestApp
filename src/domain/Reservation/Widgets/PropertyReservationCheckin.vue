@@ -98,22 +98,24 @@
                 <v-tab-item>
                     <v-row justify="center"> 
                         <v-col cols="12" md="8">
-                            <stripe-credit-card :card="checkin.checkin.credit_card" />
-                            <div class="d-flex my-5">
-                                <reservation-payments 
-                                :property="property"
-                                :reservation="checkin.reservation" 
-                                :credit-card="checkin.checkin.credit_card" 
-                                :can-refund="true"
-                                />
-                                <v-spacer></v-spacer>
-                                <reservation-extra-charge 
+                            <stripe-credit-card :card="checkin.checkin.credit_card">
+                                <template #actions="attrs">
+                                    <reservation-payments 
+                                    :property="property"
                                     :reservation="checkin.reservation" 
-                                    :credit-card="checkin.checkin.credit_card"
+                                    :credit-card="attrs.credit_card" 
+                                    :can-refund="true"
+                                    />
+                                    <v-spacer></v-spacer>
+                                    <reservation-extra-charge 
+                                    :reservation="checkin.reservation" 
+                                    :credit-card="attrs.credit_card"
                                     :user="user"
                                     :property="property"
                                 />
-                            </div>
+                                </template>
+                            </stripe-credit-card>
+                           
                         </v-col>
                     </v-row>
                     

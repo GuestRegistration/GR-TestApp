@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-list dense>
+        <v-list v-if="reservation" dense>
 
             <v-list-item >
                 <v-list-item-icon>
