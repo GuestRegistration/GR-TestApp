@@ -8,7 +8,7 @@
             type="warning">
                 You need to restart your verification
             </v-alert>
-            <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+            <run-identity-verification v-if="isMine" :property="property" class="ma-1" @created="verificationCreated" :redirect="redirect">Restart verification</run-identity-verification>
         </div>
         <div v-else-if="verification">
             <p>Your ID verification at {{ property.name }}</p>
@@ -27,7 +27,7 @@
                             {{ verification.status }}
                         </v-chip>
                     </div>
-                    <run-identity-verification v-if="isMine && canRestart" :property="property" class="ma-1" @created="verificationCreated">Restart verification</run-identity-verification>
+                    <run-identity-verification v-if="isMine && canRestart" :property="property" class="ma-1" @created="verificationCreated" :redirect="redirect">Restart verification</run-identity-verification>
                     <template v-if="verification.report">
                         <v-btn class="ma-1" color="primary" @click="$refs.report.open()">View Verification</v-btn>
                         <verification-report :verification="verification" ref="report" />
@@ -44,7 +44,7 @@
             type="warning">
                 {{ property.name }} needs to verify your identity
             </v-alert>
-            <run-identity-verification :property="property" @created="verificationCreated" />
+            <run-identity-verification :property="property" @created="verificationCreated" :redirect="redirect" />
         </div>
     </data-container>
 </template>
@@ -71,7 +71,8 @@ export default {
 
     props: {
         property: Object,
-        canRestart: Boolean
+        canRestart: Boolean,
+        redirectPath: String
     },
 
     computed: {
@@ -87,7 +88,13 @@ export default {
                 return this.verification.metadata.user_id === this.$store.getters.current_user.profile.id
             } 
             return false;
+        },
+
+        redirect(){
+            return this.url(this.redirectPath);
         }
+
+
     },  
     methods: {
         ...mapActions([

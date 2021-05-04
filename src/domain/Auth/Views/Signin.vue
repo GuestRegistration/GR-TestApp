@@ -2,7 +2,7 @@
     <app-layer ref="app">
       <v-row justify="center">
         <v-col cols="12" md="4" class="mt-2">
-            <firebase-auth @authenticated="authenticated" />
+            <firebase-auth :redirect="redirectUrl" />
         </v-col>
       </v-row>
     </app-layer>
@@ -23,7 +23,7 @@
 
         computed: {
             redirect(){
-                return this.$route.query.redirect ? this.$route.query.redirect : ''
+                return this.$route.query.redirect ? this.$route.query.redirect : '/'
             },
 
             redirectUrl(){
@@ -32,7 +32,8 @@
         },
 
         methods: {
-            authenticated(){
+            authenticated(auth){
+                console.log(auth);
                 window.location.replace(this.redirectUrl)
             }
         },

@@ -16,7 +16,8 @@ export default {
     },
 
     props: {
-        property: Object
+        property: Object,
+        redirect: String,
     },
 
     methods: {
@@ -43,8 +44,8 @@ export default {
                         user_id: this.$store.getters.current_user.profile.id,
                         property_id: this.property.id
                     },
-                    return_url: this.url(this.$router.resolve({name: this.$router.currentRoute.name}).route.fullPath),
-                    refresh_url: this.url(this.$router.resolve({name:  this.$router.currentRoute.name, query: {vs_refresh: 1}}).route.fullPath)
+                    return_url: this.redirect ? this.redirect : this.url(this.$router.resolve({name: this.$router.currentRoute.name}).route.fullPath),
+                    refresh_url: this.redirect ? this.redirect+'&vs_refresh=1' : this.url(this.$router.resolve({name:  this.$router.currentRoute.name, query: {vs_refresh: 1}}).route.fullPath)
                 }
             })
             .then(response => {

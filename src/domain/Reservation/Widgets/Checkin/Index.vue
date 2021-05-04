@@ -19,7 +19,7 @@
                 <v-stepper-content step="1">
                     <v-card class="my-2" flat>
                         <v-card-text>
-                            <identity-verification :property="property" @verification="verificationDone" :can-restart="!approved" />  
+                            <identity-verification :property="property" @verification="verificationDone" :can-restart="!approved" :redirect-path="startAgainPath" />  
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -155,6 +155,7 @@ export default {
     props: {
         property: Object,
         reservation: Object,
+        startAgainPath: String
     },
     data(){
         return {

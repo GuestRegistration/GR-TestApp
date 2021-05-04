@@ -12,9 +12,10 @@ export default {
   props: {
     redirect: {
       type: String,
-      default: () => '/'
+      require: true
     },
   },
+  
   mounted(){
     var firebaseui = require('firebaseui');
 
@@ -22,8 +23,7 @@ export default {
       let uiConfig = {
         callbacks: {
           signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-            this.$emit('authenticated', authResult, redirectUrl)
-            return false;
+            return true;
           },
           signInFailure: function(error) {
             console.log(error);

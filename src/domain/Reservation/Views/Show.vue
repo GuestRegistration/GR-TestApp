@@ -26,7 +26,7 @@
                                     </div>
                                     <br>
                                     <div class="text-center">
-                                        <router-link :to="{name: 'signin', query: {redirect: $router.currentRoute.path }}">
+                                        <router-link :to="{name: 'signin', query: {redirect: returnPath }}">
                                             <v-btn color="primary">Continue</v-btn>
                                         </router-link>
                                     </div>
@@ -130,9 +130,11 @@
                                         <reservation-checkin 
                                             :property="property" 
                                             :reservation="reservation" 
+                                            :startAgainPath="returnPath"
                                             @verification="verificationAvailable"
                                             @charges-payment="chargesPayment"
                                             @checkedin="reservationCheckedin"
+                                            
                                             />
                                     </template>
                                 </template>
@@ -203,6 +205,10 @@ export default {
         },
         approved_time(){
             return this.reservation ? helper.resolveTimestamp(this.reservation.approved_at) : '';
+        },
+
+        returnPath(){
+            return this.$router.resolve({name: this.$route.name, query: {start: 1}}).route.fullPath
         }
     },
   
@@ -216,7 +222,7 @@ export default {
             this.$router.push({
                 name: 'signin',
                 query: {
-                    redirect: this.$router.currentRoute.path
+                    redirect: this.returnPath,
                 },
             })
         }
@@ -249,9 +255,8 @@ export default {
         .then(response => {
             if(response && response.data.getReservation){
                 this.reservation = response.data.getReservation;
-                // this.$refs.app.alert(`Welcome to ${this.reservation.property.name}`);
 
-                if(this.reservation.already_checkedin){
+                if(this.$route.query.start == 1){
                     this.start = true
                 }
 
