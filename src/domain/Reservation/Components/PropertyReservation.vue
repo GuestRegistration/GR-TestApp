@@ -1,5 +1,5 @@
 <template>
-    <div>
+     <router-link :to="{name: 'property.reservation.show', params: {id: reservation.id, _reservation: reservation}}" class="text-decoration-none" >
         <v-card outline>
             <v-card-text>
                 <div class="text-center">
@@ -27,14 +27,10 @@
                         <v-icon>mdi-checkbox-marked-circle</v-icon>
                     </v-avatar>
                     {{reservation.approved ? `Approved`: `Pending`}}
-                </v-chip>
-                <v-spacer></v-spacer>
-                <router-link :to="{name: 'property.reservation.show', params: {id: reservation.id, _reservation: reservation}}" >
-                    <v-btn text dark class="primary">View Reservation</v-btn>
-                </router-link>
+                </v-chip>                           
             </v-card-actions>
         </v-card>
-    </div>
+    </router-link>
 </template>
 
 <script>

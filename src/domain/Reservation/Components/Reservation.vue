@@ -1,22 +1,20 @@
 <template>
-    <div>
+    <router-link :to="{name: 'reservation.show', params:  {id: reservation.id, _reservation: reservation}}" class="text-decoration-none" >
         <v-card outline>
             <v-card-text class="text-center" >
-                <router-link :to="{name: 'reservation.show', params:  {id: reservation.id, _reservation: reservation}}" class="text-decoration-none" >
-                    <v-avatar color="primary" size="100">
-                        <v-img
-                        v-if="reservation.property.image"
-                        :src="reservation.property.image"
-                        ></v-img>
-                        <v-img v-else
-                            src="@/assets/img/default-property.jpg"
-                        ></v-img>
-                    </v-avatar>
-                    <h3>{{reservation.property.name}}</h3>
-                    <p>{{reservation.property.address}}</p>
-                    <p v-if="reservation.already_checkedin" class="success--text">Checked in {{checkin_time}}</p>
-                    <p v-else class="gray--text">Waiting for checkin</p>
-                </router-link>
+                <v-avatar color="primary" size="100">
+                    <v-img
+                    v-if="reservation.property.image"
+                    :src="reservation.property.image"
+                    ></v-img>
+                    <v-img v-else
+                        src="@/assets/img/default-property.jpg"
+                    ></v-img>
+                </v-avatar>
+                <h3>{{reservation.property.name}}</h3>
+                <p>{{reservation.property.address}}</p>
+                <p v-if="reservation.already_checkedin" class="success--text">Checked in {{checkin_time}}</p>
+                <p v-else class="gray--text">Waiting for checkin</p>
             </v-card-text>
             <v-card-actions>
                 <v-chip
@@ -31,7 +29,7 @@
                 </v-chip>
             </v-card-actions>
         </v-card>
-    </div>
+    </router-link>
 </template>
 
 <script>

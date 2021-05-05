@@ -12,7 +12,7 @@ const actions = {
                 auth_user.getIdToken()
                 .then((idToken) => {
                     window.localStorage.setItem('gr-user', idToken);
-                    window.localStorage.setItem('token-expires', helper.nowTimestamp()+3500);
+                    window.localStorage.setItem('token-expires', helper.nowTimestamp()+3600);
                     commit('SET_USER_AUTH', auth_user)
                     resolve(auth_user)
                 })

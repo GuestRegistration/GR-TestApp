@@ -5,7 +5,8 @@
                 <property-switch @change="getPropertyReservations" />
             </v-col>
         </v-row>
-        <data-container :loading="loading" >
+        <data-container :loading="loading">
+            
             <template v-slot:loading>
                 <v-row>
                     <v-col cols="12" sm="6" md="4" v-for="i in 6" :key="i">
@@ -20,6 +21,7 @@
                     <property-reservation  :_reservation="reservation" class="my-2" />
                 </v-col>
             </v-row>
+
             <div v-else class="py-5 text-center">
                 <p class="grey--text">No reservation created in {{ $store.getters.current_user.property.name }} yet</p>
             </div>

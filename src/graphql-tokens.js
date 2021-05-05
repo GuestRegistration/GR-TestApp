@@ -10,11 +10,11 @@ export default async () => {
     client : `Bearer ${config.apollo.client_key}`,
     user: `Bearer ${window.localStorage.getItem('gr-user')}`
   }
-  if(window.localStorage.getItem('gr-user') && firebase.auth.currentUser && window.localStorage.getItem('token-expires') <= helper.nowTimestamp()){
+  if(window.localStorage.getItem('gr-user') && firebase.auth.currentUser && window.localStorage.getItem('token-expires') < helper.nowTimestamp()){
     // It's over an hour now, refresh idToken;
     const newToken = await firebase.auth.currentUser.getIdToken();
     window.localStorage.setItem('gr-user', newToken);
-    window.localStorage.setItem('token-expires', helper.nowTimestamp()+3500);
+    window.localStorage.setItem('token-expires', helper.nowTimestamp()+3600);
     token.user = `Bearer ${newToken}`;
   }
   return token;
