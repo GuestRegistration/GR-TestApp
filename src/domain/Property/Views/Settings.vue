@@ -19,6 +19,7 @@
                     <v-toolbar-title>Property Settings <span v-if="property"> - {{ property.name }}</span> </v-toolbar-title>
                     </v-toolbar>
                     <v-tabs vertical v-model="currentTab" @change="tabChanged" color="primary">
+
                         <v-tab v-for="tab in tabs" :key="tab.name" :disabled="tab.disabled" class="d-flex">
                             <v-icon flex>
                                {{ tab.icon }}
@@ -85,6 +86,14 @@
                             </checkin-questions-tab>
                         </v-tab-item>
 
+                        <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
+                            <property-subscription :property="property">
+                                <template #heading>
+                                    <h4 class="ml-3"> Subscription</h4>
+                                </template>
+                            </property-subscription>
+                        </v-tab-item>
+
                     </v-tabs>
                 </v-card>
             </v-col>
@@ -101,6 +110,7 @@ import GatewayTab from '../Settings/PropertyStripeConnect.vue';
 import CheckinInstructionsTab from '../Settings/PropertyCheckinInstructionTemplates';
 import CheckinAgreementsTab from '../Settings/PropertyCheckinAgreements';
 import CheckinQuestionsTab from '../Settings/PropertyCheckinQuestions';
+import PropertySubscription from '../Settings/PropertySubscription';
 
 import GET_PROPERTY from '../Queries/getProperty';
 
@@ -108,7 +118,8 @@ export default {
     name: 'EditProperty',
     components: {
         AppLayer, DataContainer, InfoTab, ChargesTab, GatewayTab,
-        CheckinInstructionsTab, CheckinAgreementsTab, CheckinQuestionsTab
+        CheckinInstructionsTab, CheckinAgreementsTab, CheckinQuestionsTab,
+        PropertySubscription
     }, 
     data(){
         return {
@@ -163,6 +174,13 @@ export default {
                     route: {name: this.$route.name, params: {tab: 'checkin-questions'}},
                     disabled: this.property ? false : true,
                     icon: 'mdi-account-question'
+                },
+                {
+                    name: 'Subscription',
+                    alias: 'subscription',
+                    route: {name: this.$route.name, params: {tab: 'subscription'}},
+                    disabled: this.property ? false : true,
+                    icon: 'mdi-credit-card'
                 }
           ]
         },
@@ -202,9 +220,7 @@ export default {
             .catch(e => {
                 this.$refs.app.toastError({
                     message: `Could not get property.`,
-                    retry: () => {
-                        this.getProperty()
-                    },
+                    retry: () => this.getProperty(),
                     exception: e
                 });
             })
@@ -214,10 +230,7 @@ export default {
         },
 
         propertyUpdated(property){
-            this.$refs.app.alert(`${property.name} updated successfully`, 'success');
             this.property = property;
-            this.$store.commit('UPDATE_USER_PROPERTY', property)
-            // this.$router.push({name: this.$route.name, params: { ...this.$route.params, tab: 'charges' }})
         },
 
         tabChanged(tab){

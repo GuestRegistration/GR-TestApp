@@ -81,11 +81,7 @@ export default {
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.getTemplates();
-                        })
-                    },
+                    retry: () => this.getTemplates(),
                     message: 'Could not get property templates ',
                     exception: e
                 })

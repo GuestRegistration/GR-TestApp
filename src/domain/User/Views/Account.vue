@@ -161,9 +161,7 @@
                 .catch(e => {
                     this.$refs.app.toastError({
                         message: 'Failed.',
-                        retry: () => {
-                            this.createProfile()
-                        },
+                        retry: () => this.createProfile(),
                         exception: e
                     });
                 })
@@ -191,9 +189,7 @@
                 .catch(e => {
                     this.$refs.app.toastError({
                         message: 'Failed.',
-                        retry: () => {
-                            this.syncProfileWithAuth()
-                        },
+                        retry: () => this.syncProfileWithAuth(),
                         exception: e
                     });
                 })

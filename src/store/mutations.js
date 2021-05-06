@@ -45,6 +45,7 @@ const mutations = {
             name: property.name,
             image: property.image,
             address: property.full_address,
+            active: property.active
         };
        if(state.current_user.profile.properties){
             state.current_user.profile.properties.push(userProperty);
@@ -59,11 +60,12 @@ const mutations = {
             name: property.name,
             image: property.image,
             address: property.full_address,
+            active: property.active
         };
        if(state.current_user.profile.properties){
             let index = state.current_user.profile.properties.findIndex(p => p.id == property.id);
             if(index < 0) return;
-            state.current_user.profile.properties.splice(index, 1,userProperty);
+            state.current_user.profile.properties.splice(index, 1, userProperty);
        }
     },
 

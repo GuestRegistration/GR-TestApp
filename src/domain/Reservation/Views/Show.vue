@@ -75,7 +75,7 @@
                                         colored-border
                                         elevation="2"
                                         type="success">
-                                        Reservation checked in {{checkin_time}}
+                                        Reservation checked in {{reservation.checkedin_at | timestamp_to_date('day mName, year. diff')}}
                                     </v-alert>
 
                                     <v-alert
@@ -83,7 +83,7 @@
                                         colored-border
                                         elevation="2"
                                         type="success" v-if="reservation.approved">
-                                        Reservation approved {{approved_time}}
+                                        Reservation approved {{reservation.approved_at | timestamp_to_date('day mName, year. diff')}}
                                     </v-alert>
                                     <v-alert 
                                         border="top"
@@ -157,8 +157,6 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 
-import helper from '@/helper'
-
 import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
 
@@ -198,13 +196,6 @@ export default {
 
         id(){
             return this.$route.params.id
-        },
-
-        checkin_time(){
-            return this.reservation ? helper.resolveTimestamp(this.reservation.checkedin_at) : '';
-        },
-        approved_time(){
-            return this.reservation ? helper.resolveTimestamp(this.reservation.approved_at) : '';
         },
 
         returnPath(){
@@ -275,9 +266,7 @@ export default {
         .catch(e => {
             this.$refs.app.toastError({
                 message: `Could not get reservation.`,
-                retry: () => {
-                    this.getReservation()
-                },
+                retry: () => this.getReservation(),
                 exception: e
             });
         })

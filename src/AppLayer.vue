@@ -103,22 +103,18 @@
                 })
             },
 
-            retryError(){
+            async retryError(){
                 const retry = this.error.retry;
                 this.TOAST_ERROR({
                     show: true,
                     message: 'Retrying...',
                 });
-                retry().then(() => {
-                })
-                .catch(e => {
-                    console.log('error', e, e.message);
-                })
-                .finally(() => {
-                    this.TOAST_ERROR({
-                        show: false,
-                    });
-                })
+
+                await retry()
+                
+                this.TOAST_ERROR({
+                    show: false,
+                });
             },
 
             closeError(){

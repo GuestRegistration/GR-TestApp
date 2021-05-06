@@ -97,9 +97,7 @@ export default {
                 .catch(e => {
                     this.$refs.app.toastError({
                         message: `Could not complete Stripe Connect`,
-                        retry: () => {
-                            this.startConnect()
-                        },
+                        retry: () => this.startConnect(),
                         exception: e
                     });
                 })

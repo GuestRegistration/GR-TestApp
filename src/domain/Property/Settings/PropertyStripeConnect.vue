@@ -92,11 +92,7 @@ export default {
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.getPropertyStripeAuthorization();
-                        })
-                    },
+                    retry: () => this.getPropertyStripeAuthorization(),
                     message: 'Could not get property stripe authorization',
                     exception: e
                 })
@@ -134,9 +130,7 @@ export default {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
                     message: `Disconnection failed. `,
-                    retry: () => {
-                        this.disconnect()
-                    },
+                    retry: () => this.disconnect(),
                     exception: e
                 })
             })

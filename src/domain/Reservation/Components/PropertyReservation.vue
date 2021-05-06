@@ -14,7 +14,7 @@
                     </v-avatar>
                 </div>
                 <h4>Guest: {{reservation.name}}</h4>
-                <p  v-if="reservation.already_checkedin" class="success--text">checked in {{checkin_time}}</p>
+                <p  v-if="reservation.already_checkedin" class="success--text">checked in {{reservation.checkedin_at | timestamp_to_date('day mName, year. diff')}}</p>
                 <p v-else class="gray--text">waiting for checkin</p>
             </v-card-text>
             <v-card-actions>
@@ -34,8 +34,6 @@
 </template>
 
 <script>
-    import helper from '@/helper'
-
     export default {
         name: "PropertyReservation",
         data(){
@@ -45,12 +43,7 @@
         },
         props: ['_reservation'],
         computed:{
-            checkin_time(){
-                return helper.resolveTimestamp(this.reservation.checkedin_at)
-            },
-            approved_time(){
-                return helper.resolveTimestamp(this.reservation.approved_at)
-            }
+
         },
         methods:{
             

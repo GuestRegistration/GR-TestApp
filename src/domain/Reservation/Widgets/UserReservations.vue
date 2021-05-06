@@ -51,12 +51,7 @@ export default {
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve) => {
-                            this.getUserReservations()
-                            resolve();
-                        })
-                    },
+                    retry: () => this.getUserReservations(),
                     message: `Couldn't get reservations`,
                     exception: e
                 })

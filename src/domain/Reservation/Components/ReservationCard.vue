@@ -32,12 +32,6 @@
           _reservation: Object
         },
         computed:{
-            checkin_time(){
-                return helper.resolveTimestamp(this.reservation.checkedin_at)
-            },
-            approved_time(){
-                return helper.resolveTimestamp(this.reservation.approved_at)
-            }
         },
         methods:{
             

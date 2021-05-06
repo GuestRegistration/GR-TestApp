@@ -106,9 +106,7 @@ export default {
             .catch(e => {
                 this.$refs.app.toastError({
                     message: `Could not get property.`,
-                    retry: () => {
-                        this.getProperty()
-                    },
+                    retry: () => this.getProperty(),
                     exception: e
                 });
             })

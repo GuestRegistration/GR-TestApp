@@ -91,12 +91,7 @@ export default {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
                     message: `Could not get charges.`,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.getCharges();
-                            resolve();
-                        })
-                    },
+                    retry: () => this.getCharges(),
                     exception: e
                 });
             })

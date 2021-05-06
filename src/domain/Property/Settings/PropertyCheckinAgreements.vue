@@ -99,11 +99,7 @@ export default {
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.getAgreements();
-                        })
-                    },
+                    retry: () => this.getAgreements(),
                     message: 'Could not get property checkin agreements ',
                     exception: e
                 })
@@ -134,11 +130,7 @@ export default {
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.getAgreements();
-                        })
-                    },
+                    retry: () => this.updateAgreements(),
                     message: 'Could not update property checkin agreements ',
                     exception: e
                 })

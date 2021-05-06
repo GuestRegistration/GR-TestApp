@@ -282,13 +282,7 @@ export default {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
                     message: `Something went wrong while starting your checkin process.`,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.reservationCheckin();
-                            resolve()
-                        })
-                        
-                    },
+                    retry: () => this.reservationCheckin(),
                     exception: e
                 })
             })

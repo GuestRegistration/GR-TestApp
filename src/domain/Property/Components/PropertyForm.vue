@@ -153,22 +153,24 @@ export default {
             })
             .then(response => {
                 const newProperty = response.data.createProperty;
-                this.$emit('property-created', newProperty);
+                this.$store.commit("SNACKBAR", {
+                    status: true,
+                    text: `${newProperty.name} created successfully`,
+                    color: "success"
+                })
                 this.SET_ACTIVE_PROPERTY({
                     id: newProperty.id,
                     name: newProperty.name,
                     image: newProperty.image,
-                    address: newProperty.full_address
+                    address: newProperty.full_address,
+                    active: newProperty.active
                 })
+                this.$emit('property-created', newProperty);
             })
             .catch(e => {
                 this.TOAST_ERROR({
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.createProperty();
-                        })
-                    },
+                    retry: () => this.createProperty(),
                     message: 'Could not create property. ',
                     exception: e
                 });
@@ -188,7 +190,15 @@ export default {
                 mutation: UPDATE_PROPERTY
             })
             .then(response => {
-                this.$emit('property-updated', response.data.updateProperty);
+                const updatedProperty = response.data.updateProperty
+                this.$store.commit('UPDATE_USER_PROPERTY',updatedProperty);
+                this.$store.commit("SNACKBAR", {
+                    status: true,
+                    text: `${updatedProperty.name} updated successfully`,
+                    color: "success"
+                })
+
+                this.$emit('property-updated', updatedProperty);
             })
             .catch(e => {
                 this.$emit('error', e);

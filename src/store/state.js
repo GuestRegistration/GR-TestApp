@@ -12,7 +12,7 @@ const state = {
     error: {
         show: false,
         message: '',
-        retry: null,
+        retry: () => Promise.resolve(),
         exception: null
     },
     snackbar: {

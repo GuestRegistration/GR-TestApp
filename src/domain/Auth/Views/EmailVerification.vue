@@ -147,9 +147,7 @@
                 .catch(e => {
                     this.$refs.app.toastError({
                         message: 'Failed.',
-                        retry: () => {
-                            this.syncEmailWithProfile()
-                        },
+                        retry: () => this.syncEmailWithProfile(),
                         exception: e
                     });
                 })

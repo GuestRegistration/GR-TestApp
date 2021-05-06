@@ -112,11 +112,7 @@ export default {
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.getPropertyCharges();
-                        })
-                    },
+                    retry: () =>  this.getPropertyCharges(),
                     message: 'Could not get property charges ',
                     exception: e
                 })

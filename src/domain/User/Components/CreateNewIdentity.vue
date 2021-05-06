@@ -195,12 +195,7 @@ export default {
                         this.TOAST_ERROR({
                             show: true,
                             message: `There was error uploading the file`,
-                            retry: () => {
-                                return new Promise((resolve, reject) => {
-                                    this.uploadIdentity(file);
-                                    resolve();
-                                })
-                            }
+                            retry: () =>  this.uploadIdentity(file)
                         });
                         this.document.uploading = false;
                     }, () => {
@@ -236,12 +231,7 @@ export default {
                         this.TOAST_ERROR({
                             show: true,
                             message: `ID not saved`,
-                            retry: () => {
-                                return new Promise((resolve, reject) => {
-                                    this.saveID();
-                                    resolve();
-                                })
-                            },
+                            retry: () => this.saveID(),
                             exception: e,
                         });
                     })

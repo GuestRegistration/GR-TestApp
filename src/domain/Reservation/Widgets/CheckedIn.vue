@@ -211,9 +211,7 @@
                     this.$store.commit("TOAST_ERROR", {
                         show: true,
                         message: `Could not get reservation checkin information.`,
-                        retry: () => {
-                            this.getReservationCheckin()
-                        },
+                        retry: () => this.getReservationCheckin(),
                         exception: e
                     });
                 })

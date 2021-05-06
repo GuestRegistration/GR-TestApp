@@ -162,12 +162,7 @@ export default {
               this.TOAST_ERROR({
                   show: true,
                   message: 'Authentication error.',
-                  retry: () => {
-                    return new Promise((resolve, reject) => {
-                        this.setUser();
-                        resolve();
-                    })
-                  },
+                  retry: () => this.setUser(),
                   exception: e
               });
           })

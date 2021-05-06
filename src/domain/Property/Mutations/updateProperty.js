@@ -52,7 +52,16 @@ export default gql`
                 city
                 country
                 postal_code
-            }        
+            } 
+            stripe_connected
+            subscription {
+                status
+                trial_start
+                trial_end
+                current_period_start
+                current_period_end
+            }
+            active       
         }
 
     }

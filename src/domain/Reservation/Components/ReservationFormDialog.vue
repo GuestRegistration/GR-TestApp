@@ -282,11 +282,7 @@ export default {
             .catch(e => {
                 this.TOAST_ERROR({
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.createReservation();
-                        })
-                    },
+                    retry: () => this.createReservation(),
                     message: 'Could not create reservation. ',
                     exception: e
                 });
@@ -314,11 +310,7 @@ export default {
             .catch(e => {
                 this.TOAST_ERROR({
                      show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.updateReservation();
-                        })
-                    },
+                    retry: () => this.updateReservation(),
                     message: 'Could not  update reservation. ',
                     exception: e
                  }) 

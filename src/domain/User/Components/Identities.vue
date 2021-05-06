@@ -80,12 +80,7 @@ export default {
                 this.TOAST_ERROR({
                     show: true,
                     message: `Could not get your Ids.`,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.getMyIdentities();
-                            resolve();
-                        })
-                    },
+                    retry: () => this.getMyIdentities(),
                     exception: e
                 })
             })

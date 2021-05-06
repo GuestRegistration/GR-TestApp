@@ -23,6 +23,8 @@ export default gql`
                 name
                 image
                 address
+                active
+                subscription_status
             }
             reservations{
                 id

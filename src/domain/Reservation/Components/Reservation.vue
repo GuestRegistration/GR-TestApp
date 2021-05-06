@@ -13,7 +13,7 @@
                 </v-avatar>
                 <h3>{{reservation.property.name}}</h3>
                 <p>{{reservation.property.address}}</p>
-                <p v-if="reservation.already_checkedin" class="success--text">Checked in {{checkin_time}}</p>
+                <p v-if="reservation.already_checkedin" class="success--text">Checked in {{reservation.checkedin_at | timestamp_to_date('day mName, year. diff')}}</p>
                 <p v-else class="gray--text">Waiting for checkin</p>
             </v-card-text>
             <v-card-actions>
@@ -43,12 +43,7 @@
         },
         props: ['_reservation'],
         computed:{
-            checkin_time(){
-                return helper.resolveTimestamp(this.reservation.checkedin_at)
-            },
-            approved_time(){
-                return helper.resolveTimestamp(this.reservation.approved_at)
-            }
+
         },
         methods:{
             

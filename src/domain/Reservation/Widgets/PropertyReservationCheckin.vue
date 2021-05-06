@@ -340,9 +340,7 @@ export default {
             .catch(e => {
                 this.$refs.app.toastError({
                     message: `Could not get reservation checkin information.`,
-                    retry: () => {
-                        this.getReservationCheckin()
-                    },
+                    retry: () => this.getReservationCheckin(),
                     exception: e
                 });
             })
@@ -370,11 +368,7 @@ export default {
             .catch(e => {
                this.TOAST_ERROR({
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            this.approveCheckin();
-                        })
-                    },
+                    retry: () => this.approveCheckin(),
                     message: 'Could not approve reservation checkin. ',
                     exception: e
                 });
