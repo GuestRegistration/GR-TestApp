@@ -28,7 +28,7 @@
                         </v-tab>
 
                         <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
-                            <data-container :loading="loading">
+                            <data-container v-if="property" :loading="loading">
                                 <template v-slot:loading>
                                     <div  v-for="i in 4" :key="i">
                                         <v-skeleton-loader
@@ -137,21 +137,21 @@ export default {
                     name: 'Info',
                     alias: 'info',
                     route: {name: this.$route.name, params: {tab: 'info'}},
-                    disabled: false,
+                    disabled: this.property ? false : true,
                     icon: 'mdi-domain'
                 },
                 {
                     name: 'Gateway',
                     alias: 'gateway',
                     route: {name: this.$route.name, params: {tab: 'gateway'}},
-                    disabled: false,
+                    disabled: this.property ? false : true,
                     icon: 'mdi-connection'
                 },
                 {
                     name: 'Charges',
                     alias: 'charges',
                     route: {name: this.$route.name, params: {tab: 'charges'}},
-                    disabled: this.property && this.property.stripe_connected ? false : true,
+                    disabled: this.property ? false : true,
                     icon: 'mdi-credit-card'
                 },
                 {

@@ -1,7 +1,12 @@
 <template>
     <div>
         <slot name="heading" />
-        <data-container :loading="loading">
+
+        <property-subscription-alert :property="property" >
+            Activate subscription for {{ property.name }} to manage reservation checkin instructions
+        </property-subscription-alert>
+
+        <data-container v-if="property && property.active" :loading="loading">            
             <template v-slot:loading>
                 <div  v-for="i in 4" :key="i">
                     <v-skeleton-loader
@@ -39,6 +44,7 @@
 </template>
 <script>
 import DataContainer from '../../../components/DataContainer.vue';
+import PropertySubscriptionAlert from '../Components/PropertySubscriptionAlert'
 import PropertyCheckinInstructionTemplateForm from '../Components/PropertyCheckinInstructionTemplateForm';
 import PropertyCheckinInstructionTemplate from '../Components/PropertyCheckinInstructionTemplate';
 
@@ -48,6 +54,7 @@ export default {
     name: "PropertyCheckinInstructionTemplates",
     components: {
         DataContainer,
+        PropertySubscriptionAlert,
         PropertyCheckinInstructionTemplate,
         PropertyCheckinInstructionTemplateForm,
     },
@@ -101,8 +108,8 @@ export default {
         property: {
             immediate: true,
             handler(property){
-                if(property) this.getTemplates()
-                else this.loading = true;
+                if(property && property.active) this.getTemplates()
+                else this.loading = false;
             }
         }
     }

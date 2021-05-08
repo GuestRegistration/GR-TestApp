@@ -17,6 +17,8 @@
                     cols="12" sm="6" md="4" >
                         <property-card :_property="property">
                             <template #action>
+                                <v-icon v-if="property.active" color="success" class="mx-2" title="Subscription active">mdi-check-circle</v-icon>
+                                <v-icon v-else color="error"  class="mx-2" title="Subscription not active">mdi-close-circle</v-icon>
                                 <router-link :to="{name: 'property.settings', params: {id: property.id}}" class="text-decoration-none">
                                     <v-btn icon><v-icon>mdi-cog</v-icon></v-btn>
                                 </router-link >

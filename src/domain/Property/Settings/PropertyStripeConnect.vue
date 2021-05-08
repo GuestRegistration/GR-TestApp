@@ -1,7 +1,12 @@
 <template>
     <div>
     <slot name="heading" />
-    <data-container :loading="loading">
+     <property-subscription-alert :property="property">
+        Activate subscription for {{ property.name }} to connect Stripe
+    </property-subscription-alert>
+    
+
+    <data-container v-if="property && property.active" :loading="loading">
             <template v-slot:loading>
                 <v-skeleton-loader
                     type="card"
@@ -49,13 +54,15 @@
 <script>
 import config from '../../../config';
 import DataContainer from '../../../components/DataContainer.vue';
+import PropertySubscriptionAlert from '../Components/PropertySubscriptionAlert'
+
 import GET_PROPERTY_STRIPE_AUTH from '../Queries/getPropertyStripeAuthorization';
 import UNSET_PROPERTY_STRIPE_AUTHORIZATION from '../Mutations/unsetPropertyStripeAuthorization';
 
 export default {
     name: "PropertyStripeConnect",
     components: {
-        DataContainer
+        DataContainer, PropertySubscriptionAlert
     },
     props: {
         property: Object,
@@ -144,8 +151,8 @@ export default {
         property: {
             immediate: true,
             handler(property){
-                if(property) this.getPropertyStripeAuthorization()
-                else this.loading = true;
+                if(property && property.active && property.stripe_connected) this.getPropertyStripeAuthorization()
+                else this.loading = false;
             }
         }
     }

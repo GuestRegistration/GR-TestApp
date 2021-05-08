@@ -38,10 +38,8 @@ export default {
     
     methods:{
         propertyCreated(property){
-            this.$refs.app.alert(`New property ${property.name} created successfully`, 'success');
             this.property = property;
-            this.$store.commit('ADD_USER_PROPERTY', property)
-            this.$router.push({name: 'property.edit', params: {id: this.property.id, tab: 'gateway', new: true }})
+            this.$router.push({name: 'property.settings', params: {id: this.property.id, tab: 'subscription', new: true }})
         }
     },
 }

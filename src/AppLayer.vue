@@ -4,19 +4,19 @@
         :timeout="-1" 
         color="red" 
         bottom>
-        <div class="d-flex align-center flex-wrap">
-            <div>
+        <v-row align="center">
+            <v-col class="grow">
                 {{error.message}} {{error.exception ? error.exception.message.replace('GraphQL error:', '').trim() : ''}}
-            </div>
-            <div class="ml-auto">
+            </v-col>
+            <v-col class="shrink">
                 <v-btn  dark text @click="retryError" v-if="error.retry">
                     Retry
                 </v-btn>
                 <v-btn  dark text @click="closeError">
                     Close
                 </v-btn>
-            </div>
-        </div>
+            </v-col>
+            </v-row>
         </v-snackbar>
 
         <v-snackbar v-model="snackbar.status" 
@@ -85,19 +85,15 @@
 
             closeAlert(){
                 this.SNACKBAR({
-                    status: false
+                    status: false,
+                    color: this.$store.getters.snackbar.color
                 })
             },
 
             toastError({message, retry, exception}){
                 this.TOAST_ERROR({
                     show: true,
-                    retry: () => {
-                        return new Promise((resolve, reject) => {
-                            retry();
-                            resolve();
-                        })
-                    },
+                    retry,
                     message,
                     exception
                 })
@@ -114,12 +110,14 @@
                 
                 this.TOAST_ERROR({
                     show: false,
+                    color: "error"
                 });
             },
 
             closeError(){
                 this.TOAST_ERROR({
                     show: false,
+                    color: "error"
                 });
             },
         },

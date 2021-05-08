@@ -1,7 +1,7 @@
 <template>
     <div>
         <slot name="heading" />
-        <data-container :loading="loading">
+        <data-container v-if="property" :loading="loading">
                 <template v-slot:loading>
                     <v-skeleton-loader
                         type="card"
@@ -326,7 +326,6 @@ export default {
                     text: "Subscription cancelled",
                     color: "success"
                 })
-
             })
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
@@ -371,7 +370,7 @@ export default {
 
         tokenCallbackSuccessfull(data){
             this.customer = data;
-            this.creditCard = this.cards.find(card => card.id == data.customer.default_source);
+            this.creditCard = this.cards[0];
             this.createSubscription();
         },
 
@@ -395,6 +394,16 @@ export default {
             handler(property){
                 if(property) this.getSubscription();
                 else this.loading = true;
+            }
+        },
+        subscription: {
+            immediate: true,
+            handler(subscription){
+                if(subscription){
+                    this.$store.commit('UPDATE_USER_PROPERTY', {
+                        ...this.property, active: subscription.status == 'active' || subscription.status == 'trialing'
+                    });
+                }
             }
         }
     }

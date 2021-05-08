@@ -22,7 +22,7 @@
                         v-model="form.email"
                     ></v-text-field>
 
-                    <phone-number v-model="phone" />
+                    <phone-number class="mb-3" v-model="phone" />
 
                     <v-row>
                         <v-col cols="12">
@@ -38,6 +38,8 @@
                                 cache-items
                                 class="mb-5"
                                 v-model="form.full_address"
+                                :rules="[rules.required]"
+                                hint="Property address"
                                 ></component>
                         
                             
@@ -57,6 +59,7 @@
                         :rules="[rules.required, rules.url]"
                         type="text"
                         v-model="form.terms"
+                        hint="URL to property terms and condition"
                     ></v-text-field>
                 </v-card-text>
                 <v-card-actions>
@@ -94,11 +97,15 @@ export default {
                 international: '',
                 significant: '',
             },
-            useGoogleLocation: false,
         }
     },
     props: {
         property: Object
+    },
+    computed: {
+        useGoogleLocation(){
+            return process.env.VUE_APP_GOOGLE_API_KEY && process.env.VUE_APP_GOOGLE_API_KEY !== '' ? true : false;
+        }
     },
 
     methods: {
@@ -158,6 +165,7 @@ export default {
                     text: `${newProperty.name} created successfully`,
                     color: "success"
                 })
+                this.$store.commit('ADD_USER_PROPERTY', newProperty)
                 this.SET_ACTIVE_PROPERTY({
                     id: newProperty.id,
                     name: newProperty.name,
@@ -191,7 +199,7 @@ export default {
             })
             .then(response => {
                 const updatedProperty = response.data.updateProperty
-                this.$store.commit('UPDATE_USER_PROPERTY',updatedProperty);
+                this.$store.commit('UPDATE_USER_PROPERTY', updatedProperty);
                 this.$store.commit("SNACKBAR", {
                     status: true,
                     text: `${updatedProperty.name} updated successfully`,
