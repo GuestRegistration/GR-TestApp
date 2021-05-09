@@ -6,11 +6,11 @@ import UserNotifications from './Views/Notifications';
 
 export default [
     {
-        path: '/account',
+        path: '/account/:tab?',
         name: 'account',
         component: UserAccount,
         beforeEnter: multiguard([middleware.auth])
-      },
+    },
     {
         path: '/notifications/:notification?',
         name: 'notification.list',

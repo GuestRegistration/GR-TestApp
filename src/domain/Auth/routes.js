@@ -16,6 +16,6 @@ export default [
         path: '/email-connect',
         name: 'email.verification',
         component: EmailVerification,
-        beforeEnter: multiguard([middleware.guest])
+        // beforeEnter: multiguard([middleware.guest])
     },
 ];

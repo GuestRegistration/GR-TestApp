@@ -4,7 +4,7 @@ const mutations = {
         state.app_ready = ready
     },
 
-    SET_APP_PROCESS(state, process){
+    SET_APP_PROCESS: (state, process) => {
         state.app_process = process
     },
 

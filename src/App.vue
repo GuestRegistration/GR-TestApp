@@ -18,6 +18,7 @@
     <v-main v-if="app_ready">
           <router-view></router-view>
     </v-main>
+    
     <v-main v-else>
       <div  class="d-flex justify-center align-center">
           <div class="text-center" style="margin-top: 200px">

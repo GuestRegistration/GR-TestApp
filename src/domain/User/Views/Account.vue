@@ -1,203 +1,102 @@
 <template>
     <app-layer ref="app" >
-        <template >
-            <v-container>
-                <v-row justify="center">
+        <v-row justify="center">
+            <v-col cols="12" md="8">
+                <v-card flat>
+                    <v-toolbar
+                    flat
+                    >
+                    <v-app-bar-nav-icon class="d-sm-none" @click="expandTab = !expandTab"></v-app-bar-nav-icon>
+                    <v-toolbar-title>User Account</v-toolbar-title>
+                    </v-toolbar>
+                    <v-tabs vertical v-model="currentTab" @change="tabChanged" color="primary">
 
-                    <!-- Profile -->
-                    <v-col cols="12" md="6" id="profile">
-                        <v-card outlined>
-                            <v-card-title >
-                                {{!update ? 'Create your profile' : 'Update profile'}}
-                            </v-card-title>
-                            <v-card-text>
-                                <p v-if="!update">Secure your activity and validate your account</p>
-                                <div class="my-5">
-                                    <v-form ref="profile">
-                                        <div class="my-3">
-                                            <v-text-field outlined v-model="profile.first_name" label="First name" :rules="[rules.required]" hide-details="auto"></v-text-field>
-                                        </div>
-                                            <div class="my-3">  
-                                            <v-text-field outlined v-model="profile.last_name" label="Last name" :rules="[rules.required]" hide-details="auto"></v-text-field>
-                                        </div>                                        
-                                        <div class="my-5">
-                                            <v-btn
-                                                text
-                                                dark color="accent-4"
-                                                class="primary"
-                                                @click="submit"
-                                                id="sign-in-button"
-                                                :loading="loading"
-                                            >
-                                                Save
-                                            </v-btn>
-                                        </div>
-                                    </v-form>
-                                </div>
-                            </v-card-text>
-                        </v-card>
-                        <div class="mt-5" v-if="!update">
-                            <p class="grey--text">By creating an account, you agree to our <a href="#">Terms of service</a> and <a href="#">Privacy policy</a></p>
-                        </div>
-                    </v-col>
+                        <v-tab v-for="tab in tabs" :key="tab.name" :disabled="tab.disabled" class="d-flex">
+                            <v-icon flex>
+                                {{ tab.icon }}
+                            </v-icon>
+                            <span :class="{'d-none d-sm-block': !expandTab}">{{ tab.name }} </span>
+                        </v-tab>
 
-                    <!-- credentials -->
-                    <v-col cols="12" md="6" id="credentials">
-                        <v-card outlined class="mt-2 mt-md-0">
-                            <v-card-title>
-                                Credentials
-                            </v-card-title>
-                            <v-card-text>
-                                <account-connects @report="accountConnectReport" @auth-updated="syncAuthWithProfile" @notification="sendAccountPushNotification" />
-                            </v-card-text>
-                        </v-card>
-                    </v-col>
+                        <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">                                
+                            <user-profile ref="userProfile" />
+                        </v-tab-item>
 
-                </v-row>
-                
-            </v-container>
-        </template>
+                        <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">                                
+                            <account-connects @report="accountReport" @auth-updated="(credentials) => syncAuthWithProfile(credentials)" @notification="sendAccountPushNotification" />
+                        </v-tab-item>
+
+                    </v-tabs>
+                </v-card>
+            </v-col>
+        </v-row>
     </app-layer>
 </template>
 
 <script>
-    import { mapMutations, mapGetters, mapActions } from 'vuex'
-
-    import formvalidation from '@/helper/formValidation'
     import AppLayer from '@/AppLayer';
+    import UserProfile from '../Settings/Profile';
     import AccountConnects from '../../Auth/Components/AccountConnects';
-    // import Identities from '../Components/Identities';
-    import UPDATE_USER from '../Mutations/updateUser';
-    import CREATE_USER from '../Mutations/createUser';
     
     import PUSH_NOTIFICATION from '@/graphql/mutation/pushNotification'
+    import profile from '../Mixins/profile';
 
     export default {
         name: "UserAccount",
+        mixins: [profile],
         components: {
-            AppLayer, AccountConnects,
-            //Identities,
+            AppLayer, UserProfile, AccountConnects,
         },
         data(){
             return {
-                loading: false,
-                rules: formvalidation.rules,
-                profile: {
-                        id: null,
-                        phone: null,
-                        phone_country_code: null,
-                        phone_number: null,
-                        email: null,
-                        first_name: null,
-                        last_name: null,
-                    }
+                expandTab: false,
             }
         },
         computed: {
-            ...mapGetters([
-                'app_ready',
-                'current_user',
-                'authenticated',
-                'profile_loaded',
-            ]),
-            update(){
-                return Object.keys(this.current_user.profile).length  ? true : false
+            tabs(){
+                return [
+                    {
+                        name: 'Profile',
+                        alias: 'profile',
+                        route: {name: this.$route.name, params: {tab: 'profile'}},
+                        disabled: false,
+                        icon: 'mdi-account'
+                    },
+                    {
+                        name: 'Authentication',
+                        alias: 'authentication',
+                        route: {name: this.$route.name, params: {tab: 'authentication'}},
+                        disabled: false,
+                        icon: 'mdi-shield-account'
+                    },
+                ]
             },
+
+            tab:{
+                get: function() {
+                    return this.$route.params.tab ?  this.$route.params.tab  : 'profile';
+                },
+                set: function(tab){}
+            },
+
+            currentTab: {
+                get: function(){
+                    return this.tabs.findIndex(t => t.alias == this.tab)
+                },
+                set: function(tab){}
+            },
+
         },
 
         methods: {
-             ...mapMutations([
-                'SET_USER_PROFILE'
-            ]),
-            ...mapActions([
-                'query',
-                'mutate',
-            ]),
-        
-            setProfile(){
-                if(this.update){
-                    this.profile = {
-                        id: this.current_user.auth.uid,
-                        phone: this.current_user.profile.phone || null,
-                        phone_country_code: (this.current_user.profile.phone_meta ? this.current_user.profile.phone_meta.country_code : null) || null,
-                        phone_number: (this.current_user.profile.phone_meta ? this.current_user.profile.phone_meta.phone_number : null) || null,
-                        email: this.current_user.profile.email || null,
-                        first_name: this.current_user.profile.name.first_name,
-                        last_name: this.current_user.profile.name.last_name,
-                    }
-                }
-                else{
-                    this.profile.id = this.current_user.auth.uid;
-                }
+            accountReport(report){
+                this.$store.commit("SNACKBAR", {
+                    status: true,
+                    text: report.message,
+                    color: report.type
+                })
             },
             
-            submit(){
-                 if(this.$refs.profile.validate()){
-                     this.createProfile();
-                 }
-            },
-
-            createProfile(){
-                if(this.newPhone && !this.newPhone.valid){
-                    this.$refs.app.alert('Invalid phone number', 'red');
-                    return;
-                }
-                this.loading = true;
-                this.mutate({
-                    variables: this.profile,
-                    mutation: this.update ? UPDATE_USER : CREATE_USER,
-                })
-                .then(response  => {
-                    this.SET_USER_PROFILE(this.update ? response.data.updateUser : response.data.createUser);
-                    this.setProfile();
-                    this.$refs.app.alert('Profile updated', 'success');
-
-                    if(this.$route.query.redirect){
-                        this.$router.push({
-                            path: this.$route.query.redirect
-                        })
-                    }
-                })
-                .catch(e => {
-                    this.$refs.app.toastError({
-                        message: 'Failed.',
-                        retry: () => this.createProfile(),
-                        exception: e
-                    });
-                })
-                .finally(() => {
-                    this.loading = false;
-                });
-            },
-
-            accountConnectReport({message, type}){
-                this.$refs.app.alert(message, type);
-            },
-
-            syncAuthWithProfile(credentials){
-                let profile = { ...this.profile, ...credentials};
-                this.$refs.app.setState(false, 'Syncing with your profile...');
-                this.mutate({
-                    variables: profile,
-                    mutation: UPDATE_USER,
-                })
-                .then(response  => {
-                    this.SET_USER_PROFILE(response.data.updateUser);
-                    this.setProfile();
-                    this.$refs.app.alert('Profile synced', 'success');
-                })
-                .catch(e => {
-                    this.$refs.app.toastError({
-                        message: 'Failed.',
-                        retry: () => this.syncProfileWithAuth(),
-                        exception: e
-                    });
-                })
-                .finally(() => {
-                    this.$refs.app.setState(true);
-                });
-            },
-
             sendAccountPushNotification(payload){
                 this.mutate({
                     variables: {
@@ -212,13 +111,15 @@
                 .catch(e => {
                     //console.log(e);
                 })
+            },
+
+            tabChanged(tab){
+                if(!this.tabs[tab].route) return;
+                this.expandTab = false;
+                this.$router.push(this.tabs[tab].route)
             }
+
         },
-
-        mounted(){
-            this.setProfile()
-        }
-
     }
 </script>
 

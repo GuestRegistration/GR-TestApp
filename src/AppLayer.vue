@@ -38,7 +38,7 @@
         <div class="ma-3">
             <slot name="header" />
         </div>
-        <div  v-if="isset" class="px-2">
+        <div class="px-1 px-sm-2">
             <slot/>
         </div>
         
@@ -46,13 +46,12 @@
 </template>
 
 <script>
-    import {mapActions, mapMutations, mapGetters} from 'vuex';
+    import {mapMutations, mapGetters} from 'vuex';
 
     export default {
         name: "AppLayer",
         data(){
             return {
-                isset: true,
             }
         },
         computed:{
@@ -67,12 +66,13 @@
         methods: {
             ...mapMutations([
                 'TOAST_ERROR',
+                'SET_APP_STATE',
                 'SET_APP_PROCESS',
                 'SNACKBAR'
             ]),
 
             setState(ready, process = ''){
-                this.isset = ready;
+                this.SET_APP_STATE(ready);
                 this.SET_APP_PROCESS(process);
             },
 

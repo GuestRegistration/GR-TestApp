@@ -1,12 +1,12 @@
 <template>
     <div>
-        <div class="my-2">
+        <div v-if="current_user.auth" class="my-2">
             <v-row align="center">
                 <v-col cols="12" sm="3">
                     Email:
                 </v-col>
                 <v-col cols="12" sm="9">
-                    <email-connect v-on="$listeners" :provider="emailProvider" />
+                    <email-connect v-on="$listeners" :key="version" @update="version++" />
                 </v-col>
             </v-row>
             <v-divider></v-divider>
@@ -15,7 +15,7 @@
                     Phone:
                 </v-col>
                 <v-col cols="12" sm="9">
-                    <phone-connect v-on="$listeners" :provider="phoneProvider" />
+                    <phone-connect v-on="$listeners" :key="version" @update="version++"  />
                 </v-col>
             </v-row>
             <v-divider></v-divider>
@@ -23,18 +23,15 @@
                 <v-col cols="12" sm="3">
                     Google:
                 </v-col>
-                <v-col cols="12" sm="9">
-                    <google-connect  v-on="$listeners" :provider="googleProvider" />
+                <v-col cols="12" sm="9"> 
+                    <google-connect  v-on="$listeners" :key="version" @update="version++" />
                 </v-col>
             </v-row>
-            
         </div>
-        
     </div>
 </template>
 <script>
 import {mapGetters} from 'vuex';
-import firebase from '@/firebase';
 import GoogleConnect from './GoogleConnect';
 import PhoneConnect from './PhoneConnect';
 import EmailConnect from './EmailConnect';
@@ -48,7 +45,7 @@ export default {
     },
     data(){
         return {
-           
+           version: 0,
         }
     },
     computed: {
