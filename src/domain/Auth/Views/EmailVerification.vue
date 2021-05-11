@@ -6,10 +6,10 @@
                 :loading="loading"
                 v-if="requestEmail"
                 >
+                    <v-card-title>
+                        <h1 class="headline">Confirm your new email</h1>
+                    </v-card-title>
                     <v-card-text>
-                        <div class="text-center">
-                            <p>Confirm your email</p>
-                        </div>
                         <div class="my-5">
                             <v-form ref="emailVerification" >
                                 <v-text-field outlined v-model="email" label="Email" :rules="[rules.required, rules.email]" hide-details="auto"></v-text-field>
@@ -39,8 +39,9 @@
     import validation from '@/helper/formValidation';
     import firebase from '@/firebase';
     import AppLayer from '@/AppLayer';
-    import UPDATE_USER from '../../User/Mutations/updateUser'
+
     import profile from '../../User/Mixins/profile';
+    import { mapActions, mapGetters } from 'vuex';
 
     export default {
         name: "EmailVerification",
@@ -59,6 +60,10 @@
         },
         computed:{
 
+            ...mapGetters([
+                'current_user'
+            ]),
+
             googleProvider(){
                 if(!this.current_user.auth.providerData) return null;
                 return this.current_user.auth.providerData.find(provider => provider.providerId == 'google.com');
@@ -74,18 +79,36 @@
             }
         },
         methods: {
-            verify(){
-                this.loading = true;
+            ...mapActions([
+                'query',
+                'mutate'
+            ]),
 
-                const credential = firebase.firebase.auth.EmailAuthProvider.credentialWithLink(this.email, window.location.href);
-                firebase.auth.currentUser.linkWithCredential(credential)
-                .then(credential => {
-                    if(this.googleProvider){
-                        return  firebase.auth.currentUser.unlink(this.googleProvider.providerId)
-                    }
-                    return Promise.resolve();
-                })
+            verify(){
+                
+
+                if(!this.current_user.profile || this.current_user.profile.email_confirmation != this.email)
+                {
+                    this.$store.commit("SNACKBAR", {
+                        status: true,
+                        text: `Email address does not match pending confirmation email`,
+                        color: 'error'
+                    })
+
+                    this.requestEmail = true;
+
+                    return;
+                }
+
+                this.loading = true;
+               Promise.all([this.unlinkOldEmail(), this.unlinkGoogle()])
                 .then(() => {
+                    const credential = firebase.firebase.auth.EmailAuthProvider.credentialWithLink(this.email, window.location.href);
+                    return firebase.auth.currentUser.linkWithCredential(credential)
+                })
+                .then(() =>  firebase.auth.currentUser.reload() )
+                .then(() => {
+                    window.localStorage.removeItem('emailForConnect')
                     this.$store.commit("SNACKBAR", {
                         status: true,
                         text: `Email address connected successfully`,
@@ -110,6 +133,16 @@
                     this.loading = false;
                 })
             },
+
+            unlinkOldEmail(){
+                if(this.emailProvider) return firebase.auth.currentUser.unlink(this.emailProvider.providerId);
+                else return Promise.resolve();
+            }, 
+
+            unlinkGoogle(){
+                if(this.googleProvider) return  firebase.auth.currentUser.unlink(this.googleProvider.providerId)
+                else return Promise.resolve();
+            },
            
             verifyEmail(){
                 if(this.$refs.EmailVerification.validate()){
@@ -127,10 +160,17 @@
 
                     if(!firebase.auth.currentUser)
                     {
+
                         this.$router.push({
                             name: 'signin',
                             query: {
                                 redirect: this.returnPath
+                            },
+                            params: {
+                                alert: {
+                                    type: 'info',
+                                    text: 'You need to signin first with your old credentials to continue your Email verification'
+                                }
                             }
                         })
                         return;

@@ -18,12 +18,13 @@
     </div>
 </template>
 <script>
-import { mapGetters } from 'vuex';
-import firebase from '@/firebase';
+import { mapActions, mapGetters } from 'vuex';
+import firebase from '../../../firebase';
+import profile from '../../User/Mixins/profile'
 
 export default {
     name: "GoogleConnect",
-
+    mixins: [profile],
     props: {
 
     },
@@ -48,38 +49,56 @@ export default {
         },
     },
     methods: {
-        connect(){
-            let provider = new firebase.firebase.auth.GoogleAuthProvider();
-            firebase.auth.currentUser.linkWithPopup(provider)
-            .then( (result) =>{
-               this.$emit('report', {
-                    message: 'Google account connected successfully',
-                    type: 'success'
-                })
+        ...mapActions(['signout']),
 
-                this.$emit('auth-updated', {
-                    email: result.user.email
-                })
+        async connect(){
+            try {
+
+                const provider = new firebase.firebase.auth.GoogleAuthProvider();
+                const google = await firebase.auth.currentUser.linkWithPopup(provider);
+                const newGoogleProvider = google.user.providerData.find(provider => provider.providerId == 'google.com');
+
+                if(newGoogleProvider){
+                    this.syncAuthWithProfile({
+                        email: newGoogleProvider.email
+                    })
+                }
 
                 this.$emit('notification', {
                     title: "Account update", 
-                    body: `Google account ${this.googleProvider.email} has been added to your account. You can now sign in with it.`,
-                    icon: this.googleProvider.photoURL
+                    body: `Google account ${newGoogleProvider.email} has been added to your account. You can now sign in with it.`,
+                    icon: newGoogleProvider.photoURL
                 })
 
-                // unlink email if available since user will be able to use google account email
-                return this.emailProvider ? firebase.auth.currentUser.unlink(this.emailProvider.providerId) : Promise.resolve()
-            })
-            .then(() => firebase.auth.currentUser.reload() )
-            .catch(e => {
+                if(this.emailProvider){
+                    await  firebase.auth.currentUser.unlink(this.emailProvider.providerId);
+                }
+
+                await this.signout();
+
+                this.$router.push({
+                    name: 'signin',
+                    query: {
+                        redirect: this.$router.resolve({name: this.$route.name}).route.fullPath,
+                        providers: 'google'
+                    },
+                    params: {
+                        alert: {
+                            type: 'success',
+                            text: 'Google account connected successfully. You need to sign in again with your new connected Google account'
+                        }
+                    }
+                })
+
+            } catch (error) {
                 this.$emit('report', {
-                    message: `Failed: ${e.message}`,
+                    message: `Failed: ${error.message}`,
                     type: 'error'
                 })
-            })
-            .finally(() => {
+            }
+            finally{
                 this.$emit('update')
-            })
+            }
         },
 
         // disconnect(){

@@ -1,11 +1,10 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    query getUserByID($id: ID!){
-        getUserByID(id: $id){
+    query getUserByField($field: String!, $value: String!){
+        getUserByID(field: $field, value: $value){
             id
             email,
-            email_confirmation,
             phone,
             name{
                 first_name

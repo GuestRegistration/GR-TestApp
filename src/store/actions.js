@@ -5,9 +5,9 @@ import helper from './../helper';
 
 const actions = {
 
-    getIdToken({commit}){
+    getIdToken({commit}, user){
         return new Promise((resolve, reject) => {
-            const auth_user = firebase.auth.currentUser
+            const auth_user = user ? user : firebase.auth.currentUser
             if(auth_user){
                 auth_user.getIdToken()
                 .then((idToken) => {

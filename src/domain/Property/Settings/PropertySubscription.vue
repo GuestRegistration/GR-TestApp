@@ -251,7 +251,8 @@ export default {
                     }
                 })
                 .then(response => {
-                    this.subscription = response.data.createPropertySubscription
+                    this.subscription = response.data.createPropertySubscription,
+                    this.$store.commit("UPDATE_USER_PROPERTY", {...this.property, subscription: this.subscription })
                     this.$store.commit("SNACKBAR", {
                         status: true,
                         text: "Subscription successful",

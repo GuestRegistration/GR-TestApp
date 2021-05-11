@@ -1,10 +1,16 @@
 <template>
     <div>
+        <v-alert v-if="email_confirmation" prominent type="info">
+            Awaiting verification for <strong><i>{{ email_confirmation }}</i></strong>. Check your mail box and follow the link sent
+        </v-alert>
+
         <template v-if="googleProvider">
            <span class="mr-3"> {{ googleProvider.email }}</span>
             <v-btn icon @click="editConnectedGoogleEmail = !editConnectedGoogleEmail"> 
                 <v-icon color="primary">mdi-pen</v-icon>
             </v-btn>
+
+            
             <template v-if="editConnectedGoogleEmail">
                 <v-alert text color="warning">
                     <h3 class="headline">Connected Account</h3>
@@ -44,9 +50,11 @@
     </div>
 </template>
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import firebase from '@/firebase';
 import validation from '@/helper/formValidation';
+
+import UPDATE_USER_EMAIL from '../../User/Mutations/updateUserEmail';
 
 export default {
     name: "EmailConnect",
@@ -59,7 +67,8 @@ export default {
            loading: false,
            connectEmail: false,
            canDisconnect: false,
-           editConnectedGoogleEmail: false
+           editConnectedGoogleEmail: false,
+           email_confirmation: null
         }
     },
 
@@ -80,11 +89,19 @@ export default {
 
         verificationRoute(){
             return this.url(this.$router.resolve({ name: 'email.verification'}).route.fullPath)
-        }
+        },
+
     },
     
     methods: {
+        ...mapActions([
+            'mutate'
+        ]),
+
         async updateAuthEmail(){
+
+            const newEmail = this.email
+
             if(!this.$refs.emailConnect.validate()){
                 this.$emit('report', {
                     message: 'Invalid email',
@@ -93,7 +110,7 @@ export default {
                 return;
             }
 
-            if(this.googleProvider && this.googleProvider.email == this.email) {
+            if(this.googleProvider && this.googleProvider.email == newEmail) {
                 this.$emit('report', {
                     message: `Email not updated. Same with your Google email`,
                     type: 'info'
@@ -101,45 +118,67 @@ export default {
                 return;
             }
 
-            // First disconnect the current email before linking the new one
             if(this.emailProvider){
-                if(this.emailProvider.email == this.email){
+                if(this.emailProvider.email == newEmail){
                     this.$emit('report', {
                         message: `Email not updated.`,
                         type: 'info'
                     })
                     return;
                 }
-
-                await firebase.auth.currentUser.unlink(this.emailProvider.providerId);
-
             }
 
-            let actionCodeSettings = {
-                url: this.verificationRoute,
-                // This must be true.
-                handleCodeInApp: true,
-            };
-
             this.loading = true;
-            firebase.auth.sendSignInLinkToEmail(this.email, actionCodeSettings)
-            .then(() => {
-                this.$emit('report', {
-                    message: `A link has been sent to ${this.email}. Follow the link in the mail for verification`,
-                    type: 'success'
+            try {
+
+                 const updateUserEmail = await this.mutate({
+                    mutation: UPDATE_USER_EMAIL,
+                    variables: {
+                        id: this.current_user.profile.id,
+                        email: newEmail,
+                        pending: true,
+                    }
+                });
+
+                if(updateUserEmail && updateUserEmail.data.updateUserEmail == true){
+
+                    let actionCodeSettings = {
+                        url: this.verificationRoute,
+                        // This must be true.
+                        handleCodeInApp: true,
+                    };
+
+                    firebase.auth.sendSignInLinkToEmail(this.email, actionCodeSettings)
+                    .then(() => {
+                        this.email_confirmation = newEmail;
+                        this.$emit('report', {
+                            message: `A link has been sent to ${newEmail}. Follow the link in the mail for verification`,
+                            type: 'success'
+                        })
+                        window.localStorage.setItem('emailForConnect', newEmail);
+                    })
+                    .catch(e => {
+                        this.$emit('report', {
+                            message: `Failed: ${e.message}`,
+                            type: 'error'
+                        })
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                        this.$emit('update')
+                    });
+            }
+
+            } catch (error) {
+                this.$store.commit("TOAST_ERROR", {
+                    show: true,
+                    message: '',
+                    exception: error
                 })
-                window.localStorage.setItem('emailForConnect', this.email);
-            })
-            .catch(e => {
-                this.$emit('report', {
-                    message: `Failed: ${e.message}`,
-                    type: 'error'
-                })
-            })
-            .finally(() => {
+            }
+            finally{
                 this.loading = false;
-                this.$emit('update')
-            });
+            }
         },
 
         // disconnect(){
@@ -171,9 +210,17 @@ export default {
         emailProvider: {
             immediate: true,
             handler(provider){
-                this.connectEmail = provider == null ? true : false
+                this.connectEmail = provider == null ? true : false;
             }
         },
+        current_user: {
+            immediate: true,
+            handler(user){
+                if(user && user.profile){
+                    this.email_confirmation = user.profile.email_confirmation;
+                }
+            }
+        }
     }
 }
 </script>

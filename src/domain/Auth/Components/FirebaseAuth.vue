@@ -14,6 +14,45 @@ export default {
       type: String,
       require: true
     },
+    providers: {
+      type: Array,
+      require: true,
+    }
+  },
+
+  data(){
+    return {
+      options: {
+        google: {
+            provider: firebase.firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+            customParameters: {
+              // Forces account selection even when one account
+              // is available.
+              prompt: 'select_account'
+            }
+        },
+
+        phone: {
+          provider: firebase.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+            recaptchaParameters: {
+                type: 'image', // 'audio'
+                size: 'invisible', // 'invisible' or 'compact'
+                badge: 'bottomleft' //' bottomright' or 'inline' applies to invisible.
+            },
+        },
+
+        email: {
+          provider: firebase.firebase.auth.EmailAuthProvider.PROVIDER_ID,
+          signInMethod: firebase.firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD
+        }
+      }
+    }
+  },
+
+  computed: {
+    authProviders(){
+      return this.providers.map(provider => this.options[provider])
+    }
   },
   
   mounted(){
@@ -45,28 +84,7 @@ export default {
         // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
         signInFlow: 'popup',
         signInSuccessUrl: this.redirect,
-        signInOptions: [
-          {
-              provider: firebase.firebase.auth.EmailAuthProvider.PROVIDER_ID,
-              signInMethod: firebase.firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD
-          },
-          {
-              provider: firebase.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
-              recaptchaParameters: {
-                  type: 'image', // 'audio'
-                  size: 'invisible', // 'invisible' or 'compact'
-                  badge: 'bottomleft' //' bottomright' or 'inline' applies to invisible.
-              },
-          },
-          {
-            provider: firebase.firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-            customParameters: {
-              // Forces account selection even when one account
-              // is available.
-              prompt: 'select_account'
-            }
-          }
-        ],
+        signInOptions: this.authProviders,
       }
 
       ui.start('#firebaseui-auth-container', uiConfig);

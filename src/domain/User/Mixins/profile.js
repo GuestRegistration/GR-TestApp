@@ -45,22 +45,24 @@
                 if(this.update){
                     this.profile = {
                         id: this.current_user.auth.uid,
-                        phone: this.current_user.profile.phone ? this.current_user.profile.phone : this.current_user.auth.phoneNumber,
+                        phone: this.current_user.auth.phoneNumber ? this.current_user.auth.phoneNumber : this.current_user.profile.phone,
                         phone_country_code: (this.current_user.profile.phone_meta ? this.current_user.profile.phone_meta.country_code : null) || null,
                         phone_number: (this.current_user.profile.phone_meta ? this.current_user.profile.phone_meta.phone_number : null) || null,
-                        email: this.current_user.profile.email ? this.current_user.profile.email : this.current_user.auth.email,
+                        email: this.current_user.auth.email ? this.current_user.auth.email : this.current_user.profile.email,
                         first_name: this.current_user.profile.name.first_name,
                         last_name: this.current_user.profile.name.last_name,
                     }
                 }
                 else{
                     this.profile.id = this.current_user.auth.uid;
+                    this.profile.email = this.current_user.auth.email
+                    this.profile.phone = this.current_user.auth.phoneNumber
                 }
             },
             
 
             syncAuthWithProfile(credentials){
-                
+                this.setProfile();
                 if(!this.update) return;
 
                 let profile = { ...this.profile, ...credentials};

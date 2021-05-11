@@ -2,7 +2,13 @@
     <app-layer ref="app">
       <v-row justify="center">
         <v-col cols="12" md="4" class="mt-2">
-            <firebase-auth :redirect="redirectUrl" />
+            <v-alert v-if="alert"
+            prominent
+            :type="alert.type"
+            >   
+            {{ alert.text }}
+            </v-alert>
+            <firebase-auth :redirect="redirectUrl" :providers="providers" />
         </v-col>
       </v-row>
     </app-layer>
@@ -28,6 +34,15 @@
 
             redirectUrl(){
                 return  this.url(this.$router.resolve({path: this.redirect}).route.fullPath)
+            },
+
+            alert(){
+                return this.$route.params.alert
+            },
+
+            providers(){
+                if(this.$route.query.providers) return this.$route.query.providers.split(',')
+                return ['google', 'email', 'phone']
             }
         },
 
