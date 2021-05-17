@@ -1,6 +1,5 @@
 
-import Vue from 'vue'
-import VueApollo from "vue-apollo";
+// import VueApollo from "vue-apollo";
 import ApolloClient from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import { onError } from "apollo-link-error";
@@ -8,7 +7,7 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 import gr_tokens from './graphql-tokens'
 import config from './config';
 
-Vue.use(VueApollo);
+// Vue.use(VueApollo);
 
 export default async () => {
     const tokens = await gr_tokens();
@@ -41,9 +40,7 @@ export default async () => {
       })
     });
   
-  const provider = new VueApollo({
-    defaultClient: client,
-  })
+  const provider = {}
 
   return {client, provider}
 }

@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import middleware from './middleware';
 import multiguard from 'vue-router-multiguard';
 
+import Home from '../views/Home.vue';
 
 import AuthRoutes from '../domain/Auth/routes';
 import UserRoutes from '../domain/User/routes';
@@ -13,9 +14,10 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
+    path: '/index.html',
     name: 'home',
-    component: () => import('../views/Home.vue'),
+    alias: '/',
+    component: Home,
     beforeEnter: multiguard([middleware.auth])
   },
 ].concat(
