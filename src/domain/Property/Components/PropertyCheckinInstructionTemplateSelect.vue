@@ -8,7 +8,7 @@
         v-on="$listeners"
         v-bind="$attrs"
         v-model="selected"
-        :no-data-text="`${loading ? 'Please wait...': `No template created for ${property.name} yet. Create some under property settings first`}`"
+        :no-data-text="`${loading ? 'Please wait...': `No template created in the property yet. Create some under property settings first`}`"
     >
     
     <template v-slot:item="{ item, on }">

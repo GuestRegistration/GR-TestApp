@@ -176,7 +176,7 @@ export default {
       ReservationDetails,
       ReservationCheckin,
       ReservationCheckedin,
-      ReservationSkeleton
+      ReservationSkeleton,
   }, 
   data(){
       return {

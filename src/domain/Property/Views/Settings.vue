@@ -55,6 +55,14 @@
                         </v-tab-item>
 
                         <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
+                            <integrations-tab :property="property">
+                                <template #heading>
+                                    <h4 class="ml-3">Integrations</h4>
+                                </template>
+                            </integrations-tab>
+                        </v-tab-item>
+
+                        <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
                             <charges-tab :property="property">
                                 <template #heading>
                                     <h4 class="ml-3">Charges</h4>
@@ -107,6 +115,7 @@ import DataContainer from '../../../components/DataContainer.vue';
 import InfoTab from '../Components/PropertyForm.vue';
 import ChargesTab from '../Settings/PropertyCharges.vue';
 import GatewayTab from '../Settings/PropertyStripeConnect.vue';
+import IntegrationsTab from '../Settings/PropertyIntegrations.vue';
 import CheckinInstructionsTab from '../Settings/PropertyCheckinInstructionTemplates';
 import CheckinAgreementsTab from '../Settings/PropertyCheckinAgreements';
 import CheckinQuestionsTab from '../Settings/PropertyCheckinQuestions';
@@ -117,7 +126,7 @@ import GET_PROPERTY from '../Queries/getProperty';
 export default {
     name: 'EditProperty',
     components: {
-        AppLayer, DataContainer, InfoTab, ChargesTab, GatewayTab,
+        AppLayer, DataContainer, InfoTab, ChargesTab, GatewayTab, IntegrationsTab,
         CheckinInstructionsTab, CheckinAgreementsTab, CheckinQuestionsTab,
         PropertySubscription
     }, 
@@ -146,6 +155,13 @@ export default {
                     route: {name: this.$route.name, params: {tab: 'gateway'}},
                     disabled: this.property ? false : true,
                     icon: 'mdi-connection'
+                },
+                {
+                    name: 'Integrations',
+                    alias: 'integrations',
+                    route: {name: this.$route.name, params: {tab: 'integrations'}},
+                    disabled: this.property ? false : true,
+                    icon: 'mdi-cog-box'
                 },
                 {
                     name: 'Charges',

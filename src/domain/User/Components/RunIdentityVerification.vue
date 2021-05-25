@@ -11,13 +11,14 @@ export default {
     data(){
         return {
             loading: false,
-            session: null
+            session: null,
         }
     },
 
     props: {
         property: Object,
         redirect: String,
+        metadata: Object,
     },
 
     methods: {
@@ -42,7 +43,8 @@ export default {
                     property_id: this.property.id,
                     metadata: {
                         user_id: this.$store.getters.current_user.profile.id,
-                        property_id: this.property.id
+                        property_id: this.property.id,
+                        ...this.metadata
                     },
                     return_url: this.redirect ? this.redirect : this.url(this.$router.resolve({name: this.$router.currentRoute.name}).route.fullPath),
                     refresh_url: this.redirect ? this.redirect+'&vs_refresh=1' : this.url(this.$router.resolve({name:  this.$router.currentRoute.name, query: {vs_refresh: 1}}).route.fullPath)

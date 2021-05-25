@@ -4,7 +4,7 @@ export default {
      * Translate a timestamp to human readable time
      */
     resolveTimestamp: (timestamp) => {
-        timestamp = parseInt(timestamp)
+        timestamp = parseInt(timestamp) * 1000;
 
         let date = new Date((timestamp));
         let now = new Date();

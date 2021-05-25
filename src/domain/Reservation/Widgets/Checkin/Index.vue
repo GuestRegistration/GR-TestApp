@@ -19,7 +19,19 @@
                 <v-stepper-content step="1">
                     <v-card class="my-2" flat>
                         <v-card-text>
-                            <identity-verification :property="property" @verification="verificationDone" :can-restart="!approved" :redirect-path="startAgainPath" />  
+                            <identity-verifications :property="property" @verifications="verificationsFetched" :metadata="{ reservation_id: reservation.id }" :redirect-path="startAgainPath">
+                                <template #verification="props">
+                                    <v-btn :color="`${verification && verification.session == props.verification.session ? 'success' : 'primary'}`" @click="verification = props.verification" dark>
+                                        <v-icon v-if="verification && verification.session == props.verification.session" class="mr-2">mdi-check</v-icon>
+                                        Use ID
+                                    </v-btn>
+                                </template>
+                                <template #actions="props">
+                                    <run-identity-verification class="mt-3" v-if="props.verifications && props.verifications.length" :property="property" :metadata="{ reservation_id: reservation.id }" :redirect="url(startAgainPath)">
+                                        New ID verification
+                                    </run-identity-verification>
+                                </template>    
+                            </identity-verifications>  
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -59,7 +71,7 @@
                 <v-stepper-content step="3">
                     <v-card class="my-2" flat>
                         <v-card-text>
-                            <p>Please take time to answer the following questions</p>
+                            <p>The following questions have been required to be answered for your checkin</p>
                             <reservation-questions :questions="reservation.questions"  @responses="questionResponded" />
                         </v-card-text>
                         <v-card-actions>
@@ -107,7 +119,7 @@
                 <v-stepper-content step="5">
                     <v-card class="my-2" flat>
                         <v-card-text>
-                            <reservation-charges :reservation="reservation" :property="property" :credit-card="creditCard" @charges-payment="chargesPayment" :can-pay="true" >
+                            <reservation-charges :reservation="reservation" :property="property" :credit-card="credit_card" @charges-payment="chargesPayment" :can-pay="true" >
                                 <template v-slot:default="props">
                                     <template v-if="props.charge.type == 'pre-authorize'">
                                         <v-alert v-if="!props.payment || (props.payment && !props.payment.captured)"
@@ -125,10 +137,11 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="primary" @click="checkin" :disabled="!allPaymentMade" :loading="checkingin">Finalize Checkin</v-btn>
+                            <!-- <v-btn color="primary" @click="checkin" :disabled="!allPaymentMade" :loading="checkingin">Finalize Checkin</v-btn> -->
+                            <v-btn color="primary" @click="$refs.contract.open()" :disabled="!allPaymentMade" >Sign contract</v-btn>
+                            <reservation-checkin-contract v-on="$listeners" ref="contract" :checkin="{ reservation, verification, checkin: {  agreements, questions, credit_card } }" />
                         </v-card-actions>
                     </v-card>
-
                 </v-stepper-content>
         </v-stepper>
     </div>
@@ -138,19 +151,21 @@
 <script>
 import { mapActions } from 'vuex';
 import ReservationDetails from '../../Components/ReservationDetails';
-import IdentityVerification from '../../../User/Components/IdentityVerification';
+import IdentityVerifications from '../../../User/Components/IdentityVerifications';
+import RunIdentityVerification from '../../../User/Components/RunIdentityVerification';
 import ReservationCharges from './ReservationCharges';
 import ReservationAgreements from './ReservationAgreements';
 import ReservationQuestions from './ReservationQuestions';
 import ReservationCreditCard from './ReservationCreditCard'
+import ReservationCheckinContract from './ReservationCheckinContract.vue';
 
-import CHECKIN_RESERVATION from '../../Mutations/checkinReservation';
 export default {
     name: "ReservationCheckin",
     components: {
-       ReservationDetails, IdentityVerification, 
+       ReservationDetails, IdentityVerifications, RunIdentityVerification,
        ReservationCharges, ReservationAgreements,
-       ReservationQuestions, ReservationCreditCard
+       ReservationQuestions, ReservationCreditCard,
+       ReservationCheckinContract
     },
     props: {
         property: Object,
@@ -166,7 +181,7 @@ export default {
             agreements: null,
             instruction: false,
             questions: null,
-            creditCard: null,
+            credit_card: null,
         }
     },
 
@@ -195,7 +210,7 @@ export default {
         },
 
         creditCardCollected(){
-            return this.creditCard !== null;
+            return this.credit_card !== null;
         },
 
         allReservationAgreements(){
@@ -234,9 +249,11 @@ export default {
             this.$emit('agreement', agreements);
         },
 
-        verificationDone(verification){
-            this.verification = verification;
-            this.$emit('verification', verification);
+        verificationsFetched(verifications){
+            if(verifications){
+                this.verification = verifications.find(v => v.metadata.reservation_id == this.reservation.id);
+                this.$emit('verification', this.verification);
+            }
         },
 
         chargesPayment(charges){
@@ -245,51 +262,10 @@ export default {
         },
 
         creditCardSelected(card){
-            this.creditCard = card;
+            this.credit_card = card;
             this.$emit('credit-card', card)
         },
 
-        checkin(){
-            this.checkingin = true;
-            this.mutate({
-                mutation: CHECKIN_RESERVATION,
-                variables: {
-                    reservation_id: this.reservation.id,
-                    agreements: this.agreements,
-                    questions: this.questions,
-                    credit_card: this.creditCard
-                }
-            })
-            .then(response => {
-                if(response.data.checkinReservation){
-                    const reservation = response.data.checkinReservation;
-                    this.$store.commit('ADD_USER_RESERVATION', {...reservation});
-                    this.$emit('checkedin', reservation)
-                    this.$store.commit('SNACKBAR', {
-                        status: true,
-                        text: 'Checkin successfull',
-                        color: 'success'
-                    })
-                }else{
-                    this.$store.commit('SNACKBAR', {
-                        status: true,
-                        text: 'Checkin could not be finalized. Try again',
-                        color: 'error'
-                    })
-                }
-            })
-            .catch(e => {
-                this.$store.commit('TOAST_ERROR', {
-                    show: true,
-                    message: `Something went wrong while starting your checkin process.`,
-                    retry: () => this.reservationCheckin(),
-                    exception: e
-                })
-            })
-            .finally(() => {
-                this.checkingin = false;
-            })
-        },
     },
 
     watch: {

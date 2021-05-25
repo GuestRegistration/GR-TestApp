@@ -3,11 +3,10 @@
         <div v-if="responses.length">
             <v-card v-for="(response, i) in responses" :key="i" class="my-1">
                 <v-card-text>
-                    <p>{{ response.question }}</p>
+                    <p>{{ response.question }} {{ !response.required ? '(optional)' : '' }}</p>
                     <template v-if="response.options && response.options.split(',').length">
                         <v-radio-group 
                         v-model="responses[i].response" 
-                        :label="`${response.question} ${!response.required ? '(optional)' : ''}`"
                         :rules="[(value) => response.required && (value == '' || !value) ? 'Select one of the options' : true]"
                         >
                             <v-radio

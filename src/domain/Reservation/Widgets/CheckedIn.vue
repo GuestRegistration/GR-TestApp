@@ -10,7 +10,13 @@
 
         <data-container :loading="loading">
             <template v-if="checkin">
-                <h4 class="my-3">Checkin Information</h4>
+                <reservation-checkin-contract ref="contract" :checkin="checkin" />
+                <div class="d-flex align-center my-3">
+                    <h4>Checkin Information</h4>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" class="mt-3" @click="$refs.contract.open()">Contract</v-btn>
+                </div>
+
                 <v-tabs
                 v-model="tab"
                 background-color="transparent"
@@ -44,13 +50,7 @@
                 <v-tabs-items v-model="tab">
 
                     <v-tab-item>
-                        <v-card
-                        flat
-                        >
-                        <v-card-text>
-                            <identity-verification :property="property" />  
-                        </v-card-text>
-                        </v-card>
+                        <user-identity-verification flat :verification="checkin.verification" />
                     </v-tab-item>
 
                     <v-tab-item>
@@ -145,7 +145,6 @@
                             </v-card-text>
                         </v-card>
                     </v-tab-item>
-                        
                 </v-tabs-items>
             </template>
         </data-container>
@@ -159,8 +158,9 @@
     import ReservationInstructionDialog from '../Components/ReservationInstructionDialog';
     import ReservationCharges from './Checkin/ReservationCharges';
     import StripeCreditCard from '../../../components/Utilities/StripeCreditCard'
-    import IdentityVerification from '../../User/Components/IdentityVerification.vue';
     import ReservationPayments from '../Components/ReservationPayments'
+    import ReservationCheckinContract from './Checkin/ReservationCheckinContract';
+    import UserIdentityVerification from '../../User/Components/IdentityVerification';
 
     import GET_RESERVATION_CHECKIN from '../Queries/getReservationCheckin';
     export default {
@@ -169,10 +169,11 @@
             DataContainer,
             ReservationDetails, 
             ReservationInstructionDialog,
-            IdentityVerification,
             ReservationCharges,
             StripeCreditCard,
-            ReservationPayments
+            ReservationPayments,
+            ReservationCheckinContract,
+            UserIdentityVerification
          },
 
         data(){

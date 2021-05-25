@@ -76,23 +76,7 @@
                 </v-tab-item>
 
                 <v-tab-item>
-                    <v-card flat>
-                        <v-card-text>
-                            <div class="text-uppercase">Verification Type: {{ userVerification.type  }}</div>
-                            <div>
-                                status:  <v-chip
-                                    class="ma-2"
-                                    :color="`${userVerification.status === 'verified' ? 'green' : 'orange'}`"
-                                    text-color="white"
-                                    >
-                                    {{ userVerification.status }}
-                                </v-chip>
-                            </div>
-                            <v-btn class="ma-1" color="primary" @click="$refs.userVerificationReport.open()">View Verification Report</v-btn>
-                            <verification-report ref="userVerificationReport" :verification="userVerification" />
-                        </v-card-text>
-                    </v-card>
-
+                    <user-identity-verification flat :verification="checkin.verification" />
                 </v-tab-item>
 
                 <v-tab-item>
@@ -221,14 +205,16 @@
                 </v-tab-item>
                 
             </v-tabs-items>
+            <reservation-checkin-contract ref="contract" :checkin="checkin" />
 
-            <div class="text-center text-md-right">
-                <v-btn fixed bottom v-if="!checkin.reservation.approved" 
+            <div class="fixed bottom text-center text-md-right">
+                <v-btn color="primary" class="mx-2" @click="$refs.contract.open()">Contract</v-btn>
+                <v-btn v-if="!checkin.reservation.approved" 
                     color="success"
                     @click="$refs.approvalConfirmation.open()"
                     :loading="approval.loading"
                     :disabled="!canApprove"
-                    class="my-7"
+                    class="mx-2"
                 >
                   <v-icon class="mr-2">mdi-check-circle</v-icon>  Approve checkin
                 </v-btn>
@@ -254,7 +240,6 @@ import GETRESERVATION_CHECKIN from '../Queries/getReservationCheckin';
 import APPROVERESERVATION_CHECKIN from '../Mutations/approveReservationCheckin';
 
 import DataContainer from '../../../components/DataContainer'
-import VerificationReport from '../../User/Components/VerificationReport.vue';
 import ReservationChargeCapture from '../Components/ReservationChargeCapture';
 import ReservationChargeRefund from '../Components/ReservationChargeRefund';
 import ReservationCharges from './Checkin/ReservationCharges';
@@ -262,6 +247,8 @@ import StripeCreditCard from '../../../components/Utilities/StripeCreditCard'
 import ConfirmationDialog from '@/components/Utilities/ConfirmationDialog';
 import ReservationExtraCharge from '../Components/ReservationExtraCharge'
 import ReservationPayments from '../Components/ReservationPayments'
+import UserIdentityVerification from '../../User/Components/IdentityVerification';
+import ReservationCheckinContract from './Checkin/ReservationCheckinContract';
 
 export default {
     name: "PropertyReservationCheckin",
@@ -269,12 +256,13 @@ export default {
         DataContainer,
         ReservationChargeCapture,
         ReservationChargeRefund,
-        VerificationReport,
         ReservationCharges, 
         StripeCreditCard,
         ConfirmationDialog,
         ReservationExtraCharge,
-        ReservationPayments
+        ReservationPayments,
+        UserIdentityVerification,
+        ReservationCheckinContract
     },
     data(){
 
@@ -292,12 +280,6 @@ export default {
     computed: {
         user(){
             return this.checkin ? this.checkin.user : null
-        },
-        userVerification(){
-            if(this.checkin && this.checkin.verifications && this.checkin.verifications.length){
-                return  this.checkin.verifications[this.checkin.verifications.length - 1];
-            }
-            return {}
         },
         canApprove(){
             return this.user !== null

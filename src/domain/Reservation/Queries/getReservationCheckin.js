@@ -26,7 +26,7 @@ export default gql`
                     last4
                     name
                 }
-
+                signature
             }
             reservation{
                 id
@@ -51,6 +51,15 @@ export default gql`
                     gender
                     type
                 }
+                charges{
+                    id
+                    title
+                    amount
+                    description
+                    type
+                    enable
+                    optional 
+                }
             }
             
             user{
@@ -66,7 +75,7 @@ export default gql`
                     phone_number
                 }
             }
-            verifications{
+            verification{
                 type
                 status
                 session
@@ -74,6 +83,7 @@ export default gql`
                 metadata {
                     user_id
                     property_id
+                    reservation_id
                 }
             }
 

@@ -36,6 +36,7 @@ import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
 import GET_PROPERTY from '../Queries/getProperty';
 import SET_PROPERTY_STRIPE_AUTHORIZATION from '../Mutations/setPropertyStripeAuthorization';
+import { mapMutations } from 'vuex';
 
 export default {
     name: 'PropertyStripeConnectCallback',
@@ -63,8 +64,15 @@ export default {
 
     methods:{
 
+        ...mapMutations([
+            'SET_APP_STATE',
+            'SET_APP_PROCESS'
+        ]),
+
         startConnect(){
-            this.loading = true;
+            this.SET_APP_STATE(false);
+            this.SET_APP_PROCESS('Finalizing stripe connect...');
+
             if(this.id){
                 this.$store.dispatch('query', {
                     query: GET_PROPERTY,
@@ -89,7 +97,7 @@ export default {
                 .then(authResponse => {
                     window.localStorage.removeItem('property-stripe-connect')
                     if(authResponse){
-                        this.$router.push({name: 'property.edit', params: {id: this.property.id, tab: 'stripe', _property: this.property, stripe_connected: true}})
+                        this.$router.push({name: 'property.settings', params: {id: this.property.id, tab: 'gateway', _property: this.property, stripe_connected: true}})
                     }else{
                         this.$refs.app.alert("Stripe connect could not be completed.")
                     }
@@ -102,7 +110,8 @@ export default {
                     });
                 })
                 .finally(() => {
-                    this.loading = false;
+                    this.SET_APP_STATE(true);
+                    this.SET_APP_PROCESS('');
                 })
             }else{
                 this.$router.push({name: 'home'});

@@ -7,7 +7,7 @@
         item-value="question"
         v-on="$listeners"
         v-bind="$attrs"
-        :no-data-text="`${loading ? 'Please wait...': `No question created for ${property.name} yet. Create some under property settings first`}`"
+        :no-data-text="`${loading ? 'Please wait...': `No question created in the property yet. Create some under property settings first`}`"
     >
     </v-select>
 </template>

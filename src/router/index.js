@@ -9,6 +9,7 @@ import AuthRoutes from '../domain/Auth/routes';
 import UserRoutes from '../domain/User/routes';
 import PropertyRoutes from '../domain/Property/routes';
 import ReservationRoutes from '../domain/Reservation/routes';
+import SignaturePad from '../components/Utilities/SignaturePad.vue';
 
 Vue.use(VueRouter)
 
@@ -19,6 +20,10 @@ const routes = [
     alias: '/',
     component: Home,
     beforeEnter: multiguard([middleware.auth])
+  },
+  {
+    path: '/signature',
+    component: SignaturePad,
   },
 ].concat(
   AuthRoutes, UserRoutes, PropertyRoutes, ReservationRoutes

@@ -5,13 +5,13 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify';
-import _apollo from './apollo'
+// import _apollo from './apollo'
 import config from './config';
 import filters from './plugins/filters'
 
 Vue.config.productionTip = false
 
-const apollo = _apollo();
+// const apollo = _apollo();
  
 Vue.use(VueMeta, {
   refreshOnceOnNavigation: true

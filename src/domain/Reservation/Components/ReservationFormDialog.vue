@@ -1,9 +1,9 @@
 <template>
     <v-dialog 
-    v-model="dialog"
-    fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"    
+        v-model="dialog"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"    
       >
         <v-form ref="form" @submit.prevent>
             <v-card>
@@ -228,12 +228,13 @@ export default {
         ...mapGetters([
             'current_user'
         ]),
+
         today(){
             return new Date().toISOString().substr(0, 10);
         },
 
         reservationCheckedIn(){
-            if(!this.reservation) return
+            if(!this.reservation) return;
             return this.reservation.already_checkedin
         }
     },
@@ -251,6 +252,7 @@ export default {
         open(){
             this.dialog = true;
         },
+
         close(){
             this.dialog = false;
             if(!this.reservation) this.$refs.form.reset()

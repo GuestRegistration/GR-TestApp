@@ -137,16 +137,17 @@ export default
     {
     name: "VerificationReport",
     components: { DataContainer, ConfirmationDialog },
-    props: {
-        verification: Object,
-    },
     data(){
         return {
             dialog: false,
             loading: false,
-            report: null
+            report: null,
         }
     },
+    props: {
+        verification: Object
+    },
+
     computed: {
         document(){
             return this.report ? this.report.document : {}
@@ -176,6 +177,8 @@ export default
     },
     methods: {
         open(){
+            if(!this.verification) return;
+
             if(this.verification.metadata.user_id === this.$store.getters.current_user.auth.uid){
                 this.dialog = true;
                 return;

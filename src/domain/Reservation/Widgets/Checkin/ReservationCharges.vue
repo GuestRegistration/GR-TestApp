@@ -73,6 +73,7 @@ export default {
         creditCard: Object,
         canPay: Boolean
     },
+    
     methods: {
         getCharges(){
             this.loading = true;

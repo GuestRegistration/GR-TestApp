@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    mutation checkinReservation($reservation_id: ID!, $agreements: [ReservationCheckinAgreementInput], $questions: [ReservationCheckinQuestionInput], $credit_card: ReservationCreditCardInput) {
-        checkinReservation(reservation_id: $reservation_id, agreements: $agreements, questions: $questions, credit_card: $credit_card) {
+    mutation checkinReservation($reservation_id: ID!, $agreements: [ReservationCheckinAgreementInput], $questions: [ReservationCheckinQuestionInput], $verification: ReservationIdVerificationInput,  $credit_card: ReservationCreditCardInput, $signature: String!) {
+        checkinReservation(reservation_id: $reservation_id, agreements: $agreements, questions: $questions, verification: $verification, credit_card: $credit_card, signature: $signature) {
             id
             user_id
             name

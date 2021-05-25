@@ -201,7 +201,9 @@ export default {
         confirmCardRemoval(card){
             this.confirmation = {
                 text: `Are you sure you want to remove the card ending ${card.last4} `,
-                action: this.removeCreditCard(card)
+                action: () => {
+                    this.removeCreditCard(card)
+                }
             }
             this.$refs.confirmation.open();
         },

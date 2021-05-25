@@ -12,7 +12,7 @@
             v-bind="attrs"
             v-on="on"
             >
-            Reservation Instructions
+            <slot>Instructions</slot>
             </v-btn>
         </template>
         <v-card>

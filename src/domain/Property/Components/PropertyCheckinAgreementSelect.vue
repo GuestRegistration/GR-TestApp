@@ -7,7 +7,7 @@
         item-value="agreement"
         v-on="$listeners"
         v-bind="$attrs"
-        :no-data-text="`${loading ? 'Please wait...': `No agreement created for ${property.name} yet. Create some under property settings first`}`"
+        :no-data-text="`${loading ? 'Please wait...': `No agreement created in the property yet. Create some under property settings first`}`"
     >
     
     <!-- <template v-slot:item="{ item, on }">
