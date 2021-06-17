@@ -25,7 +25,7 @@ export default [
     },
 
     {
-        path: '/property/:id/settings/:tab?',
+        path: '/property/settings/:tab?',
         name: 'property.settings',
         component: PropertySettings,
         beforeEnter: multiguard([middleware.auth])

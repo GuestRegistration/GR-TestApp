@@ -178,6 +178,7 @@ export default {
         property: {
             immediate: true,
             handler(property){
+                this.auth = null;
                 if(property && property.active && property.stripe_connected) this.getPropertyStripeAuthorization()
                 else this.loading = false;
             }

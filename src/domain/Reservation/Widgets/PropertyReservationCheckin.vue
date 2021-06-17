@@ -205,7 +205,7 @@
                 </v-tab-item>
                 
             </v-tabs-items>
-            <reservation-checkin-contract ref="contract" :checkin="checkin" />
+            <reservation-checkin-contract ref="contract" :checkin="checkin" :property="property" />
 
             <div class="fixed bottom text-center text-md-right">
                 <v-btn color="primary" class="mx-2" @click="$refs.contract.open()">Contract</v-btn>

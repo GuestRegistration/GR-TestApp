@@ -12,7 +12,7 @@ module.exports = {
       scope: '/'
     },
     workboxOptions: {
-      navigateFallback: '/index.html',
+      // navigateFallback: '/index.html',
     },
   }
 };

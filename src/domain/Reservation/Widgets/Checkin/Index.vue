@@ -139,7 +139,7 @@
                             <v-spacer></v-spacer>
                             <!-- <v-btn color="primary" @click="checkin" :disabled="!allPaymentMade" :loading="checkingin">Finalize Checkin</v-btn> -->
                             <v-btn color="primary" @click="$refs.contract.open()" :disabled="!allPaymentMade" >Sign contract</v-btn>
-                            <reservation-checkin-contract v-on="$listeners" ref="contract" :checkin="{ reservation, verification, checkin: {  agreements, questions, credit_card } }" />
+                            <reservation-checkin-contract v-on="$listeners" ref="contract" :checkin="{ reservation, verification, checkin: {  agreements, questions, credit_card } }" :property="property" />
                         </v-card-actions>
                     </v-card>
                 </v-stepper-content>

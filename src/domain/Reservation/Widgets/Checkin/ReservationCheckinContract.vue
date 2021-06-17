@@ -167,15 +167,12 @@
         },
         props: {
             checkin: Object,
+            property: Object,
         },
         computed: {
 
             reservation(){
                 return this.checkin.reservation
-            },
-
-            property(){
-                return this.checkin.reservation.property
             },
 
             agreements(){

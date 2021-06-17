@@ -34,17 +34,19 @@ export default {
       return {
           tabs: [
               {
-                name: 'Personal',
-                alias: 'personal',
-                route: {name: 'notification.list', params: {notification: 'personal'}},
-                icon: 'mdi-account'
-              },
-              {
                 name: 'Property',
                 alias: 'property',
                 route: {name: 'notification.list', params: {notification: 'property'}},
                 icon: 'mdi-domain'
+              },
+
+              {
+                name: 'Personal',
+                alias: 'personal',
+                route: {name: 'notification.list', params: {notification: 'personal'}},
+                icon: 'mdi-account'
               }
+              
           ],
       }
     },
@@ -55,7 +57,7 @@ export default {
         },
 
         notification(){
-            return this.$route.params.notification ?  this.$route.params.notification  : 'personal';
+            return this.$route.params.notification ?  this.$route.params.notification  : 'property';
         },
 
         currentTab: {

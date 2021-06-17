@@ -29,11 +29,11 @@
                                     ></v-img>
                                 </v-avatar>
                                 <h2>{{property.name}}</h2>
-                                <p class="grey--text">{{property.address}}</p>
+                                <p class="grey--text">{{property.full_address}}</p>
                             </router-link>
-                            <router-link :to="{name: 'reservation.list', params: {reservation: 'property'}}"  class="text-decoration-none">
+                            <property-link :to="{name: 'reservation.list', params: {id:property.id ,reservation: 'property'}}" >
                                 <v-btn color="primary"> <v-icon>mdi-arrow-left</v-icon> Reservations in {{ property.name }}</v-btn>
-                            </router-link>  
+                            </property-link>  
                         </div>
                     </v-col>
                     <v-col cols="12" md="6">
@@ -121,19 +121,22 @@ import ReservationDetails from '../../Reservation/Components/ReservationDetails'
 import ReservationFormDialog from '../../Reservation/Components/ReservationFormDialog.vue';
 import PropertyReservationCheckin from '../../Reservation/Widgets/PropertyReservationCheckin';
 import ClipBoard from '../../../components/Utilities/ClipBoard';
+import PropertyLink from '../Components/PropertyLink.vue';
 import GET_RESERVATION from '../../Reservation/Queries/getReservation';
+import GET_PROPERTY from '../Queries/getProperty';
 
 export default {
   name: 'reservation',
   components: {
     AppLayer, DataContainer, ReservationSkeleton,
     ReservationDetails,  ReservationFormDialog,
-    PropertyReservationCheckin, ClipBoard
+    PropertyReservationCheckin, ClipBoard, PropertyLink
   }, 
   data(){
       return {
         loading: false,
         reservation: null,
+        property: null,
         checkin: null,
         refreshCharges: false,
       }
@@ -151,10 +154,6 @@ export default {
             return this.$route.params.id
         },
 
-        property(){
-            if(!this.reservation) return null;
-            return this.reservation.property;
-        },
     },
     mounted(){
         this.getReservation();
@@ -177,10 +176,15 @@ export default {
         })
         .then(response => {
             this.reservation = response.data.getReservation;
-            if(this.property) {
-                const property = this.$store.getters.current_user.profile.properties.find(p => p.id === this.property.id);
-                if(property) this.$store.commit('SET_ACTIVE_PROPERTY', property);
-            }
+             return this.query({
+                query: GET_PROPERTY,
+                variables: {
+                    id: this.reservation.property_id
+                }
+            })
+        })
+        .then(response => {
+            this.property = response && response.data.getProperty ? response.data.getProperty : null;
         })
         .catch(e => {
             this.$refs.app.toastError({

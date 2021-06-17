@@ -37,6 +37,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title v-text="item.title"></v-list-item-title>
+                <v-list-item-subtitle v-if="item.subtitle" v-text="item.subtitle"></v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </component>
@@ -46,6 +47,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title v-text="item.title"></v-list-item-title>
+                <v-list-item-subtitle v-if="item.subtitle" v-text="item.subtitle"></v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </template>
@@ -125,6 +127,17 @@ export default {
             name: 'property.list'
           },
           render: true,
+          router: true,
+        },
+        { 
+          title: 'Property settings', 
+          subtitle: this.current_user.property.name,
+          icon: 'mdi-cog', 
+          route: {
+            name: 'property.settings',
+            params: {id: this.current_user.property.id }
+          },
+          render: this.current_user.property.id !== undefined,
           router: true,
         },
        

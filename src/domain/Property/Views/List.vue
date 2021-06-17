@@ -19,9 +19,9 @@
                             <template #action>
                                 <v-icon v-if="property.active" color="success" class="mx-2" title="Subscription active">mdi-check-circle</v-icon>
                                 <v-icon v-else color="error"  class="mx-2" title="Subscription not active">mdi-close-circle</v-icon>
-                                <router-link :to="{name: 'property.settings', params: {id: property.id}}" class="text-decoration-none">
+                                <property-link :to="{name: 'property.settings', params: {id: property.id}}" class="text-decoration-none">
                                     <v-btn icon><v-icon>mdi-cog</v-icon></v-btn>
-                                </router-link >
+                                </property-link >
                             </template>
                         </property-card>
                     </v-col>
@@ -58,6 +58,7 @@ import AppLayer from '@/AppLayer.vue';
 import PropertyCard from '../Components/PropertyCard.vue';
 import DataContainer from '../../../components/DataContainer.vue';
 import PropertyCardSkeleton from '../Components/PropertyCardSkeleton.vue';
+import PropertyLink from '../Components/PropertyLink.vue';
 
 // graphql
 import GET_USER_PROPERTIES from '../Queries/getUserProperties';
@@ -65,7 +66,7 @@ import GET_USER_PROPERTIES from '../Queries/getUserProperties';
 export default {
   name: 'PropertyList',
   components: {
-    AppLayer, PropertyCard, DataContainer, PropertyCardSkeleton
+    AppLayer, PropertyCard, DataContainer, PropertyCardSkeleton, PropertyLink
   },
   data(){
      return {

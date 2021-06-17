@@ -11,14 +11,16 @@
                     type="success">
                     Your property has been created, continue to setup...
                 </v-alert>
+
                 <v-card flat>
                     <v-toolbar
                     flat
                     >
                     <v-app-bar-nav-icon class="d-sm-none" @click="expandTab = !expandTab"></v-app-bar-nav-icon>
-                    <v-toolbar-title>Property Settings <span v-if="property"> - {{ property.name }}</span> </v-toolbar-title>
+                    <property-switch @change="getProperty" />
+                    <!-- <v-toolbar-title>Property Settings <span v-if="property"> - {{ property.name }}</span> </v-toolbar-title> -->
                     </v-toolbar>
-                    <v-tabs vertical v-model="currentTab" @change="tabChanged" color="primary">
+                    <v-tabs v-if="property" vertical v-model="currentTab" @change="tabChanged" color="primary">
 
                         <v-tab v-for="tab in tabs" :key="tab.name" :disabled="tab.disabled" class="d-flex">
                             <v-icon flex>
@@ -112,6 +114,7 @@
 <script>
 import AppLayer from '@/AppLayer';
 import DataContainer from '../../../components/DataContainer.vue';
+import PropertySwitch from '../Components/PropertySwitch.vue';
 import InfoTab from '../Components/PropertyForm.vue';
 import ChargesTab from '../Settings/PropertyCharges.vue';
 import GatewayTab from '../Settings/PropertyStripeConnect.vue';
@@ -126,7 +129,7 @@ import GET_PROPERTY from '../Queries/getProperty';
 export default {
     name: 'EditProperty',
     components: {
-        AppLayer, DataContainer, InfoTab, ChargesTab, GatewayTab, IntegrationsTab,
+        AppLayer, DataContainer, PropertySwitch, InfoTab, ChargesTab, GatewayTab, IntegrationsTab,
         CheckinInstructionsTab, CheckinAgreementsTab, CheckinQuestionsTab,
         PropertySubscription
     }, 
@@ -223,12 +226,11 @@ export default {
     
     methods:{
         getProperty(){
+            if(!this.$store.getters.current_user.property.id) return;
             this.loading = true;
             this.$store.dispatch('query', {
                 query: GET_PROPERTY,
-                variables: {
-                    id: this.id
-                }
+                variables: { id: this.$store.getters.current_user.property.id }
             }) 
             .then(response => {
                 this.property = response.data.getProperty;
@@ -253,7 +255,7 @@ export default {
             if(!this.tabs[tab].route) return;
             this.expandTab = false;
             this.$router.push(this.tabs[tab].route)
-        }
+        },
     },
 
     mounted(){

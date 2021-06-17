@@ -31,9 +31,10 @@ export default {
     ]),
 
     switchProperty(property){
-      this.SET_ACTIVE_PROPERTY(this.current_user.profile.properties.find(p => p.id == property));
-      this.$emit('change', this.current_user.profile.properties.find(p => p.id == property));
-      this.$eventHub.$emit('property-switched');
+      const activeProperty = this.current_user.profile.properties.find(p => p.id == property);
+      this.SET_ACTIVE_PROPERTY(activeProperty);
+      this.$emit('change', activeProperty);
+      this.$eventHub.$emit('property-switched', activeProperty);
     }
 
   },

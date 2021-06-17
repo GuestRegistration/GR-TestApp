@@ -6,6 +6,13 @@
         </confirmation-dialog>
         <data-container v-if="property" :loading="loading">
             <template v-if="product">
+            <v-alert
+                prominent
+                type="info"
+                v-if="property.subscription && property.subscription.status === 'free'">
+                {{ property.name }} is currently being served for free
+            </v-alert>
+                
                 <template  v-if="!subscription">
                     <confirmation-dialog ref="subscriptionConfirmation" @confirmed="createSubscription">
                         <div class="text-center">

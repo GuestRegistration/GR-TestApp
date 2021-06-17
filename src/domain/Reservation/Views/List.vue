@@ -32,17 +32,18 @@ export default {
       return {
             tabs: [
                 {
+                    name: 'Property',
+                    alias: 'property',
+                    route: {name: 'reservation.list', params: {reservation: 'property'}},
+                    icon: 'mdi-domain'
+                },
+                {
                     name: 'My Trips',
                     alias: 'personal',
                     route: {name: 'reservation.list', params: {reservation: 'personal'}},
                     icon: 'mdi-account'
                 },
-                {
-                    name: 'Property',
-                    alias: 'property',
-                    route: {name: 'reservation.list', params: {reservation: 'property'}},
-                    icon: 'mdi-domain'
-                }
+               
             ],
       }
   },
@@ -53,7 +54,7 @@ export default {
         },
 
         reservation(){
-            return this.$route.params.reservation ?  this.$route.params.reservation  : 'personal';
+            return this.$route.params.reservation ?  this.$route.params.reservation  : 'property';
         },
 
         currentTab: {

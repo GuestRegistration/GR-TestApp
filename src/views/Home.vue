@@ -15,11 +15,19 @@
         <router-link :to="{name: 'reservation.list'}" class="text-decoration-none"> All reservations</router-link>
       </div>
     </div>
-    <h3>Properties</h3>
+    
     <div v-if="!properties.length" class="pa-5">
-      <p class="grey--text text-center">No property</p>
+      <div class="text-center">
+         <p class="grey--text text-center">Become a host, create your propertyty</p>
+         <router-link :to="{name: 'property.create'}" class="text-decoration-none">
+           <v-btn color="primary">
+             Create property
+           </v-btn>
+         </router-link>
+      </div>
     </div>
     <div v-else>
+      <h3>Properties</h3>
         <v-row >
           <v-col v-for="property in properties" :key="property.id"
           cols="12" sm="6" md="4">

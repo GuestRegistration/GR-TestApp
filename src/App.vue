@@ -57,7 +57,7 @@ import NavDrawer from '@/components/NavDrawer.vue';
 import { fb,auth } from './firebase';
 import helper from '@/helper';
 import update from './mixins/update';
-// import config from './config'
+import config from './config'
 import GET_USER_BY_ID from './domain/User/Queries/getUserByID';
 import UPDATE_USER_DEVICE from './domain/User/Mutations/updateUserDevice';
 
@@ -179,7 +179,7 @@ export default {
       getNotificationToken(){
         if(fb.messaging.isSupported()){
           const messaging = fb.messaging();
-          messaging.getToken().then((currentToken) => {
+          messaging.getToken({vapidKey: config.firebase.VapidKey}).then((currentToken) => {
           if(currentToken) {                  
               this.mutate({
                   mutation: UPDATE_USER_DEVICE,

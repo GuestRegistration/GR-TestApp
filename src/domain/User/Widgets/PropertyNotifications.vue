@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-row justify="end">
+        <v-row justify="start">
             <v-col cols="12" sm="6">
                 <property-switch @change="getPropertyNotifications" />
             </v-col>
