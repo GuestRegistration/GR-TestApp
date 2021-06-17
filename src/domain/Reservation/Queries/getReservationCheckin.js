@@ -36,7 +36,7 @@ export default gql`
                 already_checkedin
                 approved
                 approved_at
-                booking_no
+                booking_reference
                 checkin_date
                 checkout_date
                 instruction

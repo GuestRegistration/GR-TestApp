@@ -5,14 +5,9 @@ import 'firebase/storage'
 import 'firebase/messaging'
 import config from './config';
 
-  // Initialize Firebase
-  firebase.initializeApp(config.firebase.sdk)
+firebase.initializeApp(config.firebase.sdk)
   
-  const db = firebase.firestore()
-  const auth =  firebase.auth()
-  const storage =  firebase.storage()
-  const messaging = firebase.messaging()
-  messaging.usePublicVapidKey(config.firebase.VapidKey);
-  db.settings({})
-
-  export default {firebase, db, auth, storage, messaging};
+export const fb = firebase;
+export const db = firebase.firestore();  
+export const auth = firebase.auth();  
+export const storage = firebase.storage();

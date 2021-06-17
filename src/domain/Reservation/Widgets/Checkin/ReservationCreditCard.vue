@@ -3,44 +3,53 @@
         <confirmation-dialog ref="confirmation" @confirmed="confirmation.action()">
             {{ confirmation.text }}
         </confirmation-dialog>
-        <div v-if="cards.length">
-            <v-radio-group 
-                v-model="creditCard" 
-                :label="`Your credit card at ${property.name}`"
-                :rules="[(value) => !value ? 'Select a credit card' : true]"
-                >
-                    <v-radio
-                        v-for="(card, c) in cards" :key="c"
-                        :value="card"
+        <template v-if="property.stripe_connected">
+            <div v-if="cards.length">
+                <v-radio-group 
+                    v-model="creditCard" 
+                    :label="`Your credit card at ${property.name}`"
+                    :rules="[(value) => !value ? 'Select a credit card' : true]"
                     >
-                        <template #label>
-                            <div class="pr-2" style="width: 100%">
-                                <stripe-credit-card class="my-1" :card="card">
-                                    <template #actions="attr">
-                                        <v-spacer></v-spacer>
-                                        <v-btn v-if="cards.length > 1" icon @click="confirmCardRemoval(attr.card)">
-                                            <v-icon small color="red">mdi-delete</v-icon>
-                                        </v-btn>
-                                    </template>
-                                </stripe-credit-card>
-                            </div>
-                        </template>
-                    </v-radio>
-                </v-radio-group>
-                <a href="#" @click.prevent="addCard = !addCard">Use another card </a>
-        </div>
-        <div v-if="addCard">
-            <stripe-credit-card-form
-                ref="stripeCreditCard" 
-                :publishable-key="stripePublishableKey" 
-                :token-callback="stripeTokenCallback"
-                @success="tokenCallbackSuccessfull"
-                @error="tokenCallbackError"
-                @abort="tokenCallbackAborted"
-            >
-            <template #submit-btn-text> Add card </template>
-            </stripe-credit-card-form>
-        </div>
+                        <v-radio
+                            v-for="(card, c) in cards" :key="c"
+                            :value="card"
+                        >
+                            <template #label>
+                                <div class="pr-2" style="width: 100%">
+                                    <stripe-credit-card class="my-1" :card="card" >
+                                        <template #actions="attr">
+                                            <v-spacer></v-spacer>
+                                            <v-btn icon @click="confirmCardRemoval(attr.card)">
+                                                <v-icon small color="red">mdi-delete</v-icon>
+                                            </v-btn>
+                                        </template>
+                                    </stripe-credit-card>
+                                </div>
+                            </template>
+                        </v-radio>
+                    </v-radio-group>
+                    <a href="#" @click.prevent="addCard = !addCard">Use another card </a>
+            </div>
+            <div v-if="addCard">
+                <stripe-credit-card-form
+                    ref="stripeCreditCard" 
+                    :publishable-key="stripePublishableKey" 
+                    :token-callback="stripeTokenCallback"
+                    @success="tokenCallbackSuccessfull"
+                    @error="tokenCallbackError"
+                    @abort="tokenCallbackAborted"
+                >
+                <template #submit-btn-text> Add card </template>
+                </stripe-credit-card-form>
+            </div>
+        </template>
+         <v-alert v-else
+            border="top"
+            colored-border
+            elevation="2"
+            type="error">
+            {{ property.name }} can not process credit card at the moment
+        </v-alert>
     </data-container>
 </template>
 
@@ -87,7 +96,7 @@ export default {
         },
 
         cards(){
-            return this.customer && this.customer.sources ? this.customer.sources.data : []
+            return this.customer && this.customer.sources  && this.customer.sources.data ? this.customer.sources.data : []
         }
     },
 
@@ -97,6 +106,7 @@ export default {
         ]),
 
         getPropertyCustomer(){
+            if(!this.property.stripe_connected) return;
             this.loading = true;
             this.query({
                 query: GET_PROPERTY_CUSTOMER,
@@ -108,7 +118,16 @@ export default {
                 this.customer = response.data.getPropertyCustomer;
 
                 if(!this.cards.length) this.addCard = true;
+                else this.creditCard = this.cards[0];
 
+            })
+            .catch(e => {
+                this.$store.commit('TOAST_ERROR', {
+                    show: true,
+                    message: ``,
+                    retry: () => this.getPropertyCustomer(),
+                    exception: e
+                });
             })
             .finally(() => {
                 this.loading = false
@@ -221,6 +240,13 @@ export default {
                 if(response.data.removePropertyCustomerCreditCard == true){
                     const index = this.customer.sources.data.findIndex(c => c.id == card.id);
                     this.customer.sources.data.splice(index, 1);
+
+                    if(!this.cards.length) {
+                        this.creditCard = null;
+                        this.addCard = true;
+                    } else {
+                        this.creditCard = this.cards[0];
+                    }
 
                     this.$store.commit("SNACKBAR", {
                         status: true,

@@ -1,13 +1,13 @@
 <template>
   <!-- App.vue -->
   <v-app>
-    <nav-drawer v-if="authenticated && app_ready" @signout="signUserOut" />
+    <nav-drawer v-if="authenticated && app_ready && app_layout === 'full'" @signout="signUserOut" />
     <v-app-bar 
       app
       color="primary"
       dark
     >
-      <v-app-bar-nav-icon @click="$store.state.navDrawer = !$store.state.navDrawer" v-if="authenticated  && app_ready"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="$store.state.navDrawer = !$store.state.navDrawer" v-if="authenticated  && app_ready && app_layout === 'full'"></v-app-bar-nav-icon>
       <router-link to="/" class="white--text" style="text-decoration: none">
         <v-toolbar-title dark>Guest Registration</v-toolbar-title>
       </router-link>
@@ -29,10 +29,9 @@
           <p>{{app_process}}</p>
       </div>
     </v-main>
-    
-    
 
-    <v-snackbar bottom right :value="updateExists" :timeout="-1" color="primary">
+    
+    <v-snackbar v-if="app_layout === 'full'" bottom right :value="updateExists" :timeout="-1" color="primary">
       <div class="d-flex align-center">
           <div>
               An update is available
@@ -48,13 +47,14 @@
       <small><a :href="site">2020. Guest Registration</a></small>
     </v-footer>
   </v-app>
+
 </template>
 
 <script>
 
 import {mapActions, mapMutations, mapGetters} from 'vuex'
 import NavDrawer from '@/components/NavDrawer.vue';
-import firebase from '@/firebase';
+import { fb,auth } from './firebase';
 import helper from '@/helper';
 import update from './mixins/update';
 // import config from './config'
@@ -78,7 +78,8 @@ export default {
       'app_ready',
       'app_process',
       'authenticated',
-      'profile_loaded'
+      'profile_loaded',
+      'app_layout',
     ]),
   },
 
@@ -97,12 +98,13 @@ export default {
           'SET_ACTIVE_PROPERTY',
           'SNACKBAR',
           'UNSET_CURRENT_USER',
+          'SET_APP_LAYOUT'
       ]),
 
       setUser(){
           this.SET_APP_STATE(false);
           if( window.localStorage.getItem('gr-user') 
-              && firebase.auth.currentUser 
+              && auth.currentUser 
               && window.localStorage.getItem('token-expires') > helper.nowTimestamp()
               && this.profile_loaded
           )
@@ -110,7 +112,7 @@ export default {
               this.SET_APP_STATE(true);
               return;
           }
-          else if(!firebase.auth.currentUser){
+          else if(!auth.currentUser){
             this.signout().then(() => {
               this.SET_APP_STATE(true);
             })
@@ -120,7 +122,7 @@ export default {
           this.getIdToken()
           .then(user =>  {
           if(user){
-                this.SET_USER_AUTH(firebase.auth.currentUser);
+                this.SET_USER_AUTH(auth.currentUser);
                 return this.query({
                         query: GET_USER_BY_ID,
                         variables: {
@@ -135,19 +137,22 @@ export default {
                 this.SET_USER_PROFILE(response.data.getUserByID || {})
                 this.SET_ACTIVE_PROPERTY(response.data.getUserByID && response.data.getUserByID.properties ? response.data.getUserByID.properties[0] : {});
 
-                if(Notification.permission === "granted"){
+                if ('Notification' in window) {
+                  if(Notification.permission === "granted"){
                     this.getNotificationToken();
-                }else{
-                    Notification.requestPermission().then(permission => {
-                        if (permission === "granted") {
-                          new Notification("Hello! We can now send you notification here");
-                          this.getNotificationToken();
-                        }
-                    });
+                  }else{
+                      Notification.requestPermission().then(permission => {
+                          if (permission === "granted") {
+                            new Notification("Hello! We can now send you notification here");
+                            this.getNotificationToken();
+                          }
+                      });
+                  }
                 }
+                
                 this.SET_APP_STATE(true);
               }
-              else if(firebase.auth.currentUser){
+              else if(auth.currentUser){
                 this.$router.push({
                     name: 'account',
                     query: {
@@ -169,9 +174,11 @@ export default {
           })
           
       },
+      
 
       getNotificationToken(){
-          const messaging = firebase.messaging;
+        if(fb.messaging.isSupported()){
+          const messaging = fb.messaging();
           messaging.getToken().then((currentToken) => {
           if(currentToken) {                  
               this.mutate({
@@ -189,6 +196,7 @@ export default {
                   icon: payload.notification.icon,
               });
           });
+        }
       },
 
       signUserOut(){  
@@ -206,9 +214,15 @@ export default {
 
     mounted(){
       // console.log(config);
-      firebase.auth.onAuthStateChanged((user) => {
+      auth.onAuthStateChanged((user) => {
         this.setUser();
       });
     },
 }
 </script>
+
+<style>
+  .required label::after {
+    content: "*";
+  }
+</style>

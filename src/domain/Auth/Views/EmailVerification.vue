@@ -37,7 +37,7 @@
 
 <script>
     import validation from '@/helper/formValidation';
-    import firebase from '@/firebase';
+    import { fb, auth } from '../../../firebase';
     import AppLayer from '@/AppLayer';
 
     import profile from '../../User/Mixins/profile';
@@ -103,10 +103,10 @@
                 this.loading = true;
                Promise.all([this.unlinkOldEmail(), this.unlinkGoogle()])
                 .then(() => {
-                    const credential = firebase.firebase.auth.EmailAuthProvider.credentialWithLink(this.email, window.location.href);
-                    return firebase.auth.currentUser.linkWithCredential(credential)
+                    const credential = fb.auth.EmailAuthProvider.credentialWithLink(this.email, window.location.href);
+                    return auth.currentUser.linkWithCredential(credential)
                 })
-                .then(() =>  firebase.auth.currentUser.reload() )
+                .then(() => auth.currentUser.reload() )
                 .then(() => {
                     window.localStorage.removeItem('emailForConnect')
                     this.$store.commit("SNACKBAR", {
@@ -135,12 +135,12 @@
             },
 
             unlinkOldEmail(){
-                if(this.emailProvider) return firebase.auth.currentUser.unlink(this.emailProvider.providerId);
+                if(this.emailProvider) return auth.currentUser.unlink(this.emailProvider.providerId);
                 else return Promise.resolve();
             }, 
 
             unlinkGoogle(){
-                if(this.googleProvider) return  firebase.auth.currentUser.unlink(this.googleProvider.providerId)
+                if(this.googleProvider) return auth.currentUser.unlink(this.googleProvider.providerId)
                 else return Promise.resolve();
             },
            
@@ -158,7 +158,7 @@
                 handler(ready){
                     if(!ready) return;
 
-                    if(!firebase.auth.currentUser)
+                    if(!auth.currentUser)
                     {
 
                         this.$router.push({
@@ -176,7 +176,7 @@
                         return;
                     }
 
-                    if(firebase.auth.isSignInWithEmailLink(window.location.href)) {
+                    if(auth.isSignInWithEmailLink(window.location.href)) {
                         this.email = window.localStorage.getItem('emailForConnect');
                         if (!this.email) {
                             this.requestEmail = true;

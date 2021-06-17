@@ -251,8 +251,11 @@ export default {
 
         verificationsFetched(verifications){
             if(verifications){
-                this.verification = verifications.find(v => v.metadata.reservation_id == this.reservation.id);
-                this.$emit('verification', this.verification);
+                const reservationIdVerifications = verifications.filter(v => v.metadata.reservation_id == this.reservation.id);
+                if(reservationIdVerifications.length){
+                    this.verification = reservationIdVerifications.pop();
+                    this.$emit('verification', this.verification);
+                }
             }
         },
 

@@ -1,5 +1,5 @@
 
-import firebase from './../firebase';
+import { auth } from './../firebase';
 import _apollo from './../apollo';
 import helper from './../helper';
 
@@ -7,7 +7,7 @@ const actions = {
 
     getIdToken({commit}, user){
         return new Promise((resolve, reject) => {
-            const auth_user = user ? user : firebase.auth.currentUser
+            const auth_user = user ? user : auth.currentUser
             if(auth_user){
                 auth_user.getIdToken()
                 .then((idToken) => {
@@ -36,7 +36,7 @@ const actions = {
      */
     // sendPhoneVerification({commit}, mobile_number){
     //     commit('PROCESSING', true)
-    //     const appVerifier = new firebase.firebase.auth.RecaptchaVerifier('sign-in-button', {
+    //     const appVerifier = new fb.auth.RecaptchaVerifier('sign-in-button', {
     //         'size': 'invisible',
     //         'callback': function(response) {
     //             // console.log(response)
@@ -44,7 +44,7 @@ const actions = {
     //         }
     //     });
     //    return new Promise((resolve, reject) => {
-    //         firebase.auth.signInWithPhoneNumber(mobile_number, appVerifier)
+    //         auth.signInWithPhoneNumber(mobile_number, appVerifier)
     //         .then(confirmationResult => {
     //             window.confirmationResult = confirmationResult
     //             resolve()
@@ -65,9 +65,9 @@ const actions = {
     //     commit('PROCESSING', true)
     //     return new Promise((resolve, reject) => {
     //         const verificationId = window.confirmationResult.verificationId
-    //         const credential = firebase.firebase.auth.PhoneAuthProvider.credential(verificationId, code);
+    //         const credential = fb.auth.PhoneAuthProvider.credential(verificationId, code);
     //         //return window.confirmationResult.confirm(this.verification_code)
-    //         firebase.auth.signInWithCredential(credential)
+    //         auth.signInWithCredential(credential)
     //         .then(result => {
     //             resolve(result)
     //         })
@@ -114,7 +114,7 @@ const actions = {
      */
     signout({commit}){
        return new Promise((resolve, reject) => {
-            firebase.auth.signOut()
+            auth.signOut()
             .then(() => {
                 window.localStorage.removeItem('gr-user');
                 window.localStorage.removeItem('token-expires');

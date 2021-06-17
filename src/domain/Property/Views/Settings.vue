@@ -49,7 +49,7 @@
                         <v-tab-item class="pa-5" :class="{'d-none d-sm-block': expandTab}">
                             <gateway-tab :property="property">
                                 <template #heading>
-                                    <h4 class="ml-3">Stripe Gateway</h4>
+                                    <h4 class="ml-3">Gateways</h4>
                                 </template>
                             </gateway-tab>
                         </v-tab-item>

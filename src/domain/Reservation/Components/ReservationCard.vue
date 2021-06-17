@@ -20,7 +20,6 @@
 </template>
 
 <script>
-    import helper from '@/helper'
 
     export default {
         data(){

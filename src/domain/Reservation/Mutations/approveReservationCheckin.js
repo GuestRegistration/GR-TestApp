@@ -6,13 +6,17 @@ export default gql`
             id
             user_id
             name
-            checkedin_at
+            balance
+            room
+            booking_reference
             already_checkedin
+            checkedin_at
             approved
             approved_at
-            booking_no
             checkin_date
             checkout_date
+            instruction
+            checkin_url
             property_id
             property{
                 id

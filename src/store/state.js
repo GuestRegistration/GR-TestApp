@@ -23,6 +23,7 @@ const state = {
         right: false, 
         bottom: true, 
         left: false
-    }
+    },
+    app_layout: 'full',
 }
 export default state;

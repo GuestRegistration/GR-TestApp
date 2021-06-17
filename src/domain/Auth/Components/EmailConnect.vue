@@ -51,7 +51,7 @@
 </template>
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import firebase from '@/firebase';
+import { auth } from '@/firebase';
 import validation from '@/helper/formValidation';
 
 import UPDATE_USER_EMAIL from '../../User/Mutations/updateUserEmail';
@@ -148,7 +148,7 @@ export default {
                         handleCodeInApp: true,
                     };
 
-                    firebase.auth.sendSignInLinkToEmail(this.email, actionCodeSettings)
+                    auth.sendSignInLinkToEmail(this.email, actionCodeSettings)
                     .then(() => {
                         this.email_confirmation = newEmail;
                         this.$emit('report', {
@@ -183,7 +183,7 @@ export default {
 
         // disconnect(){
         //     this.loading = true;
-        //     firebase.auth.currentUser.unlink(this.emailProvider.providerId)
+        //     auth.currentUser.unlink(this.emailProvider.providerId)
         //     .then(() => {
         //         this.$emit('report', {
         //             message: `Email successfully removed. You will no longer be able to sign in with the email`,

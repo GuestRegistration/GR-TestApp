@@ -31,6 +31,9 @@
                                 <h2>{{property.name}}</h2>
                                 <p class="grey--text">{{property.address}}</p>
                             </router-link>
+                            <router-link :to="{name: 'reservation.list', params: {reservation: 'property'}}"  class="text-decoration-none">
+                                <v-btn color="primary"> <v-icon>mdi-arrow-left</v-icon> Reservations in {{ property.name }}</v-btn>
+                            </router-link>  
                         </div>
                     </v-col>
                     <v-col cols="12" md="6">
@@ -53,11 +56,11 @@
                                     </v-list-item>
                                 </v-list>
                             </v-menu>
-
                         </div>
-                        <small class="text--gray">{{ reservation.checkin_url }}</small>
-                        <reservation-details :reservation="reservation" />
                         
+                        <small class="text--gray">Checkin URL</small>
+                        <clip-board v-model="reservation.checkin_url" />
+                        <reservation-details :reservation="reservation" />
                         <template v-if="reservation.already_checkedin">
                             <v-alert 
                                 border="top"
@@ -117,6 +120,7 @@ import ReservationSkeleton from '../../Reservation/Components/ReservationSkeleto
 import ReservationDetails from '../../Reservation/Components/ReservationDetails';
 import ReservationFormDialog from '../../Reservation/Components/ReservationFormDialog.vue';
 import PropertyReservationCheckin from '../../Reservation/Widgets/PropertyReservationCheckin';
+import ClipBoard from '../../../components/Utilities/ClipBoard';
 import GET_RESERVATION from '../../Reservation/Queries/getReservation';
 
 export default {
@@ -124,7 +128,7 @@ export default {
   components: {
     AppLayer, DataContainer, ReservationSkeleton,
     ReservationDetails,  ReservationFormDialog,
-    PropertyReservationCheckin
+    PropertyReservationCheckin, ClipBoard
   }, 
   data(){
       return {
@@ -148,17 +152,19 @@ export default {
         },
 
         property(){
+            if(!this.reservation) return null;
             return this.reservation.property;
         },
     },
-  mounted(){
+    mounted(){
         this.getReservation();
     },
-  methods:{
+
+    methods:{
       ...mapActions([
           'query',
           'mutate',
-      ]),
+    ]),
 
 
     getReservation(){
@@ -171,6 +177,10 @@ export default {
         })
         .then(response => {
             this.reservation = response.data.getReservation;
+            if(this.property) {
+                const property = this.$store.getters.current_user.profile.properties.find(p => p.id === this.property.id);
+                if(property) this.$store.commit('SET_ACTIVE_PROPERTY', property);
+            }
         })
         .catch(e => {
             this.$refs.app.toastError({
@@ -184,15 +194,14 @@ export default {
         })
     },
 
-    reservationApproved(reservation){
+    reservationApproved(reservation) {
         this.reservation = reservation;
     },
 
-    reservationUpdated(reservation){
+    reservationUpdated(reservation) {
         this.reservation = reservation;
         this.$refs.reservationForm.close()
-    }
-
+    },
   },
 
 }

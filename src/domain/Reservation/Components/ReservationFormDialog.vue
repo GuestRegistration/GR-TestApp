@@ -42,47 +42,75 @@
                                 type="text"
                                 name="name"
                                 v-model="form.name"
+                                class="required"
                             ></v-text-field>
-
-                            <v-text-field
-                                outlined
-                                label="Booking Number"
-                                type="text"
-                                name="booking_no"
-                                v-model="form.booking_no"
-                                :disabled="mode == 'edit'"
-                            ></v-text-field>
+                            
+                            <v-row>
+                                <v-col cols="12" md="4">
+                                    <v-text-field
+                                        outlined
+                                        label="Booking Reference"
+                                        type="text"
+                                        name="booking_reference"
+                                        v-model="form.booking_reference"
+                                        :disabled="reservationCheckedIn"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="4">
+                                    <v-text-field
+                                        outlined
+                                        label="Room/Listing "
+                                        type="text"
+                                        name="room"
+                                        v-model="form.room"
+                                        :disabled="reservationCheckedIn"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="4">
+                                    <v-text-field
+                                        outlined
+                                        label="Booking balance"
+                                        type="number"
+                                        name="balance"
+                                        v-model="form.balance"
+                                        :disabled="reservationCheckedIn"
+                                        prefix="USD"
+                                    ></v-text-field>
+                                </v-col>
+                            </v-row>                            
 
                             <v-row justify="center" >
                                 <v-col cols="12" md="6">
                                     <div>
-                                        <label for="checkin-date">Checkin date</label>
+                                        <label for="checkin-date" class="required">Checkin date</label>
                                     </div>
                                     <v-date-picker full-width id="checkin-date" v-model="form.checkin_date" :min="today"></v-date-picker>
                                 </v-col>
                                 <v-col  cols="12" md="6">
                                     <div>
-                                        <label for="checkout-date">Checkout date</label>
+                                        <label for="checkout-date" class="required">Checkout date</label>
                                     </div>
                                     <v-date-picker full-width id="checkout-date" v-model="form.checkout_date" :min="form.checkin_date ? form.checkin_date : today"></v-date-picker>
                                 </v-col>
                             </v-row>
+
                             <div class="text-right  my-2">
                                 <v-btn color="primary" small @click="selectInstructionTemplate = !selectInstructionTemplate"><v-icon>mdi-content-copy</v-icon> Copy instruction from template</v-btn>
                             </div>
                             <property-checkin-instruction-template-select :class="{'d-none' : !selectInstructionTemplate }" 
-                            :property="property"
-                            label="Select instruction to copy" 
-                            outlined return-object clearable
-                            v-model="instructionTemplate"
-                            @change="instructionTemplateSelected"
+                                :property="property"
+                                label="Select instruction to copy" 
+                                outlined return-object clearable
+                                v-model="instructionTemplate"
+                                @change="instructionTemplateSelected"
                             />
 
                             <v-textarea
-                            outlined
-                            label="Reservation instructions"
-                            v-model="form.instruction"
-                            :rules="[rules.required]"
+                                outlined
+                                label="Reservation instructions"
+                                v-model="form.instruction"
+                                :rules="[rules.required]"
+                                class="required"
                             ></v-textarea>
 
                             <h4>Charges</h4>
@@ -106,7 +134,6 @@
                             <template v-else>
                                 <p class="grey--text py-3">No charge</p>
                             </template>
-
                             <property-charges-select 
                                 v-if="!reservationCheckedIn"
                                 outlined
@@ -179,7 +206,6 @@
                                 return-object
                             />
 
-                           
                         </v-col>
                     </v-row>
                 </v-container>
@@ -258,8 +284,7 @@ export default {
             if(!this.reservation) this.$refs.form.reset()
         },
 
-        submit(){
-            
+        submit(){            
             if(this.$refs.form.validate()){
                 if(this.mode === 'edit') this.updateReservation();
                 else this.createReservation();
@@ -269,7 +294,10 @@ export default {
         createReservation(){
             this.loading = true;
             this.mutate({
-                variables: {property_id: this.property.id, ...this.form},
+                variables: {
+                    property_id: this.property.id,
+                    data: this.form,
+                },
                 mutation: CREATE_RESERVATION
             })
             .then(response => {
@@ -298,8 +326,11 @@ export default {
         updateReservation(){
             this.loading = true;
             this.mutate({
-                variables: this.form,
-                mutation: UPDATE_RESERVATION
+                mutation: UPDATE_RESERVATION,
+                variables: {
+                    id: this.reservation.id,
+                    data: this.form
+                },
             })
             .then(response => {
                  this.$store.commit('SNACKBAR', {
@@ -338,9 +369,10 @@ export default {
                 if(reservation){
                     this.mode = 'edit';
                     this.form = {
-                        id: reservation.id,
-                        name: reservation.name, 
-                        booking_no: reservation.booking_no,
+                        name: reservation.name,
+                        balance:  reservation.balance,
+                        room: reservation.room,
+                        booking_reference: reservation.booking_reference,
                         checkin_date: reservation.checkin_date,
                         checkout_date: reservation.checkout_date,
                         instruction: reservation.instruction,
@@ -352,7 +384,9 @@ export default {
                 }else{
                     this.form = {
                         name: null,
-                        booking_no: null,
+                        room: null,
+                        balance: 0,
+                        booking_reference: null,
                         checkin_date: this.today,
                         checkout_date: this.today,
                         instruction: null,
@@ -360,7 +394,6 @@ export default {
                         agreements: [],
                         questions: []
                     }
-
                 }
             }
         }

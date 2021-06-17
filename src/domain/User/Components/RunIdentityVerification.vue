@@ -1,5 +1,16 @@
 <template>
-    <v-btn v-if="!session" @click="createStripeVerificationSession" color="primary" :loading="loading"><slot>Verify ID</slot></v-btn>
+    <div>
+        <v-btn v-if="!session" @click="createStripeVerificationSession" small color="primary" :loading="loading" :disabled="!property.stripe_connected"><slot>Verify ID</slot></v-btn>
+        <v-alert
+            v-if="!property.stripe_connected"
+            class="mt-2"
+            border="top"
+            colored-border
+            elevation="2"
+            type="error">
+            {{ property.name }} can not process ID verification at the moment
+        </v-alert>
+    </div>
 </template>
 
 <script>
@@ -28,14 +39,6 @@ export default {
         ]),
 
         createStripeVerificationSession(){
-            if(!this.property.stripe_connected){
-                this.$store.commit('SNACKBAR', {
-                    status: true,
-                    text: `${this.property.name} cannot verify your Identity at the moment`,
-                    color: 'error'
-                })
-                return;
-            }
             this.loading = true;
             this.mutate({
                 mutation: CREATE_STRIPE_VERIFICATION_SESSION,

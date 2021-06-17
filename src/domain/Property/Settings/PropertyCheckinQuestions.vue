@@ -2,7 +2,7 @@
     <div>
         <slot name="heading" />
 
-        <property-subscription-alert :property="property">
+        <property-subscription-alert  v-if="property" :property="property">
             Activate subscription for {{ property.name }} to manage reservation checkin questions
         </property-subscription-alert>
 

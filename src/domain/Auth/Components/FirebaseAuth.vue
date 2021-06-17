@@ -3,11 +3,11 @@
 </template>
 
 <script>
-import firebase from '@/firebase';
-import 'firebase/auth';
+import { fb, auth } from '../../../firebase';
 import 'firebaseui/dist/firebaseui.css';
 
 export default {
+
   name: 'FirebaseAuth',
   props: {
     redirect: {
@@ -24,7 +24,7 @@ export default {
     return {
       options: {
         google: {
-            provider: firebase.firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+            provider: fb.auth.GoogleAuthProvider.PROVIDER_ID,
             customParameters: {
               // Forces account selection even when one account
               // is available.
@@ -33,7 +33,7 @@ export default {
         },
 
         phone: {
-          provider: firebase.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+          provider: fb.auth.PhoneAuthProvider.PROVIDER_ID,
             recaptchaParameters: {
                 type: 'image', // 'audio'
                 size: 'invisible', // 'invisible' or 'compact'
@@ -42,8 +42,8 @@ export default {
         },
 
         email: {
-          provider: firebase.firebase.auth.EmailAuthProvider.PROVIDER_ID,
-          signInMethod: firebase.firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD
+          provider: fb.auth.EmailAuthProvider.PROVIDER_ID,
+          signInMethod: fb.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD
         }
       }
     }
@@ -58,7 +58,7 @@ export default {
   mounted(){
     var firebaseui = require('firebaseui');
 
-      let ui = firebaseui.auth.AuthUI.getInstance() ?? new firebaseui.auth.AuthUI(firebase.auth);
+      let ui = firebaseui.auth.AuthUI.getInstance() ?? new firebaseui.auth.AuthUI(auth);
       let uiConfig = {
         callbacks: {
           signInSuccessWithAuthResult: (authResult, redirectUrl) => {
@@ -77,7 +77,7 @@ export default {
             // user.
             // ...
             // Finish sign-in after data is copied.
-            return firebase.firebase.auth().signInWithCredential(cred);
+            return fb.auth().signInWithCredential(cred);
           },
          
         },

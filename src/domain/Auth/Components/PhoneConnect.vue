@@ -42,7 +42,7 @@
 </template>
 <script>
 import { mapGetters } from 'vuex';
-import firebase from '@/firebase';
+import {fb, auth} from '../../../firebase';
 import validation from '@/helper/formValidation';
 import PhoneNumber from '@/components/Utilities/PhoneNumber';
 
@@ -98,11 +98,11 @@ export default {
                     return;
                 }
 
-                await firebase.auth.currentUser.unlink(this.phoneProvider.providerId);
+                await auth.currentUser.unlink(this.phoneProvider.providerId);
             }
-            window.recaptchaVerifier = new firebase.firebase.auth.RecaptchaVerifier('recaptcha-container');
+            window.recaptchaVerifier = new fb.auth.RecaptchaVerifier('recaptcha-container');
             let appVerifier = window.recaptchaVerifier;
-            firebase.auth.currentUser.linkWithPhoneNumber(this.phone.international, appVerifier)
+            auth.currentUser.linkWithPhoneNumber(this.phone.international, appVerifier)
             .then(confirmationResult => {
                 window.confirmationResult = confirmationResult;
                 this.verificationSent = true;
@@ -144,7 +144,7 @@ export default {
                     this.$emit('notification', {title: "Account update", body: `${this.phone.international} has been linked to your account. You can now sign in with it.`})
                     return Promise.resolve()
                 })
-                .then(() => firebase.auth.currentUser.reload() )
+                .then(() => auth.currentUser.reload() )
                 .catch( e => {
                     if(e.code == 'auth/credential-already-in-use'){
                         this.$emit('report', {
@@ -173,8 +173,8 @@ export default {
 
         disconnect(){
             this.loading = true;
-            firebase.auth.currentUser.unlink(this.phoneProvider.providerId)
-            .then(() => firebase.auth.currentUser.reload() )
+            auth.currentUser.unlink(this.phoneProvider.providerId)
+            .then(() => auth.currentUser.reload() )
             .then(() => {
 
                 this.$emit('report', {

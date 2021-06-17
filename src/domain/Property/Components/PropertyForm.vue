@@ -155,7 +155,9 @@ export default {
         createProperty(){
             this.loading = true;
             this.mutate({
-                variables: this.form,
+                variables: {
+                    data: this.form
+                },
                 mutation: CREATE_PROPERTY
             })
             .then(response => {
@@ -194,7 +196,10 @@ export default {
             this.loading = true;
 
             this.mutate({
-                variables: this.form,
+                variables: {
+                    id: this.property.id,
+                    data: this.form
+                },
                 mutation: UPDATE_PROPERTY
             })
             .then(response => {
@@ -228,7 +233,6 @@ export default {
                 if(property){
                     this.mode = 'edit';
                     this.form = {
-                        id: property.id,
                         name: property.name, 
                         email: property.email, 
                         phone: property.phone, 
@@ -262,7 +266,6 @@ export default {
                         rules: null,
                         terms: null
                     }
-
                 }
             }
         }

@@ -3,6 +3,7 @@ import multiguard from 'vue-router-multiguard';
 
 import Signin from './Views/Signin.vue';
 import EmailVerification from './Views/EmailVerification.vue';
+import ZapierOauth from './Views/ZapierOauth.vue';
 
 export default [
     {
@@ -17,5 +18,12 @@ export default [
         name: 'email.verification',
         component: EmailVerification,
         // beforeEnter: multiguard([middleware.guest])
+    },
+
+    {
+        path: '/oauth/zapier',
+        name: 'oauth.zapier',
+        component: ZapierOauth,
+        beforeEnter: multiguard([middleware.auth])
     },
 ];

@@ -7,7 +7,7 @@
                     <v-icon color="primary">mdi-information</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                    <v-list-item-title>Booking No: {{reservation.booking_no}}</v-list-item-title>
+                    <v-list-item-title>Booking Ref: {{reservation.booking_reference | nullable}}</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
 
@@ -16,7 +16,16 @@
                     <v-icon color="primary">mdi-information</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                    <v-list-item-title>Booking Name: {{reservation.name}}</v-list-item-title>
+                    <v-list-item-title>Booking Name: {{reservation.name | nullable}}</v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+             <v-list-item >
+                <v-list-item-icon>
+                    <v-icon color="primary">mdi-information</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                    <v-list-item-title>Room/Listing: {{reservation.room | nullable}}</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
 
@@ -25,7 +34,7 @@
                     <v-icon color="primary">mdi-information</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                    <v-list-item-title>Checkin Date: {{reservation.checkin_date}}</v-list-item-title>
+                    <v-list-item-title>Checkin Date: {{reservation.checkin_date | nullable}}</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
 
@@ -34,7 +43,16 @@
                     <v-icon color="primary">mdi-information</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                    <v-list-item-title>Checkout Date: {{reservation.checkout_date}}</v-list-item-title>
+                    <v-list-item-title>Checkout Date: {{reservation.checkout_date | nullable}}</v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item >
+                <v-list-item-icon>
+                    <v-icon color="primary">mdi-information</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                    <v-list-item-title>Balance: {{reservation.balance | nullable}}</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
 

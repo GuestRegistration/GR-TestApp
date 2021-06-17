@@ -1,14 +1,16 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    mutation updateReservation($id: ID!, $name: String!, $checkin_date: String, $checkout_date: String, $instruction: String, $charges: [propertyChargeInput], $agreements: [PropertyCheckinAgreementInput], $questions: [PropertyCheckinQuestionInput]) {
-        updateReservation(id: $id, name: $name, checkin_date: $checkin_date, checkout_date: $checkout_date, instruction: $instruction, charges: $charges, agreements: $agreements, questions: $questions ){
+    mutation updateReservation($id: ID!, $data: ReservationInput!) {
+        updateReservation(id: $id, data: $data){
             id
             user_id
             name
-            booking_no
-            checkedin_at
+            balance
+            room
+            booking_reference
             already_checkedin
+            checkedin_at
             approved
             approved_at
             checkin_date

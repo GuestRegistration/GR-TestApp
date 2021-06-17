@@ -1,52 +1,66 @@
 <template>
     <div>
     <slot name="heading" />
-        <property-subscription-alert :property="property">
+        <property-subscription-alert v-if="property" :property="property">
             Activate subscription for {{ property.name }} to connect Stripe
         </property-subscription-alert>
-        
-        <data-container v-if="property && property.active" :loading="loading">
-                <template v-slot:loading>
-                    <v-skeleton-loader
-                        type="card"
-                        height="40"
-                    ></v-skeleton-loader>
-                </template>
-                <v-alert 
-                    v-if="disconnected"
-                    border="top"
-                    colored-border
-                    elevation="2"
-                    type="success">
-                    Stripe account disconnected
-                </v-alert>
-                <v-alert 
-                    v-else-if="connected"
-                    border="top"
-                    colored-border
-                    elevation="2"
-                    type="success">
-                    Stripe account connected
-                </v-alert>
-                <div class="text-center mt-5">
-                    <v-btn v-if="connected"
-                        dark
-                        color="error"
-                        :loading="disconnecting"
-                        @click="disconnect"
-                        >
-                        Disconnect Stripe
-                    </v-btn>
-                    <v-btn v-else
-                        dark
-                        color="primary"
-                        :loading="connecting"
-                        @click="connect"
-                        >
-                        Connect Stripe
-                    </v-btn>
-                </div>
-        </data-container>
+
+        <v-card v-if="property && property.active" >
+            <v-card-title>
+                Stripe
+            </v-card-title>
+            <v-card-text>
+                <data-container :loading="loading">
+                    <template v-if="auth">
+                        <div v-if="account" class="text-center">
+                            <p class="grey--text">Stripe connected as</p>
+                            <h1> {{ account.name }} </h1>
+                            <a v-if="account.url" :href="account.url">{{ account.url }}</a>
+                        </div>
+                        <v-alert
+                            v-else 
+                            border="top"
+                            colored-border
+                            elevation="2"
+                            type="success">
+                            Stripe connected
+                        </v-alert>
+                        <div class="text-center my-5">
+                            <v-btn
+                                dark
+                                small
+                                color="error"
+                                :loading="disconnecting"
+                                @click="disconnect"
+                                >
+                                <v-icon class="mr-2">mdi-cancel</v-icon> Disconnect Stripe
+                            </v-btn>
+                        </div>
+                    </template>
+
+                    <template v-else>
+                        <v-alert 
+                            border="top"
+                            colored-border
+                            elevation="2"
+                            type="error">
+                            Stripe not connected
+                        </v-alert>
+                        <div class="text-center my-5">
+                            <v-btn
+                                dark
+                                small
+                                color="primary"
+                                :loading="connecting"
+                                @click="connect"
+                                >
+                                Connect Stripe
+                            </v-btn>
+                        </div>
+                    </template>                   
+                </data-container>
+            </v-card-text>
+        </v-card>
     </div>
 </template>
 
@@ -79,6 +93,10 @@ export default {
     computed: {
         connected(){
             return this.auth && this.auth.stripe_user_id
+        },
+
+        account() {
+            return this.auth && this.auth.account && this.auth.account.business_profile ? this.auth.account.business_profile : null
         }
     },
 
@@ -131,6 +149,7 @@ export default {
                 this.disconnected = true;
                 this.auth = null;
                 this.$emit('disconnected');
+                this.refresh();
             })
             .catch(e => {
                 this.$store.commit('TOAST_ERROR', {
@@ -143,7 +162,16 @@ export default {
             .finally(() => {
                 this.disconnecting = false;
             })
+        },
+
+        refresh() {
+            this.$store.commit('SET_APP_STATE', false);
+            this.$store.commit('SET_APP_PROCESS', 'Hold on...');
+            setTimeout(()=> {
+                window.location.reload();
+            }, 5000);
         }
+
     },
 
     watch: {

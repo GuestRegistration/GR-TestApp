@@ -9,17 +9,28 @@
             <h4 class="mt-2">{{ [currency, charge.amount].join('') }}</h4>
         </v-list-item>
         <div class="my-2">
-            <div v-if="stripe_charge" class="d-flex">
-                <v-chip pill :color="status.color" text-color="white">
-                    {{ status.text }}
-                </v-chip>
-                <v-chip v-if="amountRefunded" pill color="info" text-color="white" class="ml-2">
-                    Refunded {{ amountRefunded }}
-                </v-chip>
-                <v-spacer></v-spacer>
-                <slot name="options" v-bind="{ property, reservation, charge, payment: stripe_charge, updateCharge }" />
+            <div v-if="property.stripe_connected">
+                <div v-if="stripe_charge" class="d-flex">
+                    <v-chip pill :color="status.color" text-color="white">
+                        {{ status.text }}
+                    </v-chip>
+                    <v-chip v-if="amountRefunded" pill color="info" text-color="white" class="ml-2">
+                        Refunded {{ amountRefunded }}
+                    </v-chip>
+                    <v-spacer></v-spacer>
+                    <slot name="options" v-bind="{ property, reservation, charge, payment: stripe_charge, updateCharge }" />
+                </div>
+                <v-btn v-else-if="canPay" btn color="primary" :loading="loading" @click="payCharge()">{{ !isPreAuthorized ? 'Pay Now' : 'Authorize charge' }}</v-btn>
             </div>
-            <v-btn v-else-if="canPay" btn color="primary" :loading="loading" @click="payCharge()">{{ !isPreAuthorized ? 'Pay Now' : 'Authorize charge' }}</v-btn>
+            <div v-else>
+                <v-alert
+                    border="top"
+                    colored-border
+                    elevation="2"
+                    type="error">
+                    {{ property.name }} can not process charge at the moment
+                </v-alert>
+            </div>
         </div> 
         <slot v-bind="{ property, reservation, charge, payment: stripe_charge}" />
     </div>

@@ -5,7 +5,8 @@ const getters = {
     authenticated: state => state.current_user.auth.uid ? true : false,
     profile_loaded: state =>  Object.keys(state.current_user.profile).length ? true : false,
     current_user: state => state.current_user,
-    snackbar: state => state.snackbar
+    snackbar: state => state.snackbar,
+    app_layout: state => state.app_layout
 }
 
 export default getters

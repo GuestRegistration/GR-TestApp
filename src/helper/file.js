@@ -1,5 +1,5 @@
 
-import firebase from './../firebase';
+import { storage } from './../firebase';
 
 const fileHelper = {
     /**
@@ -35,7 +35,7 @@ const fileHelper = {
      * upload file to firestore storage
      */
     uploadFile: (file, path) => {
-        const storageRef = firebase.storage.ref();
+        const storageRef = storage.ref();
        return  storageRef.child(path).put(file)
     }
 };

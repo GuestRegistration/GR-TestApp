@@ -83,6 +83,10 @@ const mutations = {
 
     SNACKBAR(state, settings){
         state.snackbar = settings
+    },
+
+    SET_APP_LAYOUT(state, layout) {
+        state.app_layout = layout
     }
 }
 

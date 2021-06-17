@@ -1,14 +1,16 @@
 import gql from 'graphql-tag';
 
 export default gql`
-    mutation checkinReservation($property_id: ID!, $name: String!, $booking_no: String, $checkin_date: String!, $checkout_date: String!, $instruction: String, $charges: [propertyChargeInput], $agreements: [PropertyCheckinAgreementInput], $questions: [PropertyCheckinQuestionInput] ) {
-        createReservation(property_id: $property_id, name: $name, booking_no: $booking_no, checkin_date: $checkin_date, checkout_date: $checkout_date, instruction: $instruction, charges: $charges, agreements: $agreements, questions: $questions ){
+    mutation createReservation($property_id: ID!, $data: ReservationInput!) {
+        createReservation(property_id: $property_id, data: $data ){
             id
             user_id
             name
-            booking_no
-            checkedin_at
+            balance
+            room
+            booking_reference
             already_checkedin
+            checkedin_at
             approved
             approved_at
             checkin_date
@@ -46,4 +48,4 @@ export default gql`
             }
         
         }
-}`;
+    }`;

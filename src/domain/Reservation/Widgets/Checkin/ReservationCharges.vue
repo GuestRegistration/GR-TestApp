@@ -77,9 +77,21 @@ export default {
     methods: {
         getCharges(){
             this.loading = true;
-             this.charges = this.reservation.charges
+            if(this.reservation.balance){
+                this.charges.push({
+                    id: this.reservation.id,
+                    amount: this.reservation.balance,
+                    description: "Reservation balance",
+                    type: 'instant',
+                    optional: false,
+                    enable: true,
+                    title: "Reservation Balance"
+                });
+            }
+            this.charges = this.charges.concat(this.reservation.charges);
+
             // Get payments for the reservation
-            return  this.$store.dispatch('query', {
+            this.$store.dispatch('query', {
                 query: GET_RESERVATION_PAYMENTS,
                 variables: {
                     id: this.reservation.id

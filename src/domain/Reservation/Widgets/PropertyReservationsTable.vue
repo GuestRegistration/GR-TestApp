@@ -32,8 +32,12 @@
                         :search="search"
                         multi-sort
                     >
-                        <template v-slot:item.booking_no="{ item }">
-                             {{ item.booking_no ?  item.booking_no : '--' }}
+                        <template v-slot:item.booking_reference="{ item }">
+                             {{ item.booking_reference | nullable }}
+                        </template>
+
+                        <template v-slot:item.room="{ item }">
+                             {{ item.room | nullable  }}
                         </template>
 
                         <template v-slot:item.status="{ item }">
@@ -111,8 +115,9 @@ export default {
             loading: false,
             search: '',
             headers: [
-                { text: 'Booking No', align: 'start', value: 'booking_no' },
+                { text: 'Booking Ref', align: 'start', value: 'booking_reference' },
                 { text: 'Booking Name', value: 'name' },
+                { text: 'Room', value: 'room' },
                 { text: 'Checkin Date', value: 'checkin_date' },
                 { text: 'Checkout Date', value: 'checkout_date' },
                 { text: 'Status', value: 'status', sortable: false },
@@ -127,8 +132,9 @@ export default {
         }
     },
     methods: {
-        getPropertyReservations(){
+        getPropertyReservations() {
             this.loading = true;
+            this.reservations = [];
 
             this.$store.dispatch('query', {
                 query: GET_PROPERTY_RESERVATIONS,

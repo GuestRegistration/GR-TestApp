@@ -19,7 +19,7 @@
 </template>
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import firebase from '../../../firebase';
+import { fb, auth } from '../../../firebase';
 import profile from '../../User/Mixins/profile'
 
 export default {
@@ -54,8 +54,8 @@ export default {
         async connect(){
             try {
 
-                const provider = new firebase.firebase.auth.GoogleAuthProvider();
-                const google = await firebase.auth.currentUser.linkWithPopup(provider);
+                const provider = new fb.auth.GoogleAuthProvider();
+                const google = await auth.currentUser.linkWithPopup(provider);
                 const newGoogleProvider = google.user.providerData.find(provider => provider.providerId == 'google.com');
 
                 if(newGoogleProvider){
@@ -71,7 +71,7 @@ export default {
                 })
 
                 if(this.emailProvider){
-                    await  firebase.auth.currentUser.unlink(this.emailProvider.providerId);
+                    await auth.currentUser.unlink(this.emailProvider.providerId);
                 }
 
                 await this.signout();
@@ -103,8 +103,8 @@ export default {
 
         // disconnect(){
         //     this.loading = true;
-        //     firebase.auth.currentUser.unlink(this.googleProvider.providerId)
-        //     .then(() => firebase.auth.currentUser.reload() )
+        //     auth.currentUser.unlink(this.googleProvider.providerId)
+        //     .then(() => auth.currentUser.reload() )
         //     .then(() => {
         //         this.$emit('report', {
         //             message: `Google account removed.`,

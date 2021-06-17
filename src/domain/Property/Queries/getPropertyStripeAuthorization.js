@@ -10,5 +10,11 @@ export default gql`
             refresh_token
             stripe_user_id
             stripe_publishable_key
+            account {
+                business_profile {
+                    name
+                    url
+                }
+            }
         }
     }`;

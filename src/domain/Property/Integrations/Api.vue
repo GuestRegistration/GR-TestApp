@@ -1,34 +1,34 @@
 <template>
-    <div>
-        <p>This a unique API key for {{ property.name }}.</p>
-        <v-text-field
-            outlined
-            id="api-key-input"
-            label="API Key"
-            type="text"
-            v-model="api_key"
-            :disabled="true"
-            append-icon="mdi-key"
-        ></v-text-field>
-        <v-btn class="mx-2" v-if="api_key" @click="copyKey" color="primary"><v-icon>mdi-content-copy</v-icon>  Copy</v-btn>
-        <v-btn class="mx-2" :loading="loading" @click="generateApiKey" color="primary"><v-icon>mdi-refresh</v-icon>  Generate key</v-btn>
-    </div>
+    <v-card class="my-2">
+        <v-card-title><h4>API Key</h4></v-card-title>
+        <v-card-subtitle>This a unique API key for {{ property.name }}.</v-card-subtitle>
+        <v-card-text>
+            <div class="my-2">
+                <clip-board v-model="api_key" />
+            </div>
+            <v-btn class="mx-2" :loading="loading" @click="generateApiKey" color="primary"><v-icon>mdi-refresh</v-icon>  Generate key</v-btn>
+        </v-card-text>
+    </v-card>
 </template>
 
 <script>
 
+import ClipBoard from '../../../components/Utilities/ClipBoard.vue';
 import GENERATE_PROPERTY_API_KEY from '../Mutations/generatePropertyApiKey';
 
 export default {
-    name: "PropertyIntegrations",
+    name: "Api",
+    components: {
+        ClipBoard
+    },
     props: {
         property: Object,
-        integrations: String,
+        integrations: Object,
     },
     data(){
         return {
             loading: false,
-            api_key: null
+            api_key: ''
         }
     }, 
 
@@ -61,24 +61,6 @@ export default {
                 this.loading = false;
             })
         },
-
-        copyKey() {
-            const input = document.getElementById('api-key-input');
-            input.select();
-            if(document.execCommand('copy')){
-                this.$store.commit("SNACKBAR", {
-                    status: true,
-                    text: "API key copied to clipboard",
-                    color: "success"
-                });
-            }else{
-                this.$store.commit("SNACKBAR", {
-                    status: true,
-                    text: "Could not copy key to clipboard",
-                    color: "error"
-                });
-            }
-        }
     },
 
     watch: {

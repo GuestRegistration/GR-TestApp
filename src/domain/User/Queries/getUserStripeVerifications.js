@@ -12,6 +12,7 @@ export default gql`
             metadata {
                 user_id
                 property_id
+                reservation_id
             }
         }
     }`;

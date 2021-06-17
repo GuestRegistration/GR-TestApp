@@ -31,13 +31,19 @@
 
                                     <v-list>
                                         <v-list-item>
-                                            <v-list-item-title>Booking Name: {{ reservation.name }}</v-list-item-title>
+                                            <v-list-item-title>Booking Ref: {{ reservation.booking_reference | nullable }}</v-list-item-title>
                                         </v-list-item>
                                         <v-list-item>
-                                            <v-list-item-title>Checkin Date: {{ reservation.checkin_date }}</v-list-item-title>
+                                            <v-list-item-title>Booking Name: {{ reservation.name | nullable }}</v-list-item-title>
                                         </v-list-item>
                                         <v-list-item>
-                                            <v-list-item-title>Checkout Date: {{ reservation.checkout_date }}</v-list-item-title>
+                                            <v-list-item-title>Room: {{ reservation.room | nullable}}</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item>
+                                            <v-list-item-title>Checkin Date: {{ reservation.checkin_date | nullable }}</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item>
+                                            <v-list-item-title>Checkout Date: {{ reservation.checkout_date | nullable }}</v-list-item-title>
                                         </v-list-item>
                                     </v-list>
 
