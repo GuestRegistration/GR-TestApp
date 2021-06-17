@@ -57,7 +57,8 @@ export default {
         },
 
         notification(){
-            return this.$route.params.notification ?  this.$route.params.notification  : 'property';
+            if(this.hasAnyProperty) return this.$route.params.notification ?  this.$route.params.notification  : 'property';
+            return 'personal';
         },
 
         currentTab: {

@@ -54,7 +54,8 @@ export default {
         },
 
         reservation(){
-            return this.$route.params.reservation ?  this.$route.params.reservation  : 'property';
+            if(this.hasAnyProperty) return this.$route.params.reservation ?  this.$route.params.reservation  : 'property';
+            return 'personal';
         },
 
         currentTab: {

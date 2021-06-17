@@ -31,7 +31,7 @@
     </v-main>
 
     
-    <v-snackbar v-if="app_layout === 'full'" bottom right :value="updateExists" :timeout="-1" color="primary">
+    <v-snackbar v-if="app_layout === 'full'" top right :value="updateExists" :timeout="-1" color="primary">
       <div class="d-flex align-center">
           <div>
               An update is available
