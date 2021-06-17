@@ -33,4 +33,9 @@ export default {
         client_id: process.env.VUE_APP_STRIPE_CLIENT_ID
     },
 
+    intercom: {
+        app_id: process.env.VUE_APP_INTERCOM_APP_ID,
+        secret_key: process.env.VUE_APP_INTERCOM_SECRET_KEY,
+    } 
+
 }

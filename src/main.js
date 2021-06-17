@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueMeta from 'vue-meta'
+import VueIntercom from 'vue-intercom'
 import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
@@ -16,6 +17,10 @@ Vue.config.productionTip = false
 Vue.use(VueMeta, {
   refreshOnceOnNavigation: true
 });
+
+if(config.intercom.app_id) {
+  Vue.use(VueIntercom, { appId: config.intercom.app_id });
+}
 
 Vue.prototype.$eventHub = new Vue(); // Global event bus
 

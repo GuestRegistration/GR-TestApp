@@ -53,6 +53,7 @@
 <script>
 
 import {mapActions, mapMutations, mapGetters} from 'vuex'
+import CryptoJS from 'crypto-js';
 import NavDrawer from '@/components/NavDrawer.vue';
 import { fb,auth } from './firebase';
 import helper from '@/helper';
@@ -80,6 +81,7 @@ export default {
       'authenticated',
       'profile_loaded',
       'app_layout',
+      'current_user'
     ]),
   },
 
@@ -172,7 +174,9 @@ export default {
                   exception: e
               });
           })
-          
+          .finally(() => {
+              this.bootIntercom();
+          })
       },
       
 
@@ -199,6 +203,18 @@ export default {
         }
       },
 
+      bootIntercom() {
+        if(config.intercom.app_id && auth.currentUser && this.profile_loaded){
+          this.$intercom.boot({
+            user_id: auth.currentUser.uid,
+            name: [this.current_user.profile.name.first_name, this.current_user.profile.name.last_name].join(' '),
+            email: this.current_user.profile.email,
+            user_hash: CryptoJS.HmacSHA256(auth.currentUser.uid, config.intercom.secret_key).toString(),
+            hide_default_launcher: false
+          })
+        }
+      },
+
       signUserOut(){  
         this.signout()
         .then(() => {
@@ -209,7 +225,9 @@ export default {
             }
             this.SET_APP_STATE(true);
         })
-      }
+      },
+
+      
     },
 
     mounted(){

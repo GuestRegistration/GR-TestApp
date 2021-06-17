@@ -8,7 +8,21 @@
 
             <v-card>
                 <v-card-title>
-                    <property-switch class="pt-10" @change="getPropertyReservations" />
+                    <div>
+                        <property-switch class="" @change="getPropertyReservations" />
+                        <v-btn
+                        :disabled="!property.active"
+                        class="mx-2"
+                        color="primary"
+                        @click="$refs.reservationFormDialog.open()"
+                        >
+                            <v-icon dark>
+                                mdi-plus
+                            </v-icon>
+                            Create Reservation
+                        </v-btn>
+                    </div>
+
                     <v-spacer></v-spacer>
                     <v-text-field
                         v-model="search"
@@ -78,17 +92,7 @@
 
                     </v-data-table>
                     <reservation-form-dialog ref="reservationFormDialog" @created="reservationCreated" :property="$store.getters.current_user.property" />
-                    <v-btn
-                        :disabled="!property.active"
-                        class="mx-2"
-                        fab dark bottom right fixed
-                        color="primary"
-                        @click="$refs.reservationFormDialog.open()"
-                    >
-                        <v-icon dark>
-                            mdi-plus
-                        </v-icon>
-                    </v-btn>
+                    
                 </data-container>
                 
             </v-card>

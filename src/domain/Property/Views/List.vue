@@ -1,7 +1,21 @@
 <template>
     <app-layer ref="app">
         <template #header>
-            <h3>Properties</h3>
+            <div class="d-flex">
+                <h3 class="mr-2">Properties</h3> 
+                <router-link :to="{name: 'property.create'}" class="text-decoration-none">
+                    <v-btn
+                        class="mx-2"
+                        dark
+                        color="primary"
+                        >
+                        <v-icon dark>
+                            mdi-plus
+                        </v-icon> 
+                        Create New
+                    </v-btn>
+                </router-link>
+            </div>
         </template>
         <v-container>
             <data-container :loading="loading">
@@ -32,20 +46,7 @@
             </data-container>
            
         </v-container>
-        <v-btn
-        class="mx-2"
-        fab
-        dark
-        bottom
-        right
-        fixed
-        color="primary"
-        @click="$router.push({name: 'property.create'})"
-        >
-        <v-icon dark>
-            mdi-plus
-        </v-icon>
-    </v-btn>
+        
     </app-layer>
 </template>
 

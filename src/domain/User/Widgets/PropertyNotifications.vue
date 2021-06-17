@@ -1,10 +1,6 @@
 <template>
     <div>
-        <v-row justify="start">
-            <v-col cols="12" sm="6">
-                <property-switch @change="getPropertyNotifications" />
-            </v-col>
-        </v-row>
+        <property-switch class="mt-5" @change="getPropertyNotifications" />
         <data-container :loading="loading">
             <template v-slot:loading>
                 <v-skeleton-loader

@@ -1,8 +1,5 @@
 <template>
     <app-layer ref="app">
-        <template #header>
-            <h3 class="text-center">Notifications</h3>
-        </template>
         <v-row justify="center">
             <v-col cols="12" md="6">
                 <v-tabs v-if="hasAnyProperty" v-model="currentTab" @change="tabChanged" align-with-title icons-and-text grow show-arrows="">

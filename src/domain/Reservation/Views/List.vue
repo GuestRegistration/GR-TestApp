@@ -1,20 +1,19 @@
 <template>
     <app-layer ref="app">
-        <template #header>
-            <h3 class="text-center">Reservations</h3>
-        </template>
-            <v-row v-if="hasAnyProperty" justify="center">
-                <v-col cols="12" sm="8" md="6">
-                    <v-tabs v-model="currentTab" @change="tabChanged" align-with-title grow icons-and-text>
-                        <v-tabs-slider color="primary"></v-tabs-slider>
-                        <v-tab v-for="tab in tabs" :key="tab.name">
-                            {{ tab.name }}
-                            <v-icon>{{tab.icon}}</v-icon>
-                        </v-tab>
-                    </v-tabs>
-                </v-col>
-            </v-row>
-            <component :is="`${reservation}-reservations`"></component>
+
+        <v-row v-if="hasAnyProperty" justify="center">
+            <v-col cols="12" sm="8" md="6">
+                <v-tabs v-model="currentTab" @change="tabChanged" align-with-title grow icons-and-text>
+                    <v-tabs-slider color="primary"></v-tabs-slider>
+                    <v-tab v-for="tab in tabs" :key="tab.name">
+                        {{ tab.name }}
+                        <v-icon>{{tab.icon}}</v-icon>
+                    </v-tab>
+                </v-tabs>
+            </v-col>
+        </v-row>
+            
+        <component :is="`${reservation}-reservations`"></component>
     </app-layer>
 </template>
 
